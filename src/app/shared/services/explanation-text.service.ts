@@ -274,6 +274,20 @@ export class ExplanationTextService {
   ): Observable<string> {
     const FALLBACK = 'No explanation available';
   
+    // ────────────────────────────────────────────────
+    // 🧹 Step 1: Hard reset any stale emission whenever a new question index is requested
+    // Prevents replay of previous question’s FET (e.g., Q1 showing on Q2)
+    // ────────────────────────────────────────────────
+    if (this._activeIndex !== questionIndex) {
+      try { this.formattedExplanationSubject?.next(''); } catch {}
+      try { this.emitFormatted(this._activeIndex, null); } catch {}
+      try { this.setGate(this._activeIndex, false); } catch {}
+      console.log(
+        `[ETS] 🧼 Cleared stale FET cache (prev=${this._activeIndex}, new=${questionIndex})`
+      );
+      this._activeIndex = questionIndex;
+    }
+  
     // Guard invalid index; also clear indexed channel so no stale explanation paints.
     if (typeof questionIndex !== 'number' || isNaN(questionIndex)) {
       console.error(`[❌ Invalid questionIndex — must be a number]:`, questionIndex);
@@ -314,17 +328,17 @@ export class ExplanationTextService {
         const shouldShow = this.shouldDisplayExplanation$ instanceof BehaviorSubject
           ? (this.shouldDisplayExplanation$ as BehaviorSubject<boolean>).value
           : undefined;
-    
+  
         const isShown = this.isExplanationTextDisplayed$ instanceof BehaviorSubject
           ? (this.isExplanationTextDisplayed$ as BehaviorSubject<boolean>).value
           : undefined;
-    
+  
         // Fall back to false if undefined
         return shouldShow === true || isShown === true;
       } catch {
         return false;
       }
-    })();    
+    })();
   
     if (!gateOpen) {
       console.log(`[ETS] 🚫 Gate closed → suppressing FET for Q${questionIndex + 1}`);
