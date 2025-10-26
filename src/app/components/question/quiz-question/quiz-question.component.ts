@@ -996,11 +996,30 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           explanationText:
             this.explanationTextService.latestExplanation ?? ''
         });
-        console.log(`[VISIBILITY] 💾 Saved FET display state for Q${idx + 1}:`, this.displayExplanation);
+        console.log(
+          `[VISIBILITY] 💾 Saved FET display state for Q${idx + 1}:`,
+          this.displayExplanation
+        );
       } catch (err) {
         console.warn('[VISIBILITY] ⚠️ Failed to persist FET state', err);
       }
-
+    
+      // ────────────────────────────────────────────────
+      // Explanation state reset before backgrounding
+      // Prevents stale FET (e.g. Q1’s) from replaying on restore
+      // ────────────────────────────────────────────────
+      try {
+        const ets = this.explanationTextService;
+        ets.setShouldDisplayExplanation(false);
+        ets.setIsExplanationTextDisplayed(false);
+        ets.updateFormattedExplanation(''); // clear the BehaviorSubject value
+        ets._activeIndex = -1;
+        ets.latestExplanation = '';
+        console.log('[VISIBILITY] 💤 Cleared FET cache before backgrounding');
+      } catch (err) {
+        console.warn('[VISIBILITY] ⚠️ Failed to reset FET cache before sleep', err);
+      }
+    
       try {
         const snap = await firstValueFrom<number>(
           this.timerService.elapsedTime$.pipe(take(1))
@@ -1009,6 +1028,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       } catch {
         this._elapsedAtHide = null;
       }
+    
       this._hiddenAt = performance.now();
       return;
     }
