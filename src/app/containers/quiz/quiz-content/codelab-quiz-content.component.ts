@@ -1496,11 +1496,14 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       }),
 
       // Coalesce bursts to a single animation frame once gate opens
+      distinctUntilChanged(
+        ([idxA, qA, , fetA], [idxB, qB, , fetB]) =>
+          idxA === idxB &&
+          qA === qB &&
+          fetA?.text === fetB?.text
+      ),
       auditTime(16),
       observeOn(animationFrameScheduler),
-  
-      // Don’t re-render identical HTML strings
-      distinctUntilChanged((a, b) => a.trim() === b.trim()),
       shareReplay({ bufferSize: 1, refCount: true })
     ) as Observable<string>;
   }
