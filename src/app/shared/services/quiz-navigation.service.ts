@@ -450,10 +450,6 @@ export class QuizNavigationService {
     ets.enableNavBarrier();
     console.log('[NAV] 🧱 Cross-service barriers enabled');
 
-    try {
-      this.explanationTextService.lockDuringTransition(120);
-    } catch {}
-
     // ────────────────────────────────────────────────
     // 🧩 STEP 0.5: Cross-service quiet patch (no mid-frame emission)
     // ────────────────────────────────────────────────
@@ -483,6 +479,9 @@ export class QuizNavigationService {
           ets.formattedExplanationSubject?.next('');
           ets.setShouldDisplayExplanation(false);
           ets.setIsExplanationTextDisplayed(false);
+          
+          // Lock emissions for a short window (gives Q2 text time to appear)
+          ets.lockDuringTransition(140);
           console.log('[NAV] 🔒 Quiet patch frame-flush applied');
         } catch (flushErr) {
           console.warn('[NAV] ⚠️ Quiet patch flush failed', flushErr);
