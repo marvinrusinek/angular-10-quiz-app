@@ -284,12 +284,15 @@ export class ExplanationTextService {
     if (this._activeIndex !== questionIndex) {
       try {
         // Clear all channels immediately before anything else runs
-        this.formattedExplanationSubject?.next('');
+        if (this.formattedExplanationSubject?.getValue?.() !== '')
+          this.formattedExplanationSubject?.next('');
+        
         this.emitFormatted(this._activeIndex, null);
         this.setGate(this._activeIndex, false);
 
         this.latestExplanation = '';
         this._fetLocked = false;
+        
         if (this.shouldDisplayExplanation$ instanceof BehaviorSubject)
           this.shouldDisplayExplanation$.next(false);
         if (this.isExplanationTextDisplayed$ instanceof BehaviorSubject)
