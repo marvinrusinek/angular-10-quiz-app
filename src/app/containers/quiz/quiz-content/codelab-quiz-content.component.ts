@@ -1402,9 +1402,10 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         );
       }),
 
+      // Gate only until the first real question index OR a completed restore
       skipUntil(
-        combineLatest([index$, this.quizService.questionsLoaded$ ?? of(true)]).pipe(
-          filter(([idx]) => idx > 0 || this.quizStateService.hasRestoredOnce === true),
+        combineLatest([index$, of(this.quizStateService.hasRestoredOnce)]).pipe(
+          filter(([idx, restored]) => Number.isFinite(idx) && idx >= 0 && (idx > 0 || restored)),
           take(1)
         )
       ),
