@@ -2828,7 +2828,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
             // Clear BehaviorSubject if it exists
             (ets as any).formattedExplanationSubject?.next(null);
-            (ets as any).formattedExplanation$?.next?.('');  // handles BehaviorSubject variant
+            (ets as any).formattedExplanation$?.next('');  // handles BehaviorSubject variant
 
              // Re-seed formattedExplanationSubject to drop any ReplaySubject residue
             (ets as any).formattedExplanationSubject = new BehaviorSubject<string>('');
@@ -2843,7 +2843,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
             }
 
             // Close explanation gate flags
-            (ets as any).quietZoneUntil$?.next?.(0);
+            (ets as any).quietZoneUntil$?.next(0);
+            (ets as any).setGate(-1, false);
   
             console.log('[QUIZ INIT] 🧹 Cleared old FET cache before starting quiz');
           } catch (err) {
