@@ -2820,6 +2820,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
           // Ensures no stale FET (e.g., Q1) persists across sessions or restarts
           // ────────────────────────────────────────────────
           try {
+            // Core state reset
             const ets = this.explanationTextService;
             ets._activeIndex = -1;
             ets.latestExplanation = '';
@@ -2828,11 +2829,20 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
             // Clear BehaviorSubject if it exists
             (ets as any).formattedExplanationSubject?.next(null);
+            (ets as any).formattedExplanation$?.next?.('');  // handles BehaviorSubject variant
+
+            // Reset internal per-index caches if they exist
+            if ((ets as any).formattedExplanations) {
+              (ets as any).formattedExplanations = {};
+            }
+            if ((ets as any)._formattedMap) {
+              (ets as any)._formattedMap.clear?.();
+            }
+
+            // Close explanation gate flags
+            (ets as any).quietZoneUntil$?.next?.(0);
   
             console.log('[QUIZ INIT] 🧹 Cleared old FET cache before starting quiz');
-  
-            // Reset restoration flag for a new quiz session
-            // this.quizStateService.hasRestoredOnce = false;
           } catch (err) {
             console.warn('[QUIZ INIT] ⚠️ Could not reset explanation cache', err);
           }
