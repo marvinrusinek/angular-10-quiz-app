@@ -2828,6 +2828,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
             // Clear BehaviorSubject if it exists
             (ets as any).formattedExplanationSubject?.next(null);
+
+            // Reset restoration flag for a new quiz session
+            this.quizStateService.hasRestoredOnce = false;
+
             console.log('[QUIZ INIT] 🧹 Cleared old FET cache before starting quiz');
           } catch (err) {
             console.warn('[QUIZ INIT] ⚠️ Could not reset explanation cache', err);

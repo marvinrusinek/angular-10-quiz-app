@@ -1177,7 +1177,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
               } catch (err) {
                 console.warn('[VISIBILITY] ⚠️ Failed post-restore FET refresh', err);
               }
-            }, 400);            
+            }, 400);
+            
+            this.quizStateService.hasRestoredOnce = true;
 
             console.log('[VISIBILITY] 🔓 Restore complete, reactive updates re-enabled');
           }, 350);
