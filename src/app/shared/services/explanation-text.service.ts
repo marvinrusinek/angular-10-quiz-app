@@ -274,12 +274,17 @@ export class ExplanationTextService {
     questionIndex: number
   ): Observable<string> {
     const FALLBACK = 'No explanation available';
+
+    if (this._fetLocked) {
+      console.log(`[ETS] ⏸ FET locked, ignoring request for Q${questionIndex + 1}`);
+      return EMPTY; // ignore until the deferred window ends
+    }
   
     // ────────────────────────────────────────────────
     // 🧹 Step 1: Hard reset any stale emission whenever a new question index is requested
     // Prevents replay of previous question’s FET (e.g., Q1 showing on Q2)
     // ────────────────────────────────────────────────
-    // ────────────────────────────────────────────────
+    // ──────────────────────0──────────────────────────
     // 🧹 Step 1: Fully purge cached FET state if switching question
     // Prevents Q1’s explanation from leaking into Q2.
     // ────────────────────────────────────────────────
