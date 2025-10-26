@@ -1378,6 +1378,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         0,     // qQuiet$
         0      // eQuiet$
       ]),
+      auditTime(16),
       // If navigating or in quiet zone, hold the last stable string (don’t pass new frames).
       filter(
         ([
@@ -1461,11 +1462,10 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         }
 
         const fetAllowed =
-          mode === 'explanation' &&
-          !!shouldShow &&
           !!fet?.gate &&
+          fetText.length > 2 &&  // ignore trivial/seeded empty strings
           fet.idx === idx &&
-          fetText.length > 0;
+          (shouldShow || mode === 'explanation');
   
         if (fetAllowed) {
           this._lastQuestionText = fetText;  // remember what we showed
