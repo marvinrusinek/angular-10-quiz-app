@@ -1611,7 +1611,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
     this.applyExplanationText(explanationText, questionIndex);
 
     // Confirm Explanation Emission
-    const emittedText = this.explanationTextService.formattedExplanationSubject.getValue();
+    const emittedText = this.explanationTextService.getLatestFormattedExplanation();
     console.log(`[✅ Explanation Text Emitted]: "${emittedText}"`);
   
     if (explanationText !== emittedText) {
