@@ -1145,7 +1145,7 @@ export class QuizQuestionLoaderService {
   
   public clearQuestionTextBeforeNavigation(): void {
     try {
-      this._frozen = true; // extra safeguard
+      this._frozen = true;  // extra safeguard
       this.questionToDisplaySubject.next('');  // emit empty to flush template
       this._lastQuestionText = '';
       this._lastRenderedIndex = -1;
@@ -1156,13 +1156,13 @@ export class QuizQuestionLoaderService {
   }
 
   public freezeQuestionStream(durationMs = 120): void {
-    // prevent multiple overlapping freezes
+    // Prevent multiple overlapping freezes
     if (this._isVisualFrozen) return;
   
     this._isVisualFrozen = true;
     this._frozen = true;
   
-    // extend the logic freeze window slightly (extra 20–40 ms)
+    // Extend the logic freeze window slightly (extra 20–40 ms)
     const EXTENSION_MS = 40;
     this._renderFreezeUntil = performance.now() + durationMs + EXTENSION_MS;
   
@@ -1181,7 +1181,7 @@ export class QuizQuestionLoaderService {
   public unfreezeQuestionStream(): void {
     const now = performance.now();
   
-    // ⏸ Define a quiet zone after unfreeze to prevent early emissions
+    // Define a quiet zone after unfreeze to prevent early emissions
     const QUIET_WINDOW_MS = 120;
   
     // If still within freeze window, schedule a delayed unfreeze
