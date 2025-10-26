@@ -442,15 +442,62 @@ export class QuizNavigationService {
   
     const ets: any = this.explanationTextService;
     const qqls: any = this.quizQuestionLoaderService;
-    
-    ets._activeIndex = index;
+
+    const targetIndex = Math.max(0, Math.min(index, this.quizService.questions?.length - 1 || 0));
+    ets._activeIndex = targetIndex;
   
     // ────────────────────────────────────────────────
-    // 🟢 STEP 0: ACTIVATE BARRIERS (cross-service)
+    // ACTIVATE BARRIERS (cross-service)
     // ────────────────────────────────────────────────
     qqls.enableNavBarrier();
     ets.enableNavBarrier();
     console.log('[NAV] 🧱 Cross-service barriers enabled');
+
+    try {
+      ets._transitionLock = true;
+      ets._activeIndex = -1;
+      ets.latestExplanation = '';
+      ets.formattedExplanationSubject?.next('');
+      ets.setShouldDisplayExplanation(false);
+      ets.setIsExplanationTextDisplayed(false);
+  
+      // Also clear any lingering question text
+      this.quizQuestionLoaderService.questionToDisplay$?.next('');
+  
+      // Optionally silence QQLS output too
+      if (qqls?.emitQuestionTextSafely) qqls.emitQuestionTextSafely('', -1);
+  
+      // Temporarily hide visual node
+      const el = document.querySelector('h3[i18n]');
+      if (el) (el as HTMLElement).style.visibility = 'hidden';
+  
+      console.log(`[NAV] 🚷 Hard quarantine engaged before switching to Q${index + 1}`);
+  
+      // Release quarantine slightly after Angular’s next paint
+      setTimeout(() => {
+        ets._transitionLock = false;
+        ets._activeIndex = targetIndex;
+        const el2 = document.querySelector('h3[i18n]');
+        if (el2) (el2 as HTMLElement).style.visibility = 'visible';
+        console.log(`[NAV] ✅ Released quarantine for Q${targetIndex + 1}`);
+      }, 200);
+    } catch (quarantineErr) {
+      console.warn('[NAV] ⚠️ Hard quarantine failed', quarantineErr);
+    }
+
+    try {
+      // Flush / Clear logic before next question load
+      ets.formattedExplanationSubject?.next('');
+      ets.latestExplanation = '';
+      ets.setShouldDisplayExplanation(false);
+      ets.setIsExplanationTextDisplayed(false);
+
+      // Defer emissions briefly to allow new question text to render first
+      ets.purgeAndDefer(index);
+      ets.lockDuringTransition(140);
+    } catch (err) {
+      console.warn('[NAV] ⚠️ purgeAndDefer or lockDuringTransition failed', err);
+    }
 
     // ────────────────────────────────────────────────
     // 🧩 STEP 0.5: Cross-service quiet patch (no mid-frame emission)
@@ -644,19 +691,13 @@ export class QuizNavigationService {
       this.selectedOptionService.clearSelectionsForQuestion(this.currentQuestionIndex);
 
       ets._activeIndex = -1;
+      ets._transitionLock = true; 
+      ets.latestExplanation = '';
       ets.setShouldDisplayExplanation(false);
       ets.setIsExplanationTextDisplayed(false);
       ets.formattedExplanationSubject.next(''); // hard clear
-      ets._transitionLock = true; // short-term gate to suppress old FETs
       setTimeout(() => { ets._transitionLock = false; }, 180);
       console.log(`[NAV] 🔇 Silencing ETS before loading Q${index + 1}`);
-  
-      // 🧩 FETCH QUESTION
-      try {
-        ets.purgeAndDefer(index);
-      } catch (err) {
-        console.warn('[NAV] ⚠️ Could not purge ETS before loading new question', err);
-      }
 
       const fresh = await firstValueFrom(this.quizService.getQuestionByIndex(index));
       if (!fresh) {
