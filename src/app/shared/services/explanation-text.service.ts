@@ -327,16 +327,11 @@ export class ExplanationTextService {
     })();    
   
     if (!gateOpen) {
-      console.log(
-        `[ETS] 🚫 Gate closed → skipping FET emit for Q${questionIndex + 1}`
-      );
-  
-      // ensure nothing stale propagates downstream
-      try { this.emitFormatted(questionIndex, null); } catch {}
-      try { this.setGate(questionIndex, false); } catch {}
-  
-      // emit empty string so combineLatest won’t stall, but UI won’t display anything
-      return of('');
+      console.log(`[ETS] 🚫 Gate closed → suppressing FET for Q${questionIndex + 1}`);
+      this.emitFormatted(questionIndex, null);
+      this.setGate(questionIndex, false);
+      // Use null sentinel so distinctUntilChanged treats this as unique
+      return of(null as unknown as string);
     }
   
     // Only emit if explanation belongs to current active question
