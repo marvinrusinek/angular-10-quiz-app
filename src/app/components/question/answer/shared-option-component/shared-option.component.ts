@@ -3,7 +3,7 @@ import { MatCheckbox, MatCheckboxChange } from '@angular/material/checkbox';
 import { MatRadioButton, MatRadioChange } from '@angular/material/radio';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { animationFrameScheduler, BehaviorSubject, Observable, Subject, Subscription } from 'rxjs';
-import { distinctUntilChanged, observeOn, takeUntil } from 'rxjs/operators';
+import { distinctUntilChanged, observeOn, take, takeUntil } from 'rxjs/operators';
 
 import { FeedbackProps } from '../../../../shared/models/FeedbackProps.model';
 import { Option } from '../../../../shared/models/Option.model';
@@ -1660,7 +1660,24 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
   private scheduleExplanationVerification(questionIndex: number, explanationText: string): void {
     this.ngZone.runOutsideAngular(() => {
       requestAnimationFrame(() => {
-        const latest = this.explanationTextService.formattedExplanationSubject.getValue();
+        let latest: string | null = null;
+
+        // Try to synchronously grab the last emission if available
+        const subj = this.explanationTextService.formattedExplanationSubject as any;
+
+        try {
+          // For BehaviorSubject → safe synchronous read
+          if (typeof subj.getValue === 'function') {
+            latest = subj.getValue();
+          } else {
+            // For ReplaySubject → use a one-time subscription to peek
+            subj.pipe(take(1)).subscribe((val: string) => {
+              latest = val;
+            });
+          }
+        } catch {
+          latest = null;
+        }
 
         if (this.pendingExplanationIndex !== questionIndex) {
           return;

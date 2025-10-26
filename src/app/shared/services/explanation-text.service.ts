@@ -426,6 +426,21 @@ export class ExplanationTextService {
     return null;
   }
 
+  public getLatestFormattedExplanation(): string | null {
+    const subj = this.formattedExplanationSubject as any;
+    try {
+      if (typeof subj.getValue === 'function') {
+        return subj.getValue();
+      }
+  
+      let val: string | null = null;
+      subj.pipe(take(1)).subscribe((v: string) => (val = v));
+      return val;
+    } catch {
+      return null;
+    }
+  }
+
   initializeExplanationTexts(explanations: string[]): void {
     this.explanationTexts = {};
     this.formattedExplanationByQuestionText.clear();
