@@ -535,7 +535,7 @@ export class QuizNavigationService {
       if (el) (el as HTMLElement).style.visibility = 'hidden';
   
       const now = performance.now();
-      const quietDuration = 160; // ~10 frames
+      const quietDuration = 160;  // ~10 frames
   
       qqls._quietZoneUntil = now + quietDuration;
       ets._quietZoneUntil = now + quietDuration;
@@ -639,6 +639,12 @@ export class QuizNavigationService {
       this.selectedOptionService.clearSelectionsForQuestion(this.currentQuestionIndex);
   
       // 🧩 FETCH QUESTION
+      try {
+        this.explanationTextService.purgeAndDefer(targetIndex);
+      } catch (err) {
+        console.warn('[NAV] ⚠️ Could not purge ETS before loading new question', err);
+      }
+      
       const fresh = await firstValueFrom(this.quizService.getQuestionByIndex(index));
       if (!fresh) {
         console.warn(`[NAV] ⚠️ getQuestionByIndex(${index}) returned null`);
