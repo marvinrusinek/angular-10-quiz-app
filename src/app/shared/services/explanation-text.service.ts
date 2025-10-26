@@ -376,7 +376,10 @@ export class ExplanationTextService {
     }
   
     // Drive only the index-scoped channel (no global .next here)
-    try { this.emitFormatted(questionIndex, explanation); } catch {}
+    try { 
+      this.emitFormatted(questionIndex, explanation);
+      this.latestExplanation = explanation;
+    } catch {}
     try { this.setGate(questionIndex, true); } catch {}
   
     return of(explanation);
