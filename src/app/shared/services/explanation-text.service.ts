@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, of, Subject } from 'rxjs';
+import { BehaviorSubject, EMPTY, Observable, of, Subject } from 'rxjs';
 import { filter, map, take, timeout } from 'rxjs/operators';
 import { firstValueFrom } from '../../shared/utils/rxjs-compat';
 
@@ -123,6 +123,8 @@ export class ExplanationTextService {
   public _quietZoneUntil = 0;
   public _hardMuteUntil = 0;
   public _fetGateLockUntil = 0;  // time until which the FET gate is locked
+
+  private _pendingReset?: number;
 
   constructor() {}
 
