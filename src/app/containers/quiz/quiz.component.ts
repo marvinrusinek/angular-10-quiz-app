@@ -2804,7 +2804,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         // Tear down when component is destroyed
         takeUntil(this.destroy$),
   
-        // Extract quizData and pre‑load explanations in one flow
+        // Extract quizData and pre-load explanations in one flow
         switchMap((data: { quizData?: Quiz }) => {
           if (!data.quizData) {
             console.error('Quiz data is unavailable.');
@@ -2814,6 +2814,24 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
           // Store the quiz
           this.quiz = data.quizData;
+  
+          // ────────────────────────────────────────────────
+          // 🧹 Reset ExplanationTextService state before loading
+          // Ensures no stale FET (e.g., Q1) persists across sessions or restarts
+          // ────────────────────────────────────────────────
+          try {
+            const ets = this.explanationTextService;
+            ets._activeIndex = -1;
+            ets.latestExplanation = '';
+            ets.setShouldDisplayExplanation(false);
+            ets.setIsExplanationTextDisplayed(false);
+  
+            // Clear BehaviorSubject if it exists
+            (ets as any).formattedExplanationSubject?.next(null);
+            console.log('[QUIZ INIT] 🧹 Cleared old FET cache before starting quiz');
+          } catch (err) {
+            console.warn('[QUIZ INIT] ⚠️ Could not reset explanation cache', err);
+          }
   
           // Kick off your explanation preload
           return this.ensureExplanationsLoaded().pipe(
@@ -2833,7 +2851,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         // appears together, with no flicker
         this.cdRef.markForCheck();
       });
-  }
+  }  
   
   /************* Fetch and display the current question ***************/
   initializeQuestionStreams(): void {
