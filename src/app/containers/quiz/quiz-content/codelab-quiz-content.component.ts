@@ -1402,10 +1402,10 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         );
       }),
 
-      // Gate only until the first real question index OR a completed restore
+      // Gate only while index is still undefined (not 0)
       skipUntil(
-        combineLatest([index$, of(this.quizStateService.hasRestoredOnce)]).pipe(
-          filter(([idx, restored]) => Number.isFinite(idx) && idx >= 0 && (idx > 0 || restored)),
+        index$.pipe(
+          filter(idx => Number.isFinite(idx)),  // open as soon as a real index exists
           take(1)
         )
       ),
