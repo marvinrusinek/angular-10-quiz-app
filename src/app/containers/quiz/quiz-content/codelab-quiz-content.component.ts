@@ -1401,6 +1401,24 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
           pShow === cShow
         );
       }),
+
+      filter(() => {
+        // Hold visual updates during visibility restoration
+        const restoring = (this as any)._visibilityRestoreInProgress === true;
+        if (restoring) {
+          console.log('[DisplayGate] ⏸ holding render during restore');
+        }
+        return !restoring;
+      }),
+
+      filter(([idx, , , fet]) => {
+        // Ignore any FET that belongs to a different question index
+        if (fet && typeof fet.idx === 'number' && fet.idx !== idx) {
+          console.log(`[DisplayGate] 🚫 Dropping mismatched FET (fet.idx=${fet.idx}, current=${idx})`);
+          return false;
+        }
+        return true;
+      }),      
   
       map(
         ([ idx, question, banner, fet, shouldShow, ..._rest]: 
