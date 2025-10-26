@@ -704,12 +704,27 @@ export class ExplanationTextService {
       return of('No explanation available');
     }
   
+    // Clear any stale formatted text whenever index changes
+    if (this._activeIndex !== questionIndex && this._activeIndex !== -1) {
+      try {
+        this.emitFormatted(this._activeIndex, null);
+      } catch {}
+      try {
+        this.setGate(this._activeIndex, false);
+      } catch {}
+      console.log(
+        `[ETS] 🧹 Cleared stale FET for previous Q${this._activeIndex + 1}`
+      );
+    }
+  
+    // Now safely update active index to current question
     this._activeIndex = questionIndex;
   
     return this.getFormattedExplanationTextForQuestion(questionIndex).pipe(
       map((explanationText: string) => {
         const trimmed = explanationText?.trim() || 'No explanation available';
   
+        // Defensive: ignore late emissions for mismatched index
         if (this._activeIndex !== questionIndex) {
           console.log(
             `[ETS] 🚫 Ignoring stale FET emission (incoming=${questionIndex}, active=${this._activeIndex})`
@@ -720,7 +735,7 @@ export class ExplanationTextService {
         return trimmed;
       })
     );
-  }  
+  }
 
   getFormattedExplanations(): Observable<FormattedExplanation[]> {
     const explanations = Object.values(this.formattedExplanations);
