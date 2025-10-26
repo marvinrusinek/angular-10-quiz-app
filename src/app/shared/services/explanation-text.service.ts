@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, EMPTY, Observable, of, Subject } from 'rxjs';
+import { BehaviorSubject, EMPTY, Observable, of, ReplaySubject, Subject } from 'rxjs';
 import { filter, map, take, timeout } from 'rxjs/operators';
 import { firstValueFrom } from '../../shared/utils/rxjs-compat';
 
@@ -22,7 +22,7 @@ export class ExplanationTextService {
 
   formattedExplanations: Record<number, FormattedExplanation> = {};
   formattedExplanations$: BehaviorSubject<string | null>[] = [];
-  formattedExplanationSubject = new BehaviorSubject<string | null>(null);
+  formattedExplanationSubject = new ReplaySubject<string>(1);
   formattedExplanation$ = this.formattedExplanationSubject.pipe(
     // Drop nulls and empty strings so the UI never renders old or fallback values
     filter((v): v is string => typeof v === 'string' && v.trim().length > 0)
@@ -277,7 +277,7 @@ export class ExplanationTextService {
 
     if (this._fetLocked) {
       console.log(`[ETS] ⏸ FET locked, ignoring request for Q${questionIndex + 1}`);
-      return EMPTY; // ignore until the deferred window ends
+      return EMPTY;  // ignore until the deferred window ends
     }
   
     // ────────────────────────────────────────────────
@@ -1190,6 +1190,11 @@ export class ExplanationTextService {
   public emitFormatted(index: number, value: string | null): void {
     const { text$ } = this.getOrCreate(index);
     const trimmed = (value ?? '').trim() || null;
+
+    if (index !== this._activeIndex) {
+      console.log(`[ETS] 🚫 Skipping emit for inactive index ${index} (active=${this._activeIndex})`);
+      return;
+    }
   
     // Always record which question this emission belongs to
     // This ensures we don't misclassify the active index during rapid transitions
