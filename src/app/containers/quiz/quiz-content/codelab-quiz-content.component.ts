@@ -1390,20 +1390,10 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       observeOn(animationFrameScheduler),
   
       map(
-        ([
-          idx,
-          question,
-          banner,
-          fet,
-          shouldShow,
-          ..._rest // absorb navigating, qQuiet, eQuiet silently
-        ]: [
-          number,
-          string,
-          string,
+        ([ idx, question, banner, fet, shouldShow, ..._rest]: 
+         [ number, string, string, 
           { idx: number; text: string; gate: boolean },
-          boolean,
-          ...unknown[]
+          boolean, ...unknown[]
         ]) => {
         const qText = question.trim();
         const bannerText = banner.trim();
