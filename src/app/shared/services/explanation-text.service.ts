@@ -271,74 +271,57 @@ export class ExplanationTextService {
     questionIndex: number
   ): Observable<string> {
     const FALLBACK = 'No explanation available';
-
+  
     // Guard invalid index; also clear indexed channel so no stale explanation paints.
     if (typeof questionIndex !== 'number' || isNaN(questionIndex)) {
-      console.error(
-        `[❌ Invalid questionIndex — must be a number]:`,
-        questionIndex
-      );
-
-      // Clear per-index stream/gate (coerce to a safe index to avoid NaN keys)
+      console.error(`[❌ Invalid questionIndex — must be a number]:`, questionIndex);
+  
       const idx = Number.isInteger(questionIndex) ? questionIndex : 0;
-      try {
-        this.emitFormatted(idx, null);
-      } catch {}
-      try {
-        this.setGate(idx, false);
-      } catch {}
-
+      try { this.emitFormatted(idx, null); } catch {}
+      try { this.setGate(idx, false); } catch {}
+  
       // ⬇ DO NOT push fallback text into global/legacy subjects (prevents flashing)
       return of(FALLBACK);
     }
-
+  
     const entry = this.formattedExplanations[questionIndex];
-
+  
     if (!entry) {
-      console.error(
-        `[❌ Q${questionIndex} not found in formattedExplanations`,
-        entry
-      );
+      console.error(`[❌ Q${questionIndex} not found in formattedExplanations`, entry);
       console.log('🧾 All formattedExplanations:', this.formattedExplanations);
-
-      // Clear per-index stream/gate
-      try {
-        this.emitFormatted(questionIndex, null);
-      } catch {}
-      try {
-        this.setGate(questionIndex, false);
-      } catch {}
-
+  
+      try { this.emitFormatted(questionIndex, null); } catch {}
+      try { this.setGate(questionIndex, false); } catch {}
+  
       return of(null);
     }
-
+  
     const explanation = (entry.explanation ?? '').trim();
-
+  
     if (!explanation) {
       console.warn(`[⚠️ No valid explanation for Q${questionIndex}]`);
-
-      // Clear per-index stream/gate, no global string emits
-      try {
-        this.emitFormatted(questionIndex, null);
-      } catch {}
-      try {
-        this.setGate(questionIndex, false);
-      } catch {}
-
+  
+      try { this.emitFormatted(questionIndex, null); } catch {}
+      try { this.setGate(questionIndex, false); } catch {}
+  
       return of(FALLBACK);
     }
-
+  
+    // Cross-index guard — prevent stale emissions
+    if (this._activeIndex !== questionIndex) {
+      console.log(
+        `[ETS] 🚫 Skipping FET emit for mismatched index (incoming=${questionIndex}, active=${this._activeIndex})`
+      );
+      return of(FALLBACK);
+    }
+  
     // Drive only the index-scoped channel (no global .next here)
-    try {
-      this.emitFormatted(questionIndex, explanation);
-    } catch {}
-    try {
-      this.setGate(questionIndex, true);
-    } catch {}
-
+    try { this.emitFormatted(questionIndex, explanation); } catch {}
+    try { this.setGate(questionIndex, true); } catch {}
+  
     return of(explanation);
   }
-
+  
   getFormattedExplanationByQuestion(
     question: QuizQuestion | null | undefined,
     fallbackIndex?: number
@@ -688,25 +671,12 @@ export class ExplanationTextService {
       return of('No explanation available');
     }
   
-    // Track which question this explanation belongs to
-    const previousIdx = this._activeIndex ?? -1;
     this._activeIndex = questionIndex;
-  
-    // Clear cached explanation only when switching questions
-    // This prevents Q1's FET from bleeding into Q2, but keeps current FET stable.
-    if (previousIdx !== -1 && previousIdx !== questionIndex) {
-      this.updateFormattedExplanation('');
-      this.latestExplanation = '';
-      console.log(
-        `[ETS] 🧹 Cleared old FET cache (was Q${previousIdx + 1}, now Q${questionIndex + 1})`
-      );
-    }
   
     return this.getFormattedExplanationTextForQuestion(questionIndex).pipe(
       map((explanationText: string) => {
         const trimmed = explanationText?.trim() || 'No explanation available';
   
-        // Prevent stale or cross-question updates
         if (this._activeIndex !== questionIndex) {
           console.log(
             `[ETS] 🚫 Ignoring stale FET emission (incoming=${questionIndex}, active=${this._activeIndex})`
@@ -717,7 +687,7 @@ export class ExplanationTextService {
         return trimmed;
       })
     );
-  }
+  }  
 
   getFormattedExplanations(): Observable<FormattedExplanation[]> {
     const explanations = Object.values(this.formattedExplanations);
