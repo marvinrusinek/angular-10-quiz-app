@@ -1269,18 +1269,25 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       distinctUntilChanged(),
       shareReplay({ bufferSize: 1, refCount: true })
     );
-  
+
     const questionText$ = this.questionToDisplay$.pipe(
+      startWith(''), // 🪄 ensure combineLatest has an initial value
       map(q => (q ?? '').trim()),
-      filter(q => q.length > 0 && q !== '?'),
       distinctUntilChanged(),
       shareReplay({ bufferSize: 1, refCount: true })
     );
   
+    /* const questionText$ = this.questionToDisplay$.pipe(
+      map(q => (q ?? '').trim()),
+      filter(q => q.length > 0 && q !== '?'),
+      distinctUntilChanged(),
+      shareReplay({ bufferSize: 1, refCount: true })
+    ); */
+  
     const correctText$ = this.quizService.correctAnswersText$.pipe(
       map(v => (typeof v === 'string' ? v.trim() : '')),
-      filter(v => v.length > 0),  // ignore initial empty string
-      debounceTime(25),           // coalesce quick successive emits
+      startWith(''),              // ← add
+      debounceTime(25),
       distinctUntilChanged(),
       shareReplay({ bufferSize: 1, refCount: true })
     );
@@ -1361,6 +1368,16 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       qQuiet$,
       eQuiet$
     ]).pipe(
+      startWith([
+        0, // index$
+        'Loading question...', // questionText$
+        '', // correctText$
+        { idx: -1, text: '', gate: false }, // fetForIndex$
+        false, // shouldShow$
+        false, // navigating$
+        0,     // qQuiet$
+        0      // eQuiet$
+      ]),
       // If navigating or in quiet zone, hold the last stable string (don’t pass new frames).
       filter(
         ([
