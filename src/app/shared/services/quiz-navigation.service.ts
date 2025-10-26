@@ -642,10 +642,18 @@ export class QuizNavigationService {
       (this.selectedOptionService as any).optionStates?.clear?.();
       this.selectedOptionService.selectedOptionsMap?.clear?.();
       this.selectedOptionService.clearSelectionsForQuestion(this.currentQuestionIndex);
+
+      ets._activeIndex = -1;
+      ets.setShouldDisplayExplanation(false);
+      ets.setIsExplanationTextDisplayed(false);
+      ets.formattedExplanationSubject.next(''); // hard clear
+      ets._transitionLock = true; // short-term gate to suppress old FETs
+      setTimeout(() => { ets._transitionLock = false; }, 180);
+      console.log(`[NAV] 🔇 Silencing ETS before loading Q${index + 1}`);
   
       // 🧩 FETCH QUESTION
       try {
-        this.explanationTextService.purgeAndDefer(targetIndex);
+        ets.purgeAndDefer(index);
       } catch (err) {
         console.warn('[NAV] ⚠️ Could not purge ETS before loading new question', err);
       }
