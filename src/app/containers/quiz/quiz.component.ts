@@ -174,7 +174,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   displayVariables: { question: string; explanation: string };
   displayText = '';
 
-  private questionToDisplaySubject = new BehaviorSubject<string | null>(null);
+  private questionToDisplaySubject = new BehaviorSubject<string | null>('');
   questionToDisplay$ = this.questionToDisplaySubject.asObservable();
 
   private isLoading = false;
