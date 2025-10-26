@@ -1537,6 +1537,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           }
         }, 50);  // extra delay ensures selections are fully restored before applying feedback
       }, 100);  // slight delay to ensure UI updates correctly
+
+      // Mark that at least one full restore has occurred
+      this.quizStateService.hasRestoredOnce = true;
+      console.log('[restoreQuizState] ✅ hasRestoredOnce set → true');
     } catch (error) {
       console.error('[restoreQuizState] ❌ Error restoring quiz state:', error);
     }
