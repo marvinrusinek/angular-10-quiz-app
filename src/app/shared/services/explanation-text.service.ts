@@ -1212,7 +1212,7 @@ export class ExplanationTextService {
       return;
     }
 
-    if (index !== this._activeIndex) {
+    if (index !== this._activeIndex && index !== -1) {
       console.log(`[ETS] 🚫 Skipping emit for inactive index ${index} (active=${this._activeIndex})`);
       return;
     }
