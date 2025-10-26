@@ -474,6 +474,8 @@ export class QuizNavigationService {
       requestAnimationFrame(() => {
         try {
           // After a frame boundary, flush old visuals cleanly
+          ets._activeIndex = -1;
+          ets.latestExplanation = '';
           qqls.emitQuestionTextSafely('', -1);
           this.quizService.updateCorrectAnswersText('');
           ets.formattedExplanationSubject?.next('');
