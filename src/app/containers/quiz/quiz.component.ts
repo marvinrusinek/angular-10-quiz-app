@@ -2832,7 +2832,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
             console.log('[QUIZ INIT] 🧹 Cleared old FET cache before starting quiz');
 
             // Reset restoration flag for a new quiz session
-            this.quizStateService.hasRestoredOnce = false;
+            // this.quizStateService.hasRestoredOnce = false;
           } catch (err) {
             console.warn('[QUIZ INIT] ⚠️ Could not reset explanation cache', err);
           }
