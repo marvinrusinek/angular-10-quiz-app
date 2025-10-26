@@ -483,7 +483,7 @@ export class QuizQuestionLoaderService {
       this.clearQA();
       this.resetQuestionDisplayState();
       this.questionTextSubject.next('');
-      this.questionToDisplay$.next('');
+      this.questionToDisplaySubject.next('');
       this.optionsStream$.next([]);
       this.explanationTextSubject.next('');
     }
@@ -858,7 +858,7 @@ export class QuizQuestionLoaderService {
     this.optionsToDisplay = [];
     this.resetQuestionDisplayState();
     this.questionTextSubject.next('');
-    this.questionToDisplay$.next('');
+    this.questionToDisplaySubject.next('');
     this.optionsStream$.next([]);
     this.explanationTextSubject.next('');
     this.questionPayloadReadySource.next(false);
@@ -1080,7 +1080,7 @@ export class QuizQuestionLoaderService {
     console.log('[RESET HEADLINES] clearing for active index', activeIndex);
   
     // Clear streams only for the current question
-    this.questionToDisplay$.next('');  // clears question text
+    this.questionToDisplaySubject.next('');  // clears question text
     this.explanationTextService.explanationText$.next('');  // clears explanation
     this.clearQA();  // clears question and options
     this.quizStateService.setDisplayState({
@@ -1139,14 +1139,14 @@ export class QuizQuestionLoaderService {
   
     // Safe to emit
     this._lastQuestionText = trimmed;
-    this.questionToDisplay$.next(trimmed);
+    this.questionToDisplaySubject.next(trimmed);
     console.log(`[Loader] ✅ Emitted question text safely for Q${index + 1}`);
   }
   
   public clearQuestionTextBeforeNavigation(): void {
     try {
       this._frozen = true; // extra safeguard
-      this.questionToDisplay$.next('');  // emit empty to flush template
+      this.questionToDisplaySubject.next('');  // emit empty to flush template
       this._lastQuestionText = '';
       this._lastRenderedIndex = -1;
       console.log('[Loader] Cleared question text before navigation');
