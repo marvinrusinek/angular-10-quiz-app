@@ -1078,18 +1078,47 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     // ───────────────────────────────────────
     try {
       if (document.visibilityState === 'visible') {
+        // ───────────────────────────────────────
+        //  EARLY EXPLANATION CACHE PURGE
+        //  (prevents Q1 FET replay on re-focus)
+        // ───────────────────────────────────────
+        try {
+          const ets = this.explanationTextService;
+          const currentIdx = this.currentQuestionIndex ?? 0;
+    
+          // If cached FET belongs to another question or still contains text, clear it now
+          if (
+            ets._activeIndex !== -1 &&
+            ets._activeIndex !== currentIdx &&
+            (ets.latestExplanation || (ets as any).formattedExplanation$?.value)
+          ) {
+            console.log(
+              `[VISIBILITY] 🧹 Purging mismatched FET before restore (was Q${
+                ets._activeIndex + 1
+              }, now Q${currentIdx + 1})`
+            );
+            ets.setShouldDisplayExplanation(false);
+            ets.setIsExplanationTextDisplayed(false);
+            ets.updateFormattedExplanation('');
+            ets._activeIndex = -1;
+            ets.latestExplanation = '';
+          }
+        } catch (err) {
+          console.warn('[VISIBILITY] ⚠️ Failed early FET purge on visible', err);
+        }
+    
         console.log('[onVisibilityChange] 🟢 Restoring quiz state...');
-      
+    
         // LOCK RESTORATION PHASE
         this._visibilityRestoreInProgress = true;
         (this.explanationTextService as any)._visibilityLocked = true;
-      
+    
         // Give it a full frame to stabilize before letting observables fire
         this._suppressDisplayStateUntil = performance.now() + 300;
-      
+    
         // Ensure base quiz state restored
         await this.restoreQuizState();
-      
+    
         // Ensure options are ready
         if (!Array.isArray(this.optionsToDisplay) || this.optionsToDisplay.length === 0) {
           console.warn('[onVisibilityChange] ⚠️ optionsToDisplay empty → repopulating');
@@ -1104,18 +1133,18 @@ export class QuizQuestionComponent extends BaseQuestionComponent
             return;
           }
         }
-      
+    
         // Restore feedback and selection
         if (this.currentQuestion) {
           this.restoreFeedbackState();
-      
+    
           setTimeout(() => {
             const prevOpt = this.optionsToDisplay.find(o => o.selected);
             if (prevOpt) {
               this.applyOptionFeedback(prevOpt);
             }
           }, 50);
-      
+    
           try {
             const feedbackText = await this.generateFeedbackText(this.currentQuestion);
             this.feedbackText = feedbackText;
@@ -1123,10 +1152,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent
             console.error('[onVisibilityChange] ❌ Error generating feedback text:', error);
           }
         }
-      
+    
         // Debounce before restoring FET (ensures no race)
         await new Promise(res => setTimeout(res, 60));
-      
+    
         // Authoritative FET restore (locked phase)
         try {
           const qIdx = this.currentQuestionIndex ?? 0;
@@ -1134,10 +1163,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           const shouldShowExplanation =
             qState?.explanationDisplayed === true ||
             (this.explanationTextService as any)?.shouldDisplayExplanation$.value === true;
-      
+    
           if (shouldShowExplanation) {
             this.displayExplanation = true;
-      
+    
             // Prevent premature state flipping while restoring
             this.explanationTextService.setShouldDisplayExplanation(true, { force: true });
             this.explanationTextService.setIsExplanationTextDisplayed(true, { force: true });
@@ -1145,12 +1174,12 @@ export class QuizQuestionComponent extends BaseQuestionComponent
               qState?.explanationText ?? this.explanationTextService.latestExplanation ?? '',
               { force: true }
             );
-      
+    
             this.safeSetDisplayState({ mode: 'explanation', answered: true });
             console.log(`[onVisibilityChange] ✅ Restored FET for Q${qIdx + 1}`);
           } else {
             this.displayExplanation = false;
-      
+    
             this.explanationTextService.setShouldDisplayExplanation(false, { force: true });
             this.explanationTextService.setIsExplanationTextDisplayed(false, { force: true });
             this.safeSetDisplayState({ mode: 'question', answered: false });
@@ -1169,7 +1198,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       }
     } catch (error) {
       console.error('[onVisibilityChange] ❌ Error during state restoration:', error);
-    }
+    }    
   }
 
   setOptionsToDisplay(): void {
