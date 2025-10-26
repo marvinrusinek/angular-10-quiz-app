@@ -1293,10 +1293,10 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     );
   
     // FET source with explicit idx
+    // Seed FET inputs so fetForIndex$ emits once at startup
     const fetForIndex$: Observable<FETState> = combineLatest([
-      this.explanationTextService.formattedExplanation$ ?? of(''),
-      this.explanationTextService.shouldDisplayExplanation$ ?? of(false),
-      // Expose the ETS active index (fallback to -1 safely)
+      (this.explanationTextService.formattedExplanation$ ?? of('')).pipe(startWith('')), // ← add startWith('')
+      (this.explanationTextService.shouldDisplayExplanation$ ?? of(false)).pipe(startWith(false)), // ← add startWith(false)
       of(null).pipe(map(() => this.explanationTextService._activeIndex ?? -1))
     ]).pipe(
       map(([text, gate, idx]) => ({
@@ -1310,9 +1310,9 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   
     const shouldShow$ = this.explanationTextService.shouldDisplayExplanation$.pipe(
       map(Boolean),
+      startWith(false),        // seed initial value so combineLatest emits immediately
       distinctUntilChanged(),
-      // Stabilize state flips within one animation frame
-      auditTime(16),
+      auditTime(16),           // stabilizes quick flips
       shareReplay({ bufferSize: 1, refCount: true })
     );
   
