@@ -1302,6 +1302,8 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     const shouldShow$ = this.explanationTextService.shouldDisplayExplanation$.pipe(
       map(Boolean),
       distinctUntilChanged(),
+      // 🧩 Stabilize state flips within one animation frame
+      auditTime(16),
       shareReplay({ bufferSize: 1, refCount: true })
     );
   
