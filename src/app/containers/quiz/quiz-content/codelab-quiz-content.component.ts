@@ -1388,8 +1388,19 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       }),
   
       // Coalesce bursts to a single animation frame once gate opens
-      auditTime(8),
+      auditTime(16),
       observeOn(animationFrameScheduler),
+  
+      // drop back-to-back duplicate “question → FET → question” bursts
+      distinctUntilChanged((prev, curr) => {
+        const [pIdx, , , pFet, pShow] = prev;
+        const [cIdx, , , cFet, cShow] = curr;
+        return (
+          pIdx === cIdx &&
+          pFet?.text === cFet?.text &&
+          pShow === cShow
+        );
+      }),
   
       map(
         ([ idx, question, banner, fet, shouldShow, ..._rest]: 
@@ -1417,15 +1428,10 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
           fet.idx === idx &&
           fetText.length > 0;
   
-        if (fetAllowed) {
-          this._lastQuestionText = fetText;  // remember what we showed
+        // ignore redundant FET re-emits
+        if (fetAllowed && this._lastQuestionText !== fetText) {
+          this._lastQuestionText = fetText;
           return fetText;
-        }
-
-        // If FET not allowed but question text is valid, ensure it displays
-        if (!fetAllowed && qText.length > 0) {
-          this._lastQuestionText = qText;
-          return qText;
         }
   
         // Merge banner only in question mode
