@@ -1160,6 +1160,25 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           setTimeout(() => {
             (this.explanationTextService as any)._visibilityLocked = false;
             this._visibilityRestoreInProgress = false;
+
+            setTimeout(() => {
+              try {
+                const ets = this.explanationTextService;
+                const qIdx = this.currentQuestionIndex ?? 0;
+            
+                // 🧩 Re-sync explanation subjects to the current question only
+                ets._activeIndex = qIdx;
+                ets.updateFormattedExplanation('', qIdx); // clear stale text
+                ets.latestExplanation = '';
+                ets.setShouldDisplayExplanation(false);
+                ets.setIsExplanationTextDisplayed(false);
+            
+                console.log(`[VISIBILITY] 🔄 Explanation state refreshed for Q${qIdx + 1}`);
+              } catch (err) {
+                console.warn('[VISIBILITY] ⚠️ Failed post-restore FET refresh', err);
+              }
+            }, 400);            
+
             console.log('[VISIBILITY] 🔓 Restore complete, reactive updates re-enabled');
           }, 350);
         }
