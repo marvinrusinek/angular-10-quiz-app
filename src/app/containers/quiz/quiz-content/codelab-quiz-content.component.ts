@@ -1453,6 +1453,12 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         }
         return true;
       }),
+
+      // Coalesce multi-stream bursts (question, banner, FET clears)
+      // Prevents flash of empty strings between renders
+      // ────────────────────────────────
+      auditTime(50),  // waits ~1 frame before passing combined emission
+      filter(([ , question ]) => question?.trim().length > 0),
   
       map(
         ([ idx, question, banner, fet, shouldShow, ..._rest]: 
