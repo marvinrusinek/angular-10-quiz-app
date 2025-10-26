@@ -6604,8 +6604,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
 
     const normalizedOptions = this.quizService.assignOptionIds(
-      baseOptions.map((option) => ({ ...option }), this.currentQuestionIndex)
-    );
+      baseOptions.map((option) => ({ ...option })),
+      this.currentQuestionIndex
+    );    
 
     this.options = normalizedOptions;
     this.optionsToDisplay = normalizedOptions.map((option, index) => ({
