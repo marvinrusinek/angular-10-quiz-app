@@ -1416,10 +1416,6 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         }
         return true;
       }),
-
-      // Coalesce bursts to a single animation frame once gate opens
-      auditTime(16),
-      observeOn(animationFrameScheduler),
   
       map(
         ([ idx, question, banner, fet, shouldShow, ..._rest]: 
@@ -1480,6 +1476,10 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         this._lastQuestionText = merged;
         return merged;
       }),
+
+      // Coalesce bursts to a single animation frame once gate opens
+      auditTime(16),
+      observeOn(animationFrameScheduler),
   
       // Don’t re-render identical HTML strings
       distinctUntilChanged((a, b) => a.trim() === b.trim()),
