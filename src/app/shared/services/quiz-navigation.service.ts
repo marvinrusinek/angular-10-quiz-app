@@ -460,12 +460,14 @@ export class QuizNavigationService {
       ets.formattedExplanationSubject?.next('');
       ets.setShouldDisplayExplanation(false);
       ets.setIsExplanationTextDisplayed(false);
+
+      // Silence all per-index emitters before navigation begins
+      ets._byIndex?.forEach?.((s$: any) => s$?.next?.(null));
+      ets._gate?.forEach?.((g$: any) => g$?.next?.(false));
   
       // Also clear any lingering question text
-      this.quizQuestionLoaderService.questionToDisplay$?.next('');
-  
-      // Optionally silence QQLS output too
-      if (qqls?.emitQuestionTextSafely) qqls.emitQuestionTextSafely('', -1);
+      qqls.questionToDisplay$?.next('');
+      qqls.emitQuestionTextSafely?.('', -1);
   
       // Temporarily hide visual node
       const el = document.querySelector('h3[i18n]');
