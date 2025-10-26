@@ -69,6 +69,9 @@ export class QuizStateService {
   private interactionReadySubject = new BehaviorSubject<boolean>(true);
   public interactionReady$ = this.interactionReadySubject.asObservable();
 
+  // Tracks whether the quiz state has completed at least one full restoration
+  public hasRestoredOnce = false;
+
   constructor() {
     this.questionStates = new Map<number, QuestionState>();
   }

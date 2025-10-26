@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, EventEmitter, Input, NgZone, OnChanges, OnDestroy, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core';
 import { ActivatedRoute, ParamMap } from '@angular/router';
 import { animationFrameScheduler, BehaviorSubject, combineLatest, EMPTY, forkJoin, Observable, of, Subject, Subscription, timer } from 'rxjs';
-import { auditTime, catchError, concatMap, concatWith, debounce, debounceTime, defer, delay, distinctUntilChanged, filter, first, map, mapTo, observeOn, pairwise, scan, shareReplay, skipWhile, startWith, switchMap, take, takeUntil, tap, throttleTime, withLatestFrom } from 'rxjs/operators';
+import { auditTime, catchError, concatMap, concatWith, debounce, debounceTime, defer, delay, distinctUntilChanged, filter, first, map, mapTo, observeOn, pairwise, scan, shareReplay, skipUntil, skipWhile, startWith, switchMap, take, takeUntil, tap, throttleTime, withLatestFrom } from 'rxjs/operators';
 import { firstValueFrom } from '../../../shared/utils/rxjs-compat';
 
 import { CombinedQuestionDataType } from '../../../shared/models/CombinedQuestionDataType.model';
@@ -1402,23 +1402,21 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         );
       }),
 
-      filter(() => {
-        // Hold visual updates during visibility restoration
-        const restoring = (this as any)._visibilityRestoreInProgress === true;
-        if (restoring) {
-          console.log('[DisplayGate] ⏸ holding render during restore');
-        }
-        return !restoring;
-      }),
+      skipUntil(
+        combineLatest([index$, this.quizService.questionsLoaded$ ?? of(true)]).pipe(
+          filter(([idx]) => idx > 0 || this.quizStateService.hasRestoredOnce === true),
+          take(1)
+        )
+      ),
 
+      // 🧩 Ignore mismatched FETs — prevents Q1 text replaying for Q2
       filter(([idx, , , fet]) => {
-        // Ignore any FET that belongs to a different question index
-        if (fet && typeof fet.idx === 'number' && fet.idx !== idx) {
+        if (fet && fet.idx !== idx) {
           console.log(`[DisplayGate] 🚫 Dropping mismatched FET (fet.idx=${fet.idx}, current=${idx})`);
           return false;
         }
         return true;
-      }),      
+      }),
   
       map(
         ([ idx, question, banner, fet, shouldShow, ..._rest]: 
