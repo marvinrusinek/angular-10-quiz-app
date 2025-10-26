@@ -125,6 +125,7 @@ export class ExplanationTextService {
   public _fetGateLockUntil = 0;  // time until which the FET gate is locked
 
   private _pendingReset?: number;
+  private _transitionLock = false;
 
   constructor() {}
 
@@ -1206,6 +1207,11 @@ export class ExplanationTextService {
     const { text$ } = this.getOrCreate(index);
     const trimmed = (value ?? '').trim() || null;
 
+    if (this._transitionLock) {
+      console.log(`[ETS] ⏸ Transition lock active, suppressing emit for index ${index}`);
+      return;
+    }
+
     if (index !== this._activeIndex) {
       console.log(`[ETS] 🚫 Skipping emit for inactive index ${index} (active=${this._activeIndex})`);
       return;
@@ -1671,5 +1677,10 @@ export class ExplanationTextService {
       this._fetLocked = false;
       console.log(`[ETS] 🔓 FET gate reopened for Q${newIndex + 1}`);
     }, 80);
+  }
+
+  public lockDuringTransition(ms = 100): void {
+    this._transitionLock = true;
+    setTimeout(() => (this._transitionLock = false), ms);
   }
 }
