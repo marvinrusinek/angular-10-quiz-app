@@ -1428,6 +1428,11 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
           fet.idx === idx &&
           fetText.length > 0;
   
+        if (fetAllowed) {
+          this._lastQuestionText = fetText;  // remember what we showed
+          return fetText;
+        }
+        
         // ignore redundant FET re-emits
         if (fetAllowed && this._lastQuestionText !== fetText) {
           this._lastQuestionText = fetText;
