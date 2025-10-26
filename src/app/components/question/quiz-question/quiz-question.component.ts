@@ -3106,10 +3106,16 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       return;
     }
   
-    const idx = this.quizService.getCurrentQuestionIndex();
+    const idx = this.quizService.getCurrentQuestionIndex() ?? 0;
     const q = this.questions?.[idx];
     const evtIdx = event.index;
     const evtOpt = event.option;
+    
+    this.explanationTextService._activeIndex = idx;
+    this.explanationTextService.updateFormattedExplanation(''); 
+    this.explanationTextService.latestExplanation = '';
+    this.explanationTextService.setShouldDisplayExplanation(false);
+    this.explanationTextService.setIsExplanationTextDisplayed(false);
   
     if (evtOpt == null) return;
   
