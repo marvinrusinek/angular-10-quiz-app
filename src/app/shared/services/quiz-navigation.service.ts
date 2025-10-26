@@ -499,6 +499,19 @@ export class QuizNavigationService {
       console.warn('[NAV] ⚠️ purgeAndDefer or lockDuringTransition failed', err);
     }
 
+    // Also quarantine question text emissions (prevents Q1→Q2 flash)
+    try {
+      const qqls = this.quizQuestionLoaderService;
+      if (qqls?.questionToDisplaySubject) {
+        qqls.questionToDisplaySubject.next(''); // force-clear last Q
+      } else if ((this as any).questionToDisplaySubject) {
+        (this as any).questionToDisplaySubject.next('');
+      }
+      console.log('[NAV] 🧱 Quarantined question text before navigation');
+    } catch (err) {
+      console.warn('[NAV] ⚠️ Failed to clear question text', err);
+    }
+
     // ────────────────────────────────────────────────
     // 🧩 STEP 0.5: Cross-service quiet patch (no mid-frame emission)
     // ────────────────────────────────────────────────

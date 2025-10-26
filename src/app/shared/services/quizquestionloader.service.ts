@@ -34,11 +34,16 @@ export class QuizQuestionLoaderService {
   currentQuestionAnswered = false;
 
   questionToDisplay = '';
-  public questionToDisplay$ = new ReplaySubject<string>(1);
+  // Source subject (can be written to from outside)
+  public readonly questionToDisplaySubject = new ReplaySubject<string>(1);
+
+  // Observable stream for safe external subscription
+  public readonly questionToDisplay$ = this.questionToDisplaySubject.asObservable();
+
   // Derived stream that smooths rapid clears/fills (prevents flash)
   public readonly questionDisplay$ = this.questionToDisplay$.pipe(
-    debounceTime(0),  // merge empty→real emissions in same tick
-    distinctUntilChanged()  // ignore identical repeats
+    debounceTime(0),              // merge empty→real emissions in same tick
+    distinctUntilChanged()        // ignore identical repeats
   );
 
   questionTextLoaded = false;
