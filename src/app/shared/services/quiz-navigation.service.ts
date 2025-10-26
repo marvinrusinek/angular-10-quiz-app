@@ -442,6 +442,8 @@ export class QuizNavigationService {
   
     const ets: any = this.explanationTextService;
     const qqls: any = this.quizQuestionLoaderService;
+    
+    ets._activeIndex = index;
   
     // ────────────────────────────────────────────────
     // 🟢 STEP 0: ACTIVATE BARRIERS (cross-service)
