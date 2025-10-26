@@ -2830,6 +2830,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
             (ets as any).formattedExplanationSubject?.next(null);
             (ets as any).formattedExplanation$?.next?.('');  // handles BehaviorSubject variant
 
+             // Re-seed formattedExplanationSubject to drop any ReplaySubject residue
+            (ets as any).formattedExplanationSubject = new BehaviorSubject<string>('');
+            ets.formattedExplanation$ = (ets as any).formattedExplanationSubject.asObservable();
+
             // Reset internal per-index caches if they exist
             if ((ets as any).formattedExplanations) {
               (ets as any).formattedExplanations = {};
