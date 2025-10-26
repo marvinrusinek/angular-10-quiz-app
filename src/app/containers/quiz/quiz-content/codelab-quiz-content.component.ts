@@ -1347,7 +1347,25 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     // ────────────────────────────────────────────────
     // Combine everything with strong gating
     // ────────────────────────────────────────────────
-    return combineLatest<
+    type CombinedTuple = [
+      number, // index$
+      string, // questionText$
+      string, // correctText$
+      { idx: number; text: string; gate: boolean } // fetForIndex$
+    ];
+
+    return (combineLatest([
+      index$,
+      questionText$,
+      correctText$,
+      fetForIndex$,
+      shouldShow$,
+      navigating$,
+      qQuiet$,
+      eQuiet$
+    ]) as Observable<CombinedTuple>).pipe(
+    
+    /* return combineLatest<
       [
         number, // index$
         string, // questionText$
@@ -1367,7 +1385,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       navigating$,
       qQuiet$,
       eQuiet$
-    ]).pipe(
+    ]).pipe( */
       startWith([
         0, // index$
         'Loading question...', // questionText$
@@ -1496,14 +1514,11 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       }),
 
       // Coalesce bursts to a single animation frame once gate opens
-      distinctUntilChanged(
-        ([idxA, qA, , fetA], [idxB, qB, , fetB]) =>
-          idxA === idxB &&
-          qA === qB &&
-          fetA?.text === fetB?.text
-      ),
       auditTime(16),
       observeOn(animationFrameScheduler),
+  
+      // Don’t re-render identical HTML strings
+      distinctUntilChanged((a, b) => a.trim() === b.trim()),
       shareReplay({ bufferSize: 1, refCount: true })
     ) as Observable<string>;
   }
