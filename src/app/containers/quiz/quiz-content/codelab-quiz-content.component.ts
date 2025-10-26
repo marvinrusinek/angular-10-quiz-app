@@ -1410,7 +1410,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         )
       ),
 
-      // 🧩 Ignore mismatched FETs — prevents Q1 text replaying for Q2
+      // Ignore mismatched FETs — prevents Q1 text replaying for Q2
       filter(([idx, , , fet]) => {
         if (fet && fet.idx !== idx) {
           console.log(`[DisplayGate] 🚫 Dropping mismatched FET (fet.idx=${fet.idx}, current=${idx})`);
