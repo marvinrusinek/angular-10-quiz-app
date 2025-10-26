@@ -279,35 +279,34 @@ export class ExplanationTextService {
       const idx = Number.isInteger(questionIndex) ? questionIndex : 0;
       try { this.emitFormatted(idx, null); } catch {}
       try { this.setGate(idx, false); } catch {}
-  
-      // ⬇ DO NOT push fallback text into global/legacy subjects (prevents flashing)
       return of(FALLBACK);
     }
   
-    const entry = this.formattedExplanations[questionIndex];
+    // Allow rehydration after restore: refresh active index
+    if (this._activeIndex === -1) {
+      this._activeIndex = questionIndex;
+    }
   
+    const entry = this.formattedExplanations[questionIndex];
     if (!entry) {
       console.error(`[❌ Q${questionIndex} not found in formattedExplanations`, entry);
       console.log('🧾 All formattedExplanations:', this.formattedExplanations);
   
       try { this.emitFormatted(questionIndex, null); } catch {}
       try { this.setGate(questionIndex, false); } catch {}
-  
       return of(null);
     }
   
     const explanation = (entry.explanation ?? '').trim();
-  
     if (!explanation) {
       console.warn(`[⚠️ No valid explanation for Q${questionIndex}]`);
-  
       try { this.emitFormatted(questionIndex, null); } catch {}
       try { this.setGate(questionIndex, false); } catch {}
-  
       return of(FALLBACK);
     }
   
-    // Cross-index guard — prevent stale emissions
+    // Only emit if explanation belongs to current active question
+    // (but allow re-emit when restoring same index)
     if (this._activeIndex !== questionIndex) {
       console.log(
         `[ETS] 🚫 Skipping FET emit for mismatched index (incoming=${questionIndex}, active=${this._activeIndex})`
@@ -1105,10 +1104,35 @@ export class ExplanationTextService {
   public emitFormatted(index: number, value: string | null): void {
     const { text$ } = this.getOrCreate(index);
     const trimmed = (value ?? '').trim() || null;
+  
+    // Always record which question this emission belongs to
+    // This ensures we don't misclassify the active index during rapid transitions
+    this._activeIndex = index;
+  
+    // Guard: prevent truly stale emissions (older than current _activeIndex)
+    // But allow emit when we're synchronizing to the newest active index.
+    if (typeof index === 'number' && index < this._activeIndex) {
+      console.log(
+        `[ETS] 🚫 Skipping stale emitFormatted (incoming=${index}, active=${this._activeIndex})`
+      );
+      return;
+    }
+  
+    // Block duplicate re-emits of the same text for the same question
+    const last = (this.latestExplanation ?? '').trim();
+    const next = trimmed ?? '';
+    if (last && next && last === next) {
+      console.log(`[ETS] ⚙️ Skipping duplicate FET emit for idx=${index}`);
+      return;
+    }
+  
+    // Update cache and emit
+    this.latestExplanation = next;
     text$.next(trimmed);
-    console.log(`[ETS] emitFormatted(${index}) →`, trimmed?.slice(0,60) ?? 'null');
+  
+    console.log(`[ETS] emitFormatted(${index}) →`, trimmed?.slice(0, 60) ?? 'null');
   }
-
+  
   // ---- Per-index gate
   public gate$(index: number): Observable<boolean> {
     return this.getOrCreate(index).gate$.asObservable();
