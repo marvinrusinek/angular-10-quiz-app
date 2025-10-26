@@ -1206,31 +1206,45 @@ export class ExplanationTextService {
   public emitFormatted(index: number, value: string | null): void {
     const { text$ } = this.getOrCreate(index);
     const trimmed = (value ?? '').trim() || null;
-
+  
+    // ────────────────────────────────────────────────
+    // Transition lock: completely silence emissions during navigation
+    // ────────────────────────────────────────────────
     if (this._transitionLock) {
-      console.log(`[ETS] ⏸ Transition lock active, suppressing emit for index ${index}`);
-      return;
-    }
-
-    if (index !== this._activeIndex && index !== -1) {
-      console.log(`[ETS] 🚫 Skipping emit for inactive index ${index} (active=${this._activeIndex})`);
+      console.log(`[ETS] ⏸ Transition lock active → suppress emit for Q${index + 1}`);
       return;
     }
   
+    // ────────────────────────────────────────────────
+    // Cross-index guard — block stale or unrelated emissions
+    // Allow -1 only for intentional “clear” calls.
+    // ────────────────────────────────────────────────
+    if (index !== this._activeIndex && index !== -1) {
+      console.log(
+        `[ETS] 🚫 Inactive index emit blocked (incoming=${index}, active=${this._activeIndex})`
+      );
+      return;
+    }
+  
+    // ────────────────────────────────────────────────
     // Always record which question this emission belongs to
-    // This ensures we don't misclassify the active index during rapid transitions
+    // Ensures consistency during very fast transitions.
+    // ────────────────────────────────────────────────
     this._activeIndex = index;
   
-    // Guard: prevent truly stale emissions (older than current _activeIndex)
-    // But allow emit when we're synchronizing to the newest active index.
-    if (typeof index === 'number' && index < this._activeIndex) {
+    // ────────────────────────────────────────────────
+    // Prevent truly stale or out-of-order emissions
+    // ────────────────────────────────────────────────
+    if (typeof index === 'number' && index < this._activeIndex && index !== -1) {
       console.log(
         `[ETS] 🚫 Skipping stale emitFormatted (incoming=${index}, active=${this._activeIndex})`
       );
       return;
     }
   
-    // Block duplicate re-emits of the same text for the same question
+    // ────────────────────────────────────────────────
+    // Skip duplicate FET re-emits for same text
+    // ────────────────────────────────────────────────
     const last = (this.latestExplanation ?? '').trim();
     const next = trimmed ?? '';
     if (last && next && last === next) {
@@ -1238,12 +1252,14 @@ export class ExplanationTextService {
       return;
     }
   
-    // Update cache and emit
+    // ────────────────────────────────────────────────
+    // Update cache and emit cleanly
+    // ────────────────────────────────────────────────
     this.latestExplanation = next;
     text$.next(trimmed);
   
-    console.log(`[ETS] emitFormatted(${index}) →`, trimmed?.slice(0, 60) ?? 'null');
-  }
+    console.log(`[ETS] ✅ emitFormatted(Q${index + 1}) →`, trimmed?.slice(0, 60) ?? 'null');
+  }  
   
   // ---- Per-index gate
   public gate$(index: number): Observable<boolean> {
