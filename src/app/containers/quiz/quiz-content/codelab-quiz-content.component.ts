@@ -1287,7 +1287,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     const fetForIndex$: Observable<FETState> = combineLatest([
       this.explanationTextService.formattedExplanation$ ?? of(''),
       this.explanationTextService.shouldDisplayExplanation$ ?? of(false),
-      // expose the ETS active index (fallback to -1 safely)
+      // Expose the ETS active index (fallback to -1 safely)
       of(null).pipe(map(() => this.explanationTextService._activeIndex ?? -1))
     ]).pipe(
       map(([text, gate, idx]) => ({
@@ -1302,7 +1302,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     const shouldShow$ = this.explanationTextService.shouldDisplayExplanation$.pipe(
       map(Boolean),
       distinctUntilChanged(),
-      // 🧩 Stabilize state flips within one animation frame
+      // Stabilize state flips within one animation frame
       auditTime(16),
       shareReplay({ bufferSize: 1, refCount: true })
     );
@@ -1421,6 +1421,13 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   
         // Only allow FET if it belongs to the current idx AND gate is open AND mode is explanation
         const mode = this.quizStateService.displayStateSubject?.value?.mode ?? 'question';
+
+        // Drop any FET whose active index doesn't match the current question index
+        if (fet?.idx !== idx && fetText.length > 0) {
+          console.log(`[FrameSkip] Ignoring mismatched FET (fet.idx=${fet.idx}, current=${idx})`);
+          return this._lastQuestionText || question.trim();
+        }
+
         const fetAllowed =
           mode === 'explanation' &&
           !!shouldShow &&
@@ -1433,7 +1440,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
           return fetText;
         }
         
-        // ignore redundant FET re-emits
+        // Ignore redundant FET re-emits
         if (fetAllowed && this._lastQuestionText !== fetText) {
           this._lastQuestionText = fetText;
           return fetText;
