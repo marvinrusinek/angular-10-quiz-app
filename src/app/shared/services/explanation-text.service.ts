@@ -292,7 +292,7 @@ export class ExplanationTextService {
 
         this.latestExplanation = '';
         this._fetLocked = false;
-        
+
         if (this.shouldDisplayExplanation$ instanceof BehaviorSubject)
           this.shouldDisplayExplanation$.next(false);
         if (this.isExplanationTextDisplayed$ instanceof BehaviorSubject)
@@ -362,10 +362,8 @@ export class ExplanationTextService {
   
     if (!gateOpen) {
       console.log(`[ETS] 🚫 Gate closed → suppressing FET for Q${questionIndex + 1}`);
-      this.emitFormatted(questionIndex, null);
       this.setGate(questionIndex, false);
-      // Use null sentinel so distinctUntilChanged treats this as unique
-      return of(null as unknown as string);
+      return EMPTY;
     }
   
     // Only emit if explanation belongs to current active question
