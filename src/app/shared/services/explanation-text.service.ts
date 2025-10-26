@@ -81,7 +81,7 @@ export class ExplanationTextService {
   public _gate = new Map<number, BehaviorSubject<boolean>>();
 
   private _lastGlobalExplanationIndex: number | null = null;
-  public _activeIndex: number | null = null;
+  public _activeIndex = -1;
 
   private _explainNow$ = new Subject<{ idx: number; text: string }>();
 
@@ -122,7 +122,6 @@ export class ExplanationTextService {
   public _quietZoneUntil = 0;
   public _hardMuteUntil = 0;
   public _fetGateLockUntil = 0;  // time until which the FET gate is locked
-  public _activeIndex = -1;
 
   constructor() {}
 
@@ -688,14 +687,35 @@ export class ExplanationTextService {
     if (!this.explanationsInitialized) {
       return of('No explanation available');
     }
-
+  
+    // Track which question this explanation belongs to
+    const previousIdx = this._activeIndex ?? -1;
     this._activeIndex = questionIndex;
-
+  
+    // Clear cached explanation only when switching questions
+    // This prevents Q1's FET from bleeding into Q2, but keeps current FET stable.
+    if (previousIdx !== -1 && previousIdx !== questionIndex) {
+      this.updateFormattedExplanation('');
+      this.latestExplanation = '';
+      console.log(
+        `[ETS] 🧹 Cleared old FET cache (was Q${previousIdx + 1}, now Q${questionIndex + 1})`
+      );
+    }
+  
     return this.getFormattedExplanationTextForQuestion(questionIndex).pipe(
-      map(
-        (explanationText: string) =>
-          explanationText?.trim() || 'No explanation available'
-      )
+      map((explanationText: string) => {
+        const trimmed = explanationText?.trim() || 'No explanation available';
+  
+        // Prevent stale or cross-question updates
+        if (this._activeIndex !== questionIndex) {
+          console.log(
+            `[ETS] 🚫 Ignoring stale FET emission (incoming=${questionIndex}, active=${this._activeIndex})`
+          );
+          return this.latestExplanation || 'No explanation available';
+        }
+  
+        return trimmed;
+      })
     );
   }
 
@@ -1193,8 +1213,8 @@ export class ExplanationTextService {
     if (index !== this._activeIndex) {
       // Clear the global subjects FIRST (this ensures CQCC sees blanks)
       this.formattedExplanationSubject?.next('');
-      this.shouldDisplayExplanationSubject?.next(false);
-      this.isExplanationTextDisplayedSubject?.next(false);
+      this.shouldDisplayExplanationSource.next(false);
+      this.isExplanationTextDisplayedSource.next(false);
   
       // Flush all per-index subjects immediately
       if (this._byIndex instanceof Map) {
