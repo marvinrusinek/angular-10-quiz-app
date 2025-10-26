@@ -2871,6 +2871,16 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
               console.log('[QUIZ INIT] 🪄 Seeded initial question text for Q1');
             }
           }
+
+          // Delay reopening FET gates slightly so preload emissions don't leak
+          for (const svc of [this.explanationTextService]) {
+            svc.setShouldDisplayExplanation(false);
+            svc.setIsExplanationTextDisplayed(false);
+            setTimeout(() => {
+              svc.setShouldDisplayExplanation(false);
+              svc.setIsExplanationTextDisplayed(false);
+            }, 100);
+          }
         } catch (err) {
           console.warn('[QUIZ INIT] ⚠️ Could not seed initial question text', err);
         }
