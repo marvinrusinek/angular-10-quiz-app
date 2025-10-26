@@ -511,7 +511,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       .pipe(
         takeUntil(this.destroy$),
         filter(idx => Number.isFinite(idx as number) && (idx as number) >= 0),
-        filter(idx => idx !== this.lastResetFor),   // optional de-dupe
+        filter(idx => idx !== this.lastResetFor),  // optional de-dupe
         tap(idx => this.lastResetFor = idx as number)
       )
       .subscribe(idx => {
@@ -711,10 +711,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }
 
   async ngOnChanges(changes: SimpleChanges): Promise<void> {
-    // ────────────────────────────────────────────────
-    // 🧩 Guard: safely reset _fetEarlyShown only when truly moving to a *different* question
+    // Guard: safely reset _fetEarlyShown only when truly moving to a different question
     // (not during hydration or first render)
-    // ────────────────────────────────────────────────
     const newIndex = changes['currentQuestionIndex']?.currentValue;
     const prevIndex = changes['currentQuestionIndex']?.previousValue;
   
@@ -724,7 +722,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       newIndex !== prevIndex &&
       this._fetEarlyShown instanceof Set
     ) {
-      this._fetEarlyShown.delete(prevIndex); // only clear the last one, not all
+      this._fetEarlyShown.delete(prevIndex);  // only clear the last one, not all
       console.log(`[QQC] 🔄 Reset _fetEarlyShown for transition ${prevIndex + 1} → ${newIndex + 1}`);
     }
   
@@ -749,7 +747,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
   
     if (changes['question'] || changes['options']) {
-      this.unselectOption(); // clears per-question UI state
+      this.unselectOption();  // clears per-question UI state
       this.handleQuestionAndOptionsChange(
         changes['question'],
         changes['options']
@@ -767,8 +765,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
     // Emit renderReady when both question and options are valid
     const hasValidQuestion =
-      !!this.questionData?.questionText?.trim?.() ||
-      !!this.currentQuestion?.questionText?.trim?.();
+      !!this.questionData?.questionText?.trim() ||
+      !!this.currentQuestion?.questionText?.trim();
   
     const hasValidOptions =
       Array.isArray(this.options) && this.options.length > 0;
@@ -776,8 +774,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     if (hasValidQuestion && hasValidOptions) {
       // Use setTimeout to allow DOM update cycle
       setTimeout(() => {
-        // Conditions met, emitting true
-        this.renderReadySubject.next(true);
+        this.renderReadySubject.next(true);  // conditions met, emitting true
       }, 0);
     } else {
       console.warn('[⏸️ renderReady] Conditions not met:', {
@@ -7049,7 +7046,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }
 
   // Guard wrapper for display state changes
-  private safeSetDisplayState(state: { mode: 'question' | 'explanation'; answered: boolean }): void {
+  private safeSetDisplayState(state: { mode: 'question' | 'explanation', answered: boolean }): void {
     // Suppress any update while restoration lock is active or within the debounce window
     if (this._visibilityRestoreInProgress || performance.now() < this._suppressDisplayStateUntil) {
       console.log('[safeSetDisplayState] 🚫 Suppressed reactive display update during restore:', state);
