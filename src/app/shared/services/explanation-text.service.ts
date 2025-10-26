@@ -307,6 +307,38 @@ export class ExplanationTextService {
       return of(FALLBACK);
     }
   
+    // HARD GATE: prevent FET emission unless the explanation gate is open
+    const gateOpen = (() => {
+      try {
+        // Both are Observables<boolean>, so read their latest emissions synchronously
+        const shouldShow = this.shouldDisplayExplanation$ instanceof BehaviorSubject
+          ? (this.shouldDisplayExplanation$ as BehaviorSubject<boolean>).value
+          : undefined;
+    
+        const isShown = this.isExplanationTextDisplayed$ instanceof BehaviorSubject
+          ? (this.isExplanationTextDisplayed$ as BehaviorSubject<boolean>).value
+          : undefined;
+    
+        // Fall back to false if undefined
+        return shouldShow === true || isShown === true;
+      } catch {
+        return false;
+      }
+    })();    
+  
+    if (!gateOpen) {
+      console.log(
+        `[ETS] 🚫 Gate closed → skipping FET emit for Q${questionIndex + 1}`
+      );
+  
+      // ensure nothing stale propagates downstream
+      try { this.emitFormatted(questionIndex, null); } catch {}
+      try { this.setGate(questionIndex, false); } catch {}
+  
+      // emit empty string so combineLatest won’t stall, but UI won’t display anything
+      return of('');
+    }
+  
     // Only emit if explanation belongs to current active question
     // (but allow re-emit when restoring same index)
     if (this._activeIndex !== questionIndex) {
