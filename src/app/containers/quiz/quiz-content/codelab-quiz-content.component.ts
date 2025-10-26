@@ -1412,12 +1412,18 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
           mode === 'explanation' &&
           !!shouldShow &&
           !!fet?.gate &&
-          fetText.length > 0 &&
-          fet.idx === idx;
+          fet.idx === idx &&
+          fetText.length > 0;
   
         if (fetAllowed) {
           this._lastQuestionText = fetText;  // remember what we showed
           return fetText;
+        }
+
+        // If FET not allowed but question text is valid, ensure it displays
+        if (!fetAllowed && qText.length > 0) {
+          this._lastQuestionText = qText;
+          return qText;
         }
   
         // Merge banner only in question mode
