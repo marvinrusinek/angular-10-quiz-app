@@ -1618,4 +1618,33 @@ export class ExplanationTextService {
     this.quietZoneUntil$.next(until);
     console.log(`[ETS] ⏸ Quiet zone set for ${durationMs}ms (until=${until.toFixed(1)})`);
   }
+
+  public purgeAndDefer(newIndex: number): void {
+    try {
+      // Cancel any previous timer
+      if (this._pendingReset) clearTimeout(this._pendingReset);
+  
+      // Hard clear every channel
+      this.formattedExplanationSubject?.next('');
+      this.emitFormatted(this._activeIndex, null);
+      this.setGate(this._activeIndex, false);
+      this.latestExplanation = '';
+      if (this.shouldDisplayExplanation$ instanceof BehaviorSubject)
+        this.shouldDisplayExplanation$.next(false);
+      if (this.isExplanationTextDisplayed$ instanceof BehaviorSubject)
+        this.isExplanationTextDisplayed$.next(false);
+  
+      console.log(`[ETS] 💣 Purged all FET state (prev=${this._activeIndex})`);
+    } catch (err) {
+      console.warn('[ETS] ⚠️ Purge failed', err);
+    }
+
+    // Delay accepting any new formatted explanation for ~80 ms
+    this._fetLocked = true;  // mark locked
+    this._activeIndex = newIndex;
+    this._pendingReset = window.setTimeout(() => {
+      this._fetLocked = false;
+      console.log(`[ETS] 🔓 FET gate reopened for Q${newIndex + 1}`);
+    }, 80);
+  }
 }
