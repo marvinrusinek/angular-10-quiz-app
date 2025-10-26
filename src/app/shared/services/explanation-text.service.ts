@@ -277,41 +277,26 @@ export class ExplanationTextService {
     // 🧹 Step 1: Hard reset any stale emission whenever a new question index is requested
     // Prevents replay of previous question’s FET (e.g., Q1 showing on Q2)
     // ────────────────────────────────────────────────
-    if (this._activeIndex !== questionIndex) {
-      try { this.formattedExplanationSubject?.next(''); } catch {}
-      try { this.emitFormatted(this._activeIndex, null); } catch {}
-      try { this.setGate(this._activeIndex, false); } catch {}
-      console.log(
-        `[ETS] 🧼 Cleared stale FET cache (prev=${this._activeIndex}, new=${questionIndex})`
-      );
-      this._activeIndex = questionIndex;
-    }
-
     // ────────────────────────────────────────────────
-    // 🧹 Step 1: Fully purge all cached explanation state if switching question
-    // This must happen *before* reading or writing any explanation entry.
-    // Prevents old FET (Q1) from being replayed when Q2 starts.
+    // 🧹 Step 1: Fully purge cached FET state if switching question
+    // Prevents Q1’s explanation from leaking into Q2.
     // ────────────────────────────────────────────────
     if (this._activeIndex !== questionIndex) {
       try {
-        // clear both global and per-index channels
+        // Clear all channels immediately before anything else runs
         this.formattedExplanationSubject?.next('');
         this.emitFormatted(this._activeIndex, null);
         this.setGate(this._activeIndex, false);
 
-        // reset local tracking
         this.latestExplanation = '';
         this._fetLocked = false;
-
-        // hard close display flags before continuing
         if (this.shouldDisplayExplanation$ instanceof BehaviorSubject)
           this.shouldDisplayExplanation$.next(false);
         if (this.isExplanationTextDisplayed$ instanceof BehaviorSubject)
           this.isExplanationTextDisplayed$.next(false);
 
-        // switch the active index only *after* clearing old state
         console.log(
-          `[ETS] 🧼 Full FET reset (prev=${this._activeIndex}, new=${questionIndex})`
+          `[ETS] 🧼 Full reset (prev=${this._activeIndex}, new=${questionIndex})`
         );
       } catch (err) {
         console.warn('[ETS] ⚠️ Failed to clear stale FET state', err);
