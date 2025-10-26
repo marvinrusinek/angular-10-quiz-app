@@ -2857,7 +2857,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
           if (firstQuestion) {
             const trimmed = (firstQuestion.questionText ?? '').trim();
             if (trimmed.length > 0) {
-              this.questionToDisplay$.next(trimmed);
+              this.questionToDisplaySubject.next(trimmed);
               console.log('[QUIZ INIT] 🪄 Seeded initial question text for Q1');
             }
           }
