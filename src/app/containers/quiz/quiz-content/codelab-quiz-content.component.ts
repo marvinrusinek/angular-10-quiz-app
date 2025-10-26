@@ -1279,6 +1279,8 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   
     const correctText$ = this.quizService.correctAnswersText$.pipe(
       map(v => (typeof v === 'string' ? v.trim() : '')),
+      filter(v => v.length > 0),  // ignore initial empty string
+      debounceTime(25),           // coalesce quick successive emits
       distinctUntilChanged(),
       shareReplay({ bufferSize: 1, refCount: true })
     );
