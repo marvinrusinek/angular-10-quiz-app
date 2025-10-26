@@ -1389,10 +1389,6 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         return !hold;
       }),
   
-      // Coalesce bursts to a single animation frame once gate opens
-      auditTime(16),
-      observeOn(animationFrameScheduler),
-  
       // drop back-to-back duplicate “question → FET → question” bursts
       distinctUntilChanged((prev, curr) => {
         const [pIdx, , , pFet, pShow] = prev;
@@ -1420,6 +1416,10 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         }
         return true;
       }),
+
+      // Coalesce bursts to a single animation frame once gate opens
+      auditTime(16),
+      observeOn(animationFrameScheduler),
   
       map(
         ([ idx, question, banner, fet, shouldShow, ..._rest]: 
