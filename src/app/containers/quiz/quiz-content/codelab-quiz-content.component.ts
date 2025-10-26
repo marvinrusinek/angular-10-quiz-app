@@ -1267,8 +1267,19 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     const index$ = this.quizService.currentQuestionIndex$.pipe(
       startWith(this.currentQuestionIndexValue ?? 0),
       distinctUntilChanged(),
+      tap((newIdx) => {
+        const ets = this.explanationTextService;
+        // Completely clear explanation state *before* CombineLatest runs again
+        ets._activeIndex = newIdx;
+        ets.latestExplanation = '';
+        ets.formattedExplanationSubject?.next('');
+        ets.setShouldDisplayExplanation(false);
+        ets.setIsExplanationTextDisplayed(false);
+        ets.setGate?.(newIdx, false);
+        console.log(`[INDEX] 🔄 Reset FET streams for new index → ${newIdx}`);
+      }),
       shareReplay({ bufferSize: 1, refCount: true })
-    );
+    );    
 
     const questionText$ = this.questionToDisplay$.pipe(
       startWith(''), // 🪄 ensure combineLatest has an initial value
