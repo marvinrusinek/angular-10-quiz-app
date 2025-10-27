@@ -1693,6 +1693,9 @@ export class ExplanationTextService {
       this._fetLocked = false;
       console.log(`[ETS] 🔓 FET gate reopened for Q${newIndex + 1}`);
     }, 80);
+
+    // Do NOT emit any explanation for at least one frame
+    this.lockDuringTransition(140);
   }
 
   public lockDuringTransition(ms = 100): void {
