@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, EMPTY, Observable, of, ReplaySubject, Subject } from 'rxjs';
-import { filter, map, take, timeout } from 'rxjs/operators';
+import { distinctUntilChanged, filter, map, shareReplay, switchMap, take, timeout } from 'rxjs/operators';
 import { firstValueFrom } from '../../shared/utils/rxjs-compat';
 
 import { QuestionType } from '../../shared/models/question-type.enum';
@@ -127,6 +127,13 @@ export class ExplanationTextService {
   private _pendingReset?: number;
   private _transitionLock = false;
   private _gateToken = 0;
+
+  // Bridge stream to always show only the active question's explanation
+  public readonly displayedFET$: Observable<string | null> = this.activeIndex$.pipe(
+    switchMap((i) => this.getOrCreate(i).text$),
+    distinctUntilChanged(),
+    shareReplay({ bufferSize: 1, refCount: true })
+  );
 
   constructor() {}
 
