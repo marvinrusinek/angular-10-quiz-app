@@ -84,6 +84,7 @@ export class ExplanationTextService {
 
   private _lastGlobalExplanationIndex: number | null = null;
   public _activeIndex = -1;
+  public readonly activeIndex$ = new BehaviorSubject<number>(0);
 
   private _explainNow$ = new Subject<{ idx: number; text: string }>();
 
