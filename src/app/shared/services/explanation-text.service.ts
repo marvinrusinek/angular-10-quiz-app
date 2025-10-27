@@ -1211,6 +1211,10 @@ export class ExplanationTextService {
 
   // ---- Emit per-index formatted text; coalesces duplicates and broadcasts event
   public emitFormatted(index: number, value: string | null): void {
+    console.log(
+      `[ETS] emitFormatted → idx=${index}, active=${this._activeIndex}, locked=${this._fetLocked}`
+    );
+    
     const { text$ } = this.getOrCreate(index);
     const trimmed = (value ?? '').trim() || null;
   
@@ -1684,7 +1688,7 @@ export class ExplanationTextService {
     // Do NOT emit any explanation for at least one frame
     this.lockDuringTransition(140);
   } */
-  public purgeAndDefer(newIndex: number): void {
+  /* public purgeAndDefer(newIndex: number): void {
     const token = ++this._gateToken;
   
     // Cancel any previous timer
@@ -1720,7 +1724,34 @@ export class ExplanationTextService {
       this._fetLocked = false;
       console.log(`[ETS] 🔓 FET gate reopened for Q${newIndex + 1}`);
     }, 140);  // bump up slightly for safety on slower transitions
+  } */
+  public purgeAndDefer(newIndex: number): void {
+    const token = ++this._gateToken;
+    console.log(`[ETS] 🔄 purgeAndDefer(${newIndex})`);
+  
+    // cancel timer
+    if (this._pendingReset) clearTimeout(this._pendingReset);
+  
+    // clear old text
+    const prev = this._activeIndex;
+    this.getOrCreate(prev).text$?.next(null);
+    this.formattedExplanationSubject?.next('');
+    this.latestExplanation = '';
+  
+    // lock + switch
+    this._fetLocked = true;
+    this._activeIndex = newIndex;
+    this.activeIndex$.next(newIndex);
+    console.log(`[ETS] 🔒 locked for Q${newIndex + 1}`);
+  
+    // reopen later
+    this._pendingReset = window.setTimeout(() => {
+      if (this._gateToken !== token) return;
+      this._fetLocked = false;
+      console.log(`[ETS] 🔓 unlocked for Q${newIndex + 1}`);
+    }, 160);
   }
+  
 
   public lockDuringTransition(ms = 100): void {
     this._transitionLock = true;
