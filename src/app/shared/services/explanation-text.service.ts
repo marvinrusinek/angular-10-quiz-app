@@ -1208,67 +1208,22 @@ export class ExplanationTextService {
     const { text$ } = this.getOrCreate(index);
     const trimmed = (value ?? '').trim() || null;
   
-    // ────────────────────────────────────────────────
-    // Transition lock: completely silence emissions during navigation
-    // ────────────────────────────────────────────────
-    if ((this as any)._fetLocked || this._transitionLock) {
-      console.log(`[ETS] ⏸ Transition lock active → suppress emit for Q${index + 1}`);
-      return;
-    }
+    // Silence during lock
+    if (this._fetLocked || this._transitionLock) return;
   
-    // ────────────────────────────────────────────────
-    // Cross-index guard — block stale or unrelated emissions
-    // Allow -1 only for intentional “clear” calls.
-    // ────────────────────────────────────────────────
-    if (index !== this._activeIndex && index !== -1) {
-      console.log(
-        `[ETS] 🚫 Inactive index emit blocked (incoming=${index}, active=${this._activeIndex})`
-      );
-      return;
-    }
+    // Only accept for the current index (allow -1 as explicit clear if you use it)
+    if (index !== this._activeIndex && index !== -1) return;
   
-    // Preserve current active for stale check before we mutate it
-    const activeBefore = this._activeIndex;
-  
-    // ────────────────────────────────────────────────
-    // Prevent truly stale or out-of-order emissions
-    // ────────────────────────────────────────────────
-    if (typeof index === 'number' && index < activeBefore && index !== -1) {
-      console.log(
-        `[ETS] 🚫 Skipping stale emitFormatted (incoming=${index}, active=${activeBefore})`
-      );
-      return;
-    }
-  
-    // ────────────────────────────────────────────────
-    // Always record which question this emission belongs to
-    // Ensures consistency during very fast transitions.
-    // ────────────────────────────────────────────────
-    this._activeIndex = index;
-  
-    // ────────────────────────────────────────────────
-    // Skip duplicate FET re-emits for same text
-    // ────────────────────────────────────────────────
+    // De-dup
     const last = (this.latestExplanation ?? '').trim();
     const next = (trimmed ?? '').trim();
-    if (last && next && last === next) {
-      console.log(`[ETS] ⚙️ Skipping duplicate FET emit for idx=${index}`);
-      return;
-    }
+    if (last && next && last === next) return;
   
-    // ────────────────────────────────────────────────
-    // Update cache and emit cleanly
-    // ────────────────────────────────────────────────
+    // Update cache + emit
     this.latestExplanation = next;
-  
-    // Use safeNext to avoid hard dependencies on Subject/BehaviorSubject types
-    this.safeNext(text$, trimmed);
-  
-    // Also keep the booleans in sync without risking type errors
+    this.safeNext(text$, trimmed);                        // per-index subject
     this.safeNext(this.shouldDisplayExplanation$, !!next);
     this.safeNext(this.isExplanationTextDisplayed$, !!next);
-  
-    console.log(`[ETS] ✅ emitFormatted(Q${index + 1}) →`, next ? next.slice(0, 60) : 'null');
   }
   
   // ---- Per-index gate
@@ -1708,43 +1663,35 @@ export class ExplanationTextService {
     this.lockDuringTransition(140);
   } */
   public purgeAndDefer(newIndex: number): void {
-    // Invalidate any previous unlock
     const token = ++this._gateToken;
   
-    try {
-      // Cancel any previous timer
-      if (this._pendingReset != null) {
-        clearTimeout(this._pendingReset);
-        this._pendingReset = null;
-      }
+    // Cancel any previous timer
+    if (this._pendingReset != null) {
+      clearTimeout(this._pendingReset);
+      this._pendingReset = null;
+    }
   
-      // Hard clear every channel
-      this.formattedExplanationSubject?.next('');
-      this.emitFormatted(this._activeIndex, null); // will be ignored if locked/idx mismatch
-      this.setGate(this._activeIndex, false);
+    // Hard clear previous index subject (so Q1 text is gone immediately)
+    try {
+      const prev = this._activeIndex;
+      this.getOrCreate(prev).text$?.next(null);
+      this.formattedExplanationSubject?.next('');         // if you keep a global
+      this.setGate(prev, false);
       this.latestExplanation = '';
       this.safeNext(this.shouldDisplayExplanation$, false);
       this.safeNext(this.isExplanationTextDisplayed$, false);
+    } catch {}
   
-      console.log(`[ETS] 💣 Purged all FET state (prev=${this._activeIndex})`);
-    } catch (err) {
-      console.warn('[ETS] ⚠️ Purge failed', err);
-    }
-  
-    // Delay accepting any new formatted explanation briefly
-    this._fetLocked = true;  // mark locked
+    // Lock and flip the active index
+    this._fetLocked = true;
     this._activeIndex = newIndex;
+    this.activeIndex$.next(newIndex);                     // 👈 force UI to listen to Q2’s subject
   
+    // Reopen after a short, tokened delay (simple + race-safe)
     this._pendingReset = window.setTimeout(() => {
-      // Only unlock if this call is still the latest
       if (this._gateToken !== token) return;
       this._fetLocked = false;
-      console.log(`[ETS] 🔓 FET gate reopened for Q${newIndex + 1}`);
-    }, 110); // tweak 110–160ms if needed
-  
-    // Do NOT emit any explanation for at least one frame
-    // (Replaced by the tokened timeout above)
-    // this.lockDuringTransition(140); // ← remove this call
+    }, 120);
   }
 
   public lockDuringTransition(ms = 100): void {
