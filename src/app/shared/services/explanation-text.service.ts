@@ -1751,7 +1751,6 @@ export class ExplanationTextService {
       console.log(`[ETS] 🔓 unlocked for Q${newIndex + 1}`);
     }, 160);
   }
-  
 
   public lockDuringTransition(ms = 100): void {
     this._transitionLock = true;
