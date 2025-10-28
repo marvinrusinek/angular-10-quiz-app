@@ -128,6 +128,8 @@ export class ExplanationTextService {
   private _gateToken = 0;
   private _textMap: Map<number, { text$: ReplaySubject<string> }> = new Map();
 
+  private _instanceId: string = ''; 
+
   // Bridge stream to always show only the active question's explanation
   public readonly displayedFET$: Observable<string | null> = this.activeIndex$.pipe(
     // Collapse same-tick index updates
@@ -154,7 +156,10 @@ export class ExplanationTextService {
     shareReplay({ bufferSize: 1, refCount: true })
   );
 
-  constructor() {}
+  constructor() {
+    this._instanceId = Math.random().toFixed(5);
+    console.log(`[ETS] ✅ Instance created, ID=${this._instanceId}`);
+  }
 
   get currentShouldDisplayExplanation(): boolean {
     return this.shouldDisplayExplanationSource.getValue();
@@ -1811,6 +1816,8 @@ export class ExplanationTextService {
     });
   } */
   public purgeAndDefer(newIndex: number): void {
+    console.log(`[ETS ${this._instanceId}] 🔄 purgeAndDefer(${newIndex})`);
+    console.log("PURGE AND DEFER");
     const token = ++this._gateToken;
     console.log(`[ETS] 🔄 purgeAndDefer(${newIndex})`);
   
@@ -1829,10 +1836,15 @@ export class ExplanationTextService {
     this.setIsExplanationTextDisplayed(false);
   
     // 4️⃣ Unlock after one frame (once DOM is ready)
-    requestAnimationFrame(() => {
+    /* requestAnimationFrame(() => {
       this._fetLocked = false;
       console.log(`[ETS] 🔓 unlocked for Q${newIndex + 1}`);
-    });
+    }); */
+
+    setTimeout(() => {
+      this._fetLocked = false;
+      console.log(`[ETS ${this._instanceId}] 🔓 early unlock for Q${newIndex + 1}`);
+    }, 40);
   }
   
 

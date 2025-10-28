@@ -2122,29 +2122,30 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   async updateContentBasedOnIndex(index: number): Promise<void> {
     const adjustedIndex = index - 1;
     const total = this.quiz?.questions?.length ?? 0;
-  
     if (adjustedIndex < 0 || adjustedIndex >= total) {
       console.warn(`[updateContentBasedOnIndex] Invalid index: ${adjustedIndex}`);
-      return;
-    }
-  
-    // detect movement
-    const movingForward = adjustedIndex > (this.previousIndex ?? -1);
-    const movingBackward = adjustedIndex < (this.previousIndex ?? -1);
-    const shouldReload = movingForward || movingBackward || this.isNavigatedByUrl;
-  
-    if (!shouldReload) {
-      console.log('[updateContentBasedOnIndex] No navigation needed.');
       return;
     }
   
     console.group(`[updateContentBasedOnIndex] Navigation → Q${adjustedIndex + 1}`);
     console.log('Previous:', this.previousIndex, 'Next:', adjustedIndex);
   
+    // ✅ 1. Update the component’s state before any resets
+    this.currentQuestionIndex = adjustedIndex;
     this.previousIndex = adjustedIndex;
+  
+    // ✅ 2. Purge the old FET for the new active index
+    try {
+      this.explanationTextService.purgeAndDefer(adjustedIndex);
+      console.log(`[updateContentBasedOnIndex] 🔄 Purged FET for Q${adjustedIndex + 1}`);
+    } catch (err) {
+      console.warn(`[updateContentBasedOnIndex] ⚠️ purgeAndDefer failed`, err);
+    }
+  
+    // ✅ 3. Now clear transient UI state
     this.resetExplanationText();
   
-    // wipe any ghost state between question loads
+    // ✅ 4. Clear selection / feedback state
     try {
       this.selectedOptionService.resetAllStates?.();
       this.selectedOptionService.clearSelectionsForQuestion(adjustedIndex);
@@ -2154,7 +2155,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       console.warn('[updateContentBasedOnIndex] ⚠️ State reset failed', err);
     }
   
-    // Directly load question by index (no router call)
+    // ✅ 5. Load and render the new question
     try {
       await this.loadQuestionByRouteIndex(index);
       setTimeout(() => this.displayFeedback(), 120);

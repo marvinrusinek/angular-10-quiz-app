@@ -337,6 +337,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       selectedOptionService,
       cdRef
     );
+
+    setTimeout(() => {
+      console.log('[QQC] 🔧 manual test call purgeAndDefer(99)');
+      this.explanationTextService.purgeAndDefer(99);
+    }, 500);
   }
 
   @Input() set questionIndex(value: number) {
@@ -5440,6 +5445,14 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     } catch (err) {
       console.warn('[updateExplanationText] cache push failed', err);
     }
+
+    if (svc._fetLocked) {
+      console.log(`[QQC] 💤 Waiting for FET unlock before emitting for Q${i0 + 1}`);
+      await new Promise(res => requestAnimationFrame(res));
+    }
+    svc.setExplanationText(next);
+    svc.setShouldDisplayExplanation(true);
+
   
     // ────────────────────────────────────────────────
     // 🕒 Step 4: Emit explanation *only if index still active*
