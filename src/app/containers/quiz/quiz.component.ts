@@ -2119,7 +2119,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
   // This function updates the content based on the provided index.
   // It validates the index, checks if navigation is needed, and loads the appropriate question.
-  async updateContentBasedOnIndex(index: number): Promise<void> {
+  /* async updateContentBasedOnIndex(index: number): Promise<void> {
     const adjustedIndex = index - 1;
     const total = this.quiz?.questions?.length ?? 0;
     if (adjustedIndex < 0 || adjustedIndex >= total) {
@@ -2171,7 +2171,100 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     }
   
     console.groupEnd();
+  } */
+  // Utility: await next animation frame
+  private nextFrame(): Promise<void> {
+    return new Promise(res => requestAnimationFrame(() => res()));
   }
+
+  async updateContentBasedOnIndex(index: number): Promise<void> {
+    const adjustedIndex = index - 1;
+    const total = this.quiz?.questions?.length ?? 0;
+    if (adjustedIndex < 0 || adjustedIndex >= total) {
+      console.warn(`[updateContentBasedOnIndex] Invalid index: ${adjustedIndex}`);
+      return;
+    }
+
+    console.group(`[updateContentBasedOnIndex] Navigation → Q${adjustedIndex + 1}`);
+    console.log('Previous:', this.previousIndex, 'Next:', adjustedIndex);
+
+    // 0) No-op guard
+    if (this.previousIndex === adjustedIndex && !this.isNavigatedByUrl) {
+      console.log('[updateContentBasedOnIndex] No navigation needed.');
+      console.groupEnd();
+      return;
+    }
+
+    // 1) Publish the new index to all consumers FIRST (stops Q1→Q2 bleed)
+    try {
+      this.currentQuestionIndex = adjustedIndex;
+      this.previousIndex = adjustedIndex;
+      // Use your real setter; fallback to BehaviorSubject if needed
+      (this.quizService as any).currentQuestionIndexSource?.next(adjustedIndex);
+    } catch {}
+
+    // 2) Purge FET for the *new* active index (so late Q1 emits get rejected)
+    try {
+      this.explanationTextService.purgeAndDefer(adjustedIndex);
+      console.log(`[updateContentBasedOnIndex] 🔄 Purged FET for Q${adjustedIndex + 1}`);
+    } catch (err) {
+      console.warn(`[updateContentBasedOnIndex] ⚠️ purgeAndDefer failed`, err);
+    }
+
+    // 3) Clear transient UI state
+    this.resetExplanationText();
+
+    // 4) Clear selection/feedback (prevents first-option auto-highlight)
+    try {
+      this.selectedOptionService.resetAllStates?.();
+      this.selectedOptionService.clearSelectionsForQuestion(adjustedIndex);
+      // As a belt-and-suspenders, also scrub options arrays if they linger flags
+      const qArr = this.quizService.questions ?? [];
+      for (const q of qArr) {
+        q.options?.forEach(o => {
+          o.selected = false;
+          (o as any).highlight = false;
+          (o as any).showFeedback = false;
+        });
+      }
+      this.nextButtonStateService.setNextButtonState(false);
+      console.log(`[updateContentBasedOnIndex] 🔄 Cleared state for Q${adjustedIndex + 1}`);
+    } catch (err) {
+      console.warn('[updateContentBasedOnIndex] ⚠️ State reset failed', err);
+    }
+
+    // 5) Ensure explanation flags are OFF before rendering the next question
+    this.explanationTextService.setShouldDisplayExplanation(false);
+    this.explanationTextService.setIsExplanationTextDisplayed(false);
+    this.explanationTextService.latestExplanation = '';
+
+    // 6) Give purge a frame to unlock so Q1 can’t sneak in
+    await this.nextFrame();
+
+    // 7) Load and render the new question
+    try {
+      await this.loadQuestionByRouteIndex(index);
+
+      // Seed the question text explicitly so we land on Q text, not FET
+      const q = this.quizService.questions?.[adjustedIndex];
+      const qText = (q?.questionText ?? '').toString().trim();
+      if (qText) {
+        // Use your actual question text subject if different
+        (this as any).questionToDisplaySubject?.next(qText);
+        console.log('[updateContentBasedOnIndex] 🪄 Seeded question text for Q', adjustedIndex + 1);
+      }
+
+      // Defer feedback paint slightly to avoid interleaving with seeding
+      setTimeout(() => this.displayFeedback(), 120);
+    } catch (err) {
+      console.error('[updateContentBasedOnIndex] ❌ Failed to load question', err);
+    } finally {
+      this.isNavigatedByUrl = false;
+    }
+
+    console.groupEnd();
+  }
+
 
   resetExplanationText(): void {
     this.explanationToDisplay = '';
