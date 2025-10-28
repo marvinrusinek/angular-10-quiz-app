@@ -1308,20 +1308,21 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     // FET source with explicit idx
     // Seed FET inputs so fetForIndex$ emits once at startup
     const fetForIndex$: Observable<FETState> = combineLatest([
-      (this.explanationTextService.formattedExplanation$ ?? of('')).pipe(startWith('')),
-      (this.explanationTextService.shouldDisplayExplanation$ ?? of(false)).pipe(startWith(false)),
-      (this.explanationTextService.activeIndex$ ?? of(-1)).pipe(startWith(-1))  // reactive index
+      this.explanationTextService.formattedExplanation$ ?? of(''),
+      this.explanationTextService.shouldDisplayExplanation$ ?? of(false),
+      this.explanationTextService.activeIndex$ ?? of(-1)
     ]).pipe(
       map(([text, gate, idx]) => ({
         idx,
         text: (text ?? '').trim(),
         gate: !!gate
       })),
-      distinctUntilChanged(
-        (a, b) => a.idx === b.idx && a.gate === b.gate && a.text === b.text
+      distinctUntilChanged((a, b) =>
+        a.idx === b.idx && a.gate === b.gate && a.text === b.text
       ),
       shareReplay({ bufferSize: 1, refCount: true })
     );
+    
   
     const shouldShow$ = this.explanationTextService.shouldDisplayExplanation$.pipe(
       map(Boolean),
