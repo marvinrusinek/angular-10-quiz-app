@@ -1273,11 +1273,14 @@ export class ExplanationTextService {
       return;
     }
   
-    // Valid emission — cache and broadcast
-    this.latestExplanation = next;
-    this.safeNext(text$, trimmed);
-    this.safeNext(this.shouldDisplayExplanation$, true);
-    this.safeNext(this.isExplanationTextDisplayed$, true);
+    // Valid emission — cache and broadcast after one paint
+    requestAnimationFrame(() => {
+      this.latestExplanation = next;
+      this.safeNext(text$, trimmed);
+      this.safeNext(this.shouldDisplayExplanation$, true);
+      this.safeNext(this.isExplanationTextDisplayed$, true);
+      console.log(`[ETS emitFormatted] ✅ emitted FET for Q${index + 1}`);
+    });
   
     console.log(`[ETS emitFormatted] ✅ emitted FET for Q${index + 1}`);
   }
