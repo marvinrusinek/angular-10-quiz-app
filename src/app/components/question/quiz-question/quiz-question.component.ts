@@ -5453,40 +5453,18 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       explanationText: clean || baseRaw,
     });
 
-    if (
-      this.currentQuestionIndex === i0 &&
-      this.explanationTextService._activeIndex === i0
-    ) {
+    if (this.currentQuestionIndex === i0 && this.explanationTextService._activeIndex === i0) {
       const svc: any = this.explanationTextService;
-    
-      // Prevent duplicate or premature FET emissions
-      const last = (svc.latestExplanation ?? '').trim();
       const next = (clean || baseRaw).trim();
     
-      if (!next) {
-        console.log(`[🧠 FET] ⏸ Empty explanation for Q${i0 + 1} — skip emit.`);
-        return clean || baseRaw;
-      }
+      if (!next || next === svc.latestExplanation?.trim()) return clean || baseRaw;
     
-      if (next === last) {
-        console.log(`[🧠 FET] ⏸ Skipping redundant emit for Q${i0 + 1}`);
-        return clean || baseRaw;
-      }
+      svc.setExplanationText(next);
+      svc.setShouldDisplayExplanation(true);
     
-      // Emit explanation and flag together in one atomic UI update
-      this.ngZone.run(() => {
-        svc.setExplanationText(next);
-        svc.setShouldDisplayExplanation(true);
-        this.explanationToDisplay = next;
-        this.explanationToDisplayChange.emit(next);
-        this.cdRef.markForCheck();
-        this.cdRef.detectChanges();
-      });
-    
-      // Unlock AFTER a paint frame so stale emissions can't leak in
       requestAnimationFrame(() => {
         svc._fetLocked = false;
-        console.log(`[🧠 FET] 🔓 Unlocking FET gate for Q${i0 + 1}`);
+        console.log(`[🧠 FET] 🔓 post-emit unlock for Q${i0 + 1}`);
       });
     
       return next;
