@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, EMPTY, Observable, of, ReplaySubject, Subject } from 'rxjs';
-import { distinctUntilChanged, filter, map, shareReplay, switchMap, take, timeout } from 'rxjs/operators';
+import { debounceTime, distinctUntilChanged, filter, map, shareReplay, switchMap, take, timeout } from 'rxjs/operators';
 import { firstValueFrom } from '../../shared/utils/rxjs-compat';
 
 import { QuestionType } from '../../shared/models/question-type.enum';
@@ -129,8 +129,18 @@ export class ExplanationTextService {
 
   // Bridge stream to always show only the active question's explanation
   public readonly displayedFET$: Observable<string | null> = this.activeIndex$.pipe(
-    switchMap((i) => this.getOrCreate(i).text$),
-    distinctUntilChanged(),
+    debounceTime(0),
+    switchMap(i =>
+      this.getOrCreate(i).text$.pipe(
+        // Ignore emissions while locked or from wrong index
+        filter(txt => {
+          const valid = !this._fetLocked && !!txt && txt.trim() !== '' && txt.trim() !== 'No explanation available';
+          if (!valid) console.log(`[displayedFET$] ⏸ dropped (locked=${this._fetLocked})`);
+          return valid;
+        }),
+        distinctUntilChanged()
+      )
+    ),
     shareReplay({ bufferSize: 1, refCount: true })
   );
 
@@ -292,15 +302,16 @@ export class ExplanationTextService {
     // 🧹 Step 1: Hard reset any stale emission whenever a new question index is requested
     // Prevents replay of previous question’s FET (e.g., Q1 showing on Q2)
     // ────────────────────────────────────────────────
-    // ──────────────────────0──────────────────────────
+    // ────────────────────────────────────────────────
     // 🧹 Step 1: Fully purge cached FET state if switching question
     // Prevents Q1’s explanation from leaking into Q2.
     // ────────────────────────────────────────────────
     if (this._activeIndex !== questionIndex) {
       try {
         // Clear all channels immediately before anything else runs
-        if (this.formattedExplanationSubject?.getValue?.() !== '')
+        if ((this.latestExplanation ?? '') !== '') {
           this.formattedExplanationSubject?.next('');
+        }
         
         this.emitFormatted(this._activeIndex, null);
         this.setGate(this._activeIndex, false);
@@ -1214,43 +1225,40 @@ export class ExplanationTextService {
     console.log(
       `[ETS] emitFormatted → idx=${index}, active=${this._activeIndex}, locked=${this._fetLocked}`
     );
+
+    // Drop any emission for an index lower than current (old question FET)
+    if (typeof index === 'number' && index < this._activeIndex) {
+      console.log(`[ETS emitFormatted] 🚫 stale emission from Q${index + 1} (active=${this._activeIndex + 1})`);
+      return;
+    }
     
     const { text$ } = this.getOrCreate(index);
     const trimmed = (value ?? '').trim() || null;
   
-    // ────────────────────────────────────────────────
-    // Transition / gate lock: silence emissions during navigation
-    // ────────────────────────────────────────────────
+    // Transition/gate lock: silence emissions during navigation
     if (this._fetLocked || this._transitionLock) {
       console.log(`[ETS emitFormatted] 🔒 locked, drop emit for Q${index + 1}`);
       return;
     }
   
-    // ────────────────────────────────────────────────
     // Only accept for the current active index
     // (allow -1 for explicit "clear" calls)
-    // ────────────────────────────────────────────────
     if (index !== this._activeIndex && index !== -1) {
       console.log(`[ETS emitFormatted] 🚫 stale emit (incoming=${index}, active=${this._activeIndex})`);
       return;
     }
   
-    // ────────────────────────────────────────────────
     // Skip duplicate FET re-emits for same text
-    // ────────────────────────────────────────────────
     const last = (this.latestExplanation ?? '').trim();
     const next = (trimmed ?? '').trim();
     if (last && next && last === next) return;
   
-    // ────────────────────────────────────────────────
     // Update cache and emit safely
-    // ────────────────────────────────────────────────
     this.latestExplanation = next;
     this.safeNext(text$, trimmed);
     this.safeNext(this.shouldDisplayExplanation$, !!next);
     this.safeNext(this.isExplanationTextDisplayed$, !!next);
-  }
-  
+  }  
   
   // ---- Per-index gate
   public gate$(index: number): Observable<boolean> {
@@ -1749,7 +1757,7 @@ export class ExplanationTextService {
       if (this._gateToken !== token) return;
       this._fetLocked = false;
       console.log(`[ETS] 🔓 unlocked for Q${newIndex + 1}`);
-    }, 160);
+    }, 170);
   }
 
   public lockDuringTransition(ms = 100): void {
@@ -1761,4 +1769,9 @@ export class ExplanationTextService {
   private safeNext<T>(s: any, v: T) {
     if (s && typeof s.next === 'function') s.next(v);
   }
+
+  public forceUnlockAfterNavigation(): void {
+    this._fetLocked = false;
+    console.log(`[ETS] ⚡ forceUnlockAfterNavigation() – gate manually opened`);
+  }  
 }
