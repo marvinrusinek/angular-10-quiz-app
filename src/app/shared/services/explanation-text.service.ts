@@ -126,6 +126,7 @@ export class ExplanationTextService {
   private _pendingReset?: number;
   private _transitionLock = false;
   private _gateToken = 0;
+  private _currentGateToken = 0;
   private _textMap: Map<number, { text$: ReplaySubject<string> }> = new Map();
 
   private _instanceId: string = ''; 
@@ -1244,6 +1245,11 @@ export class ExplanationTextService {
 
   // ---- Emit per-index formatted text; coalesces duplicates and broadcasts event
   public emitFormatted(index: number, value: string | null): void {
+    if (this._gateToken !== this._currentGateToken) {
+      console.log(`[ETS] 🚫 Late emission dropped for Q${index + 1}`);
+      return;
+    }
+    
     console.log(
       `[ETS] emitFormatted → idx=${index}, active=${this._activeIndex}, locked=${this._fetLocked}`
     );
@@ -1821,36 +1827,26 @@ export class ExplanationTextService {
   } */
   public purgeAndDefer(newIndex: number): void {
     console.log(`[ETS ${this._instanceId}] 🔄 purgeAndDefer(${newIndex})`);
-    const token = ++this._gateToken;
-  
-    // 1️⃣ Flip index FIRST so all stale emissions get rejected
+    this._gateToken++;
+    this._currentGateToken = this._gateToken;
+
+    // Flip index FIRST so all stale emissions get rejected
     this._activeIndex = newIndex;
     this._fetLocked = true;
-  
-    // 2️⃣ Hard clear any residual state
-    if (Array.isArray(this.formattedExplanations)) {
-      this.formattedExplanations.length = 0;
-    }
-  
-    // 🧹 Rebuild the ReplaySubject to drop old FET replays entirely
-    if (this.formattedExplanationSubject) {
-      this.formattedExplanationSubject.complete();
-      this.formattedExplanationSubject = new ReplaySubject<string>(1);
-      this.formattedExplanation$ = this.formattedExplanationSubject.asObservable();
-      this.formattedExplanationSubject.next(''); // benign placeholder for combineLatest
-      console.log(`[ETS ${this._instanceId}] 🧹 rebuilt formattedExplanationSubject`);
-    }
-  
-    (this._textMap as any)?.clear?.();
+
+    // Hard clear all previous state
     this.latestExplanation = '';
+    if (Array.isArray(this.formattedExplanations)) this.formattedExplanations.length = 0;
+    this.formattedExplanationSubject?.next('');
+    (this._textMap as any)?.clear?.();
   
-    // 3️⃣ Reset gating flags
+    // Reset flags
     this.setShouldDisplayExplanation(false);
     this.setIsExplanationTextDisplayed(false);
-  
-    // 4️⃣ Unlock shortly after the DOM settles
+ 
+    // Unlock shortly after the DOM settles
     setTimeout(() => {
-      if (this._gateToken !== token) return;
+      // if (this._gateToken !== token) return;
       this._fetLocked = false;
       console.log(`[ETS ${this._instanceId}] 🔓 early unlock for Q${newIndex + 1}`);
     }, 40);
