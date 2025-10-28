@@ -5370,11 +5370,14 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   async updateExplanationText(index: number): Promise<string> {
     const i0 = this.normalizeIndex(index);
     const q = this.questions?.[i0];
+
+    if (this.explanationTextService._fetLocked) {
+      console.log(`[QQC] 🔒 Skipping updateExplanationText for Q${index + 1} while locked`);
+      return '';
+    }
   
-    // ────────────────────────────────────────────────
     // 🧹 Step 1: Purge previous FET *before anything else*
     // (This clears Q1’s cache before we even touch Q2’s data)
-    // ────────────────────────────────────────────────
     try {
       this.explanationTextService.purgeAndDefer(i0);
       console.log(`[QQC] 🔄 Purged FET state before formatting Q${i0 + 1}`);
@@ -5385,9 +5388,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     // Allow one animation frame for the purge to settle
     await new Promise(res => requestAnimationFrame(res));
   
-    // ────────────────────────────────────────────────
     // 🧠 Step 2: Determine the base explanation text
-    // ────────────────────────────────────────────────
     // Prefer the model’s raw explanation; ignore cache if index mismatch
     const svc = this.explanationTextService;
     const svcCached =
