@@ -2788,7 +2788,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
           this.currentQuiz = this.quizService.getActiveQuiz();
           console.log(`[Route Init] ✅ Loaded Q${this.currentQuestionIndex}`);
 
-          await this.acquireAndNavigateToQuestion(this.currentQuestionIndex);
+          await this.resetAndLoadQuestion(this.currentQuestionIndex);
         },
         complete: () => {
           console.log('[Route Init] 🟢 Initialization complete.');
@@ -4548,8 +4548,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       console.warn('[setQuestionDetails] ⚠️ Explanation fallback triggered');
     }
   }
-
-  private async acquireAndNavigateToQuestion(questionIndex: number):
+  
+  private async resetAndLoadQuestion(questionIndex: number):
     Promise<void> {
     try {
       const currentBadgeNumber = this.quizService.getCurrentBadgeNumber();
@@ -4567,14 +4567,13 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.optionsToDisplay = [];
       this.currentQuestion = null;
 
-      // Add navigation to load Q&A
-      await this.loadAndRouteToQuestion(questionIndex);
+      await this.handleQuestionLoad(questionIndex);
     } catch (error) {
       console.error('Error during acquireAndNavigateToQuestion():', error);
     }
   }
-
-  private async loadAndRouteToQuestion(index: number): Promise<boolean> {
+  
+  private async handleQuestionLoad(index: number): Promise<boolean> {
     if (!this.isValidIndex(index)) return false;
 
     this.resetSharedUIState();
@@ -4582,9 +4581,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
     const fetched = await this.acquireQuestionData(index);
     if (!fetched) return false;
-
-    const navSuccess = await this.attemptRouteUpdate(index);
-    if (!navSuccess) return false;
 
     // Compute and emit "# of correct answers" banner
     requestAnimationFrame(() => this.emitCorrectAnswersBanner(index));
@@ -4630,7 +4626,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   private updateBadgeText(): void {
     const index = this.quizService.getCurrentQuestionIndex();
     if (index >= 0 && index < this.totalQuestions) {
-      this.quizService.updateBadgeText(index + 1, this.totalQuestions);
     } else {
       console.warn('[⚠️ Badge update skipped] Invalid index or totalQuestions');
     }
