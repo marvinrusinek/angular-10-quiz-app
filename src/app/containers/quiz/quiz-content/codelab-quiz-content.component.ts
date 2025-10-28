@@ -1470,6 +1470,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       // ────────────────────────────────
       auditTime(50),  // waits ~1 frame before passing combined emission
       filter(([ , question ]) => question?.trim().length > 0),
+      filter(() => !this.explanationTextService._fetLocked),
   
       map(
         ([ idx, question, banner, fet, shouldShow, ..._rest]: 
