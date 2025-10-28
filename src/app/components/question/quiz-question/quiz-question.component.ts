@@ -6904,6 +6904,14 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     try {
       this.fixedQuestionIndex = i0;
       this.currentQuestionIndex = i0;
+
+      const ets = this.explanationTextService;
+
+      // ⏸ Wait if the explanation gate is still locked
+      if (ets._fetLocked) {
+        console.log(`[onOptionClicked] Waiting for FET unlock before processing Q${this.currentQuestionIndex + 1}`);
+        await new Promise(res => setTimeout(res, 60));
+      }
  
       // Compute formatted by index; this now uses the proper formatter signature
       const formattedNow = (await this.updateExplanationText(i0))?.toString().trim() ?? '';
@@ -6922,7 +6930,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         }
       
         // Use the retried value instead
-        this.explanationTextService.emitFormatted(i0, retry);
+        ets.emitFormatted(i0, retry);
         this.ngZone.run(() => {
           this.explanationToDisplay = retry;
           this.explanationToDisplayChange.emit(retry);
@@ -6932,7 +6940,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         return;
       }
 
-      this.explanationTextService.emitFormatted(i0, formattedNow);
+      ets.emitFormatted(i0, formattedNow);
  
       // We already wrote to the stream inside updateExplanationText if still on i0,
       // but ensure the local mirrors are updated too.
@@ -6946,11 +6954,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       // If nothing formatted, seed with best available raw and keep UI consistent
       const rawBest =
         ((this.questions[i0]?.explanation ?? '') as string).toString().trim() ||
-        ((this.explanationTextService?.formattedExplanations[i0].explanation ?? '') as string).toString().trim() ||
+        ((ets.formattedExplanations[i0].explanation ?? '') as string).toString().trim() ||
         'Explanation not available.';
  
       this.ngZone.run(() => {
-        this.explanationTextService.setExplanationText(rawBest);
+        ets.setExplanationText(rawBest);
         this.explanationToDisplay = rawBest;
         this.explanationToDisplayChange.emit(rawBest);
         this.cdRef.markForCheck();
@@ -6966,7 +6974,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
             (this.currentQuestionIndex ?? 0);
           if (active !== i0) return;
           this.ngZone.run(() => {
-            this.explanationTextService.setExplanationText(out);
+            ets.setExplanationText(out);
             this.explanationToDisplay = out;
             this.explanationToDisplayChange.emit(out);
             this.cdRef.markForCheck();
