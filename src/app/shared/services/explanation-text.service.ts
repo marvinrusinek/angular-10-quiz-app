@@ -1253,6 +1253,11 @@ export class ExplanationTextService {
     console.log(
       `[ETS] emitFormatted → idx=${index}, active=${this._activeIndex}, locked=${this._fetLocked}`
     );
+
+    if (index < this._activeIndex) {
+      console.log(`[ETS emitFormatted] 🚫 stale emit from older question Q${index + 1}`);
+      return;
+    }
   
     // Suppress startup or empty clears (prevents Q1 flash)
     if (index === -1 && (!value || value.trim() === '')) {
