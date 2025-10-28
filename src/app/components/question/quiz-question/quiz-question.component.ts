@@ -5453,7 +5453,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       explanationText: clean || baseRaw,
     });
 
-    if (this.currentQuestionIndex === i0) {
+    if (
+      this.currentQuestionIndex === i0 &&
+      this.explanationTextService._activeIndex === i0
+    ) {
       const svc: any = this.explanationTextService;
     
       // Prevent duplicate or premature FET emissions
@@ -5470,10 +5473,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         return clean || baseRaw;
       }
     
-      // Unlock only when new content is actually ready
-      svc._fetLocked = false;
-      console.log(`[🧠 FET] 🔓 Unlocking FET gate for Q${i0 + 1}`);
-    
       // Emit explanation and flag together in one atomic UI update
       this.ngZone.run(() => {
         svc.setExplanationText(next);
@@ -5482,6 +5481,12 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         this.explanationToDisplayChange.emit(next);
         this.cdRef.markForCheck();
         this.cdRef.detectChanges();
+      });
+    
+      // Unlock AFTER a paint frame so stale emissions can't leak in
+      requestAnimationFrame(() => {
+        svc._fetLocked = false;
+        console.log(`[🧠 FET] 🔓 Unlocking FET gate for Q${i0 + 1}`);
       });
     
       return next;
