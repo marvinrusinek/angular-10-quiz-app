@@ -142,11 +142,7 @@ export class ExplanationTextService {
             !!txt &&
             txt.trim() !== '' &&
             txt.trim() !== 'No explanation available for this question.' &&
-            this._activeIndex === activeIdx; // ← hard guard
-  
-          if (!valid) {
-            console.log(`[displayedFET$] drop: fetFor=${activeIdx}, active=${this._activeIndex}, locked=${this._fetLocked}`);
-          }
+            this._activeIndex === activeIdx;
           return valid;
         }),
         distinctUntilChanged()
@@ -1780,26 +1776,26 @@ export class ExplanationTextService {
     const token = ++this._gateToken;
     console.log(`[ETS] 🔄 purgeAndDefer(${newIndex})`);
   
-    // cancel timer
+    // 🔒 Immediately lock emissions
+    this._fetLocked = true;
+  
+    // Cancel any pending unlock
     if (this._pendingReset) clearTimeout(this._pendingReset);
   
-    // clear old text
+    // Replace old subject — late Q1 emissions are lost instantly
     const prev = this._activeIndex;
-
-    // Replace the old subject with a fresh ReplaySubject so late emissions are lost
     this._textMap.set(prev, { text$: new ReplaySubject<string>(1) });
-
-    // Clear old global FET channels
+  
+    // Clear global channels
     this.formattedExplanationSubject?.next('');
     this.latestExplanation = '';
   
-    // lock + switch
-    this._fetLocked = true;
+    // Immediately switch active index
     this._activeIndex = newIndex;
     this.activeIndex$.next(newIndex);
-    console.log(`[ETS] 🔒 locked for Q${newIndex + 1}`);
+    console.log(`[ETS] 🔒 locked + switched active index → Q${newIndex + 1}`);
   
-    // reopen later
+    // Unlock *after* next paint
     this._pendingReset = window.setTimeout(() => {
       if (this._gateToken !== token) return;
       requestAnimationFrame(() => {
