@@ -2246,6 +2246,12 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     try {
       await this.loadQuestionByRouteIndex(index);
 
+      // Give DOM one frame, then unlock FET gate
+      requestAnimationFrame(() => {
+        this.explanationTextService._fetLocked = false;
+        console.log(`[updateContentBasedOnIndex] 🔓 FET unlocked post-render for Q${adjustedIndex + 1}`);
+      });
+
       // Seed the question text explicitly so we land on Q text, not FET
       const q = this.quizService.questions?.[adjustedIndex];
       const qText = (q?.questionText ?? '').toString().trim();
