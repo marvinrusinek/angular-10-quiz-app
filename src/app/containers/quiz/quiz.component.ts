@@ -2916,18 +2916,24 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
           // Store the quiz
           this.quiz = data.quizData;
   
-          // ────────────────────────────────────────────────
-          // 🧹 Reset ExplanationTextService state before loading
+          // Reset ExplanationTextService state before loading
           // Ensures no stale FET (e.g., Q1) persists across sessions or restarts
-          // ────────────────────────────────────────────────
           try {
             const ets = this.explanationTextService;
             ets._activeIndex = -1;
+            ets._fetLocked = true;
             ets.latestExplanation = '';
             ets.setShouldDisplayExplanation(false);
             ets.setIsExplanationTextDisplayed(false);
             ets.formattedExplanationSubject?.next('');
             ets.emitFormatted(-1, null);  // run immediately, not deferred
+            
+            // Unlock only after first question text is seeded
+            setTimeout(() => {
+              ets._fetLocked = false;
+              console.log('[INIT] 🔓 FET gate opened after first-question seed');
+            }, 200);
+
             console.log('[INIT] Cleared old FET state before first render');
           } catch (err) {
             console.warn('[INIT] ⚠️ FET clear failed', err);
