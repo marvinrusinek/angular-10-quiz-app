@@ -1243,9 +1243,17 @@ export class ExplanationTextService {
       `[ETS] emitFormatted → idx=${index}, active=${this._activeIndex}, locked=${this._fetLocked}`
     );
 
-    // Drop any emission for an index lower than current (old question FET)
-    if (typeof index === 'number' && index < this._activeIndex) {
-      console.log(`[ETS emitFormatted] 🚫 stale emission from Q${index + 1} (active=${this._activeIndex + 1})`);
+    // Drop any emission that does not belong to the currently active question
+    if (index !== this._activeIndex) {
+      console.log(
+        `[ETS emitFormatted] 🚫 stale emission from Q${index + 1} (active=${this._activeIndex + 1})`
+      );
+      return;
+    }
+
+    // Drop while locked
+    if (this._fetLocked) {
+      console.log(`[ETS emitFormatted] ⏸ locked → suppress emit for Q${index + 1}`);
       return;
     }
     
