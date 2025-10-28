@@ -5013,16 +5013,14 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   restartQuiz(): void {
     console.log('[RESTART] Triggered quiz restart.');
   
-    // 🧹───────────────────────────────────────────────
     // PRE-RESET: wipe all reactive quiz state and gates
     // (Prevents Q2/Q3 flickering and stale FET frames)
-    // ────────────────────────────────────────────────
-  
-    // 1️⃣ Reset explanation display flags
+ 
+    // Reset explanation display flags
     this.explanationTextService.setShouldDisplayExplanation(false, { force: true });
     this.explanationTextService.setIsExplanationTextDisplayed(false);
   
-    // 2️⃣ Clear all cached explanation / gate subjects
+    // Clear all cached explanation / gate subjects
     if (this.explanationTextService._byIndex) {
       this.explanationTextService._byIndex.clear();
     }
@@ -5030,11 +5028,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.explanationTextService._gatesByIndex.clear();
     }
   
-    // 3️⃣ Reset any internal locks / trackers
+    // Reset any internal locks / trackers
     this.explanationTextService._fetLocked = null;
     this.explanationTextService._fetLockedIndex = null;
   
-    // 4️⃣ Clear local component render trackers
+    // Clear local component render trackers
     this._lastRenderedIndex = -1;
     this._fetLockedIndex = null;
     this._firstStableFrameDone = false;
@@ -5044,27 +5042,24 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this._indexSwitchTime = 0;
     this._renderStableAfter = 0;
   
-    // 5️⃣ Reset question text BehaviorSubject (prevents “?” or old Q showing)
+    // Reset question text BehaviorSubject (prevents “?” or old Q showing)
     try {
       this.quizQuestionLoaderService?.questionToDisplay$?.next('');
     } catch {
       console.warn('[RESET] questionToDisplay$ not available');
     }
   
-    // 6️⃣ Force display back to question mode
+    // Force display back to question mode
     this.quizStateService.displayStateSubject?.next({ mode: 'question', answered: false });
   
     console.log('[RESET] Reactive quiz state cleared.');
   
-    // ────────────────────────────────────────────────
-    // 🔁 EXISTING RESET LOGIC (unchanged below)
-    // ────────────────────────────────────────────────
-  
+    // EXISTING RESET LOGIC (unchanged below)
     // Clear selection/answer maps
     this.selectedOptionService.clearSelectedOption();
     this.selectedOptionService.clearSelection();
     this.selectedOptionService.deselectOption();
-    this.selectedOptionService.resetSelectionState?.();
+    this.selectedOptionService.resetSelectionState();
     this.selectedOptionService.selectedOptionsMap.clear();
   
     this.selectedOptionService.setAnswered(false);
@@ -5072,7 +5067,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
     // Reset explanation to hidden + question mode
     this.explanationTextService.resetExplanationText();
-    this.explanationTextService.unlockExplanation?.();
+    this.explanationTextService.unlockExplanation();
     this.explanationTextService.setShouldDisplayExplanation(false);
     this.quizStateService.setDisplayState({ mode: 'question', answered: false });
   
@@ -5080,7 +5075,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.nextButtonStateService.setNextButtonState(false);
   
     // Clear child-local state
-    this.quizQuestionComponent?.selectedIndices?.clear?.();
+    this.quizQuestionComponent?.selectedIndices?.clear();
   
     // Reset sounds/timer
     this.soundService.reset?.();
@@ -5091,10 +5086,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       // Sync current index
       this.currentQuestionIndex = 0;
       this.quizService.setCurrentQuestionIndex(0);
-      this.quizService.updateBadgeText?.(1, this.totalQuestions);
+      this.quizService.updateBadgeText(1, this.totalQuestions);
   
       // Ensure child resets itself for Q1
-      this.quizQuestionComponent?.resetForQuestion?.(0);
+      this.quizQuestionComponent?.resetForQuestion(0);
   
       // Guarantee Next is off for Q1
       this.nextButtonStateService.setNextButtonState(false);
@@ -5102,7 +5097,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
       // Mark interactive so first click is processed immediately
       queueMicrotask(() => {
-        this.quizStateService.setInteractionReady?.(true);
+        this.quizStateService.setInteractionReady(true);
   
         // Start timer on next frame after paint
         requestAnimationFrame(() => {
