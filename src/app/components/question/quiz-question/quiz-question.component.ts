@@ -5406,6 +5406,19 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       // Fallback only when same index *and* no in-question explanation
       baseRaw = svcCached;
     }
+
+    // Wait until purge lock fully opens
+    if (svc._fetLocked) {
+      console.log(`[QQC] 💤 Waiting for FET unlock before formatting Q${i0 + 1}`);
+      await new Promise<void>(resolve => {
+        const interval = setInterval(() => {
+          if (!svc._fetLocked) {
+            clearInterval(interval);
+            resolve();
+          }
+        }, 10);  // check every 10 ms
+      });
+    }
   
     console.warn('[🧠 updateExplanationText CALLED]', {
       index: i0,
