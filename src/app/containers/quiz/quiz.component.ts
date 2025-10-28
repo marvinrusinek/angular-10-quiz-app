@@ -2926,13 +2926,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
             ets.setShouldDisplayExplanation(false);
             ets.setIsExplanationTextDisplayed(false);
             ets.formattedExplanationSubject?.next('');
-            ets.emitFormatted(-1, null);  // run immediately, not deferred
-            
-            // Unlock only after first question text is seeded
-            setTimeout(() => {
-              ets._fetLocked = false;
-              console.log('[INIT] 🔓 FET gate opened after first-question seed');
-            }, 200);
+
+            // Defer clear emission one frame to avoid race with subject recreation
+            requestAnimationFrame(() => ets.emitFormatted(-1, null));
 
             console.log('[INIT] Cleared old FET state before first render');
           } catch (err) {
@@ -2961,6 +2957,12 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
             if (trimmed.length > 0) {
               this.questionToDisplaySubject.next(trimmed);
               console.log('[QUIZ INIT] 🪄 Seeded initial question text for Q1');
+          
+              // Unlock gate only *after* first text is stable
+              setTimeout(() => {
+                this.explanationTextService._fetLocked = false;
+                console.log('[INIT] 🔓 FET gate opened after first-question seed');
+              }, 80);
             }
           }
 
