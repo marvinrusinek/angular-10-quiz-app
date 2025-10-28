@@ -264,6 +264,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   waitingForReady = false;
   deferredClick?: { option: SelectedOption | null, index: number, checked: boolean, wasReselected?: boolean };
 
+  private _wasHidden = false;
   private _hiddenAt: number | null = null;
   private _elapsedAtHide: number | null = null;
   private _pendingRAF: number | null = null;
@@ -983,15 +984,19 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   } */
   @HostListener('window:visibilitychange', [])
   async onVisibilityChange(): Promise<void> {
+    // ────────────────────────────────────────────────
+    //  HIDDEN STATE (User switches away from tab)
+    // ────────────────────────────────────────────────
     if (document.visibilityState === 'hidden') {
+      this._wasHidden = true;  // mark hidden phase
+
       try {
         const idx = this.currentQuestionIndex ?? 0;
         const qState = this.quizStateService.getQuestionState(this.quizId, idx);
         this.quizStateService.setQuestionState(this.quizId, idx, {
           ...qState,
           explanationDisplayed: this.displayExplanation,
-          explanationText:
-            this.explanationTextService.latestExplanation ?? ''
+          explanationText: this.explanationTextService.latestExplanation ?? ''
         });
         console.log(
           `[VISIBILITY] 💾 Saved FET display state for Q${idx + 1}:`,
@@ -1000,7 +1005,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       } catch (err) {
         console.warn('[VISIBILITY] ⚠️ Failed to persist FET state', err);
       }
-   
+
       // ────────────────────────────────────────────────
       // Explanation state reset before backgrounding
       // Prevents stale FET (e.g. Q1’s) from replaying on restore
@@ -1016,7 +1021,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       } catch (err) {
         console.warn('[VISIBILITY] ⚠️ Failed to reset FET cache before sleep', err);
       }
-   
+
       try {
         const snap = await firstValueFrom<number>(
           this.timerService.elapsedTime$.pipe(take(1))
@@ -1025,7 +1030,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       } catch {
         this._elapsedAtHide = null;
       }
-   
+
       this._hiddenAt = performance.now();
       return;
     }
@@ -1057,7 +1062,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
         if (!alreadyShowing) {
           this.timerService.stopTimer?.(undefined, { force: true });
-          this.ngZone.run(() => { this.onTimerExpiredFor(i0); });
+          this.ngZone.run(() => {
+            this.onTimerExpiredFor(i0);
+          });
           this._hiddenAt = null;
           this._elapsedAtHide = null;
           return;
@@ -1076,20 +1083,20 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     try {
       if (document.visibilityState === 'visible') {
         console.log('[onVisibilityChange] 🟢 Restoring quiz state...');
-     
+
         // LOCK RESTORATION PHASE
         this._visibilityRestoreInProgress = true;
         (this.explanationTextService as any)._visibilityLocked = true;
-     
+
         // Give it a full frame to stabilize before letting observables fire
         this._suppressDisplayStateUntil = performance.now() + 300;
-     
+
         // Ensure base quiz state restored
         await this.restoreQuizState();
 
         // ✅ Mark that restoration has occurred so the UI can safely resume rendering
         this.quizStateService.hasRestoredOnce = true;
-     
+
         // Ensure options are ready
         if (!Array.isArray(this.optionsToDisplay) || this.optionsToDisplay.length === 0) {
           console.warn('[onVisibilityChange] ⚠️ optionsToDisplay empty → repopulating');
@@ -1104,18 +1111,18 @@ export class QuizQuestionComponent extends BaseQuestionComponent
             return;
           }
         }
-     
+
         // Restore feedback and selection
         if (this.currentQuestion) {
           this.restoreFeedbackState();
-     
+
           setTimeout(() => {
             const prevOpt = this.optionsToDisplay.find(o => o.selected);
             if (prevOpt) {
               this.applyOptionFeedback(prevOpt);
             }
           }, 50);
-     
+
           try {
             const feedbackText = await this.generateFeedbackText(this.currentQuestion);
             this.feedbackText = feedbackText;
@@ -1123,21 +1130,33 @@ export class QuizQuestionComponent extends BaseQuestionComponent
             console.error('[onVisibilityChange] ❌ Error generating feedback text:', error);
           }
         }
-     
+
         // Debounce before restoring FET (ensures no race)
         await new Promise(res => setTimeout(res, 60));
-     
+
+        // ────────────────────────────────────────────────
+        // NEW: Purge only if user navigated to another question while hidden
+        // ────────────────────────────────────────────────
+        const qIdx = this.currentQuestionIndex ?? 0;
+        if (this._wasHidden && qIdx !== this.explanationTextService._activeIndex) {
+          console.log(`[Visibility] User navigated while hidden → purging FET for Q${qIdx + 1}`);
+          this.explanationTextService.purgeAndDefer(qIdx);
+        } else {
+          console.log('[Visibility] Same question — skipping FET clear');
+        }
+
+        this._wasHidden = false; // 👈 reset flag
+
         // Authoritative FET restore (locked phase)
         try {
-          const qIdx = this.currentQuestionIndex ?? 0;
           const qState = this.quizStateService.getQuestionState(this.quizId, qIdx);
           const shouldShowExplanation =
             qState?.explanationDisplayed === true ||
             (this.explanationTextService as any)?.shouldDisplayExplanation$.value === true;
-     
+
           if (shouldShowExplanation) {
             this.displayExplanation = true;
-     
+
             // Prevent premature state flipping while restoring
             this.explanationTextService.setShouldDisplayExplanation(true, { force: true });
             this.explanationTextService.setIsExplanationTextDisplayed(true, { force: true });
@@ -1145,12 +1164,12 @@ export class QuizQuestionComponent extends BaseQuestionComponent
               qState?.explanationText ?? this.explanationTextService.latestExplanation ?? '',
               { force: true }
             );
-     
+
             this.safeSetDisplayState({ mode: 'explanation', answered: true });
             console.log(`[onVisibilityChange] ✅ Restored FET for Q${qIdx + 1}`);
           } else {
             this.displayExplanation = false;
-     
+
             this.explanationTextService.setShouldDisplayExplanation(false, { force: true });
             this.explanationTextService.setIsExplanationTextDisplayed(false, { force: true });
             this.safeSetDisplayState({ mode: 'question', answered: false });
@@ -1168,14 +1187,14 @@ export class QuizQuestionComponent extends BaseQuestionComponent
               try {
                 const ets = this.explanationTextService;
                 const qIdx = this.currentQuestionIndex ?? 0;
-           
+
                 // Re-sync explanation subjects to the current question only
                 ets._activeIndex = qIdx;
                 ets.updateFormattedExplanation('');  // clear stale text
                 ets.latestExplanation = '';
                 ets.setShouldDisplayExplanation(false);
                 ets.setIsExplanationTextDisplayed(false);
-           
+
                 console.log(`[VISIBILITY] 🔄 Explanation state refreshed for Q${qIdx + 1}`);
               } catch (err) {
                 console.warn('[VISIBILITY] ⚠️ Failed post-restore FET refresh', err);
@@ -1190,6 +1209,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       console.error('[onVisibilityChange] ❌ Error during state restoration:', error);
     }
   }
+
 
   setOptionsToDisplay(): void {
     const context = '[setOptionsToDisplay]';
@@ -5417,13 +5437,13 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     await new Promise(res => requestAnimationFrame(() => setTimeout(res, delayMs)));
  
     // Only emit live explanation text when it matches the active question
-    if (this.currentQuestionIndex === i0 && (clean || baseRaw)) {
+    /* if (this.currentQuestionIndex === i0 && (clean || baseRaw)) {
       console.log(`[🧠 FET] Emitting formatted text for Q${i0 + 1}`);
       this.explanationTextService.setExplanationText(clean || baseRaw);
       this.explanationTextService.setShouldDisplayExplanation(shouldDisplay);
     } else {
       console.warn(`[🧠 FET] Skipped emit — index mismatch or empty text`);
-    }
+    } */
  
     // Keep question state in sync
     const qState = this.quizStateService.getQuestionState(this.quizId, i0);
@@ -5433,12 +5453,38 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       explanationText: clean || baseRaw,
     });
 
-    if (this.currentQuestionIndex === i0 && (clean || baseRaw)) {
-      console.log(`[🧠 FET] Emitting formatted text for Q${i0 + 1}`);
+    if (this.currentQuestionIndex === i0) {
       const svc: any = this.explanationTextService;
-      svc._fetLocked = false; // unlock when truly ready
-      this.explanationTextService.setExplanationText(clean || baseRaw);
-      this.explanationTextService.setShouldDisplayExplanation(shouldDisplay);
+    
+      // Prevent duplicate or premature FET emissions
+      const last = (svc.latestExplanation ?? '').trim();
+      const next = (clean || baseRaw).trim();
+    
+      if (!next) {
+        console.log(`[🧠 FET] ⏸ Empty explanation for Q${i0 + 1} — skip emit.`);
+        return clean || baseRaw;
+      }
+    
+      if (next === last) {
+        console.log(`[🧠 FET] ⏸ Skipping redundant emit for Q${i0 + 1}`);
+        return clean || baseRaw;
+      }
+    
+      // Unlock only when new content is actually ready
+      svc._fetLocked = false;
+      console.log(`[🧠 FET] 🔓 Unlocking FET gate for Q${i0 + 1}`);
+    
+      // Emit explanation and flag together in one atomic UI update
+      this.ngZone.run(() => {
+        svc.setExplanationText(next);
+        svc.setShouldDisplayExplanation(true);
+        this.explanationToDisplay = next;
+        this.explanationToDisplayChange.emit(next);
+        this.cdRef.markForCheck();
+        this.cdRef.detectChanges();
+      });
+    
+      return next;
     }
  
     return clean || baseRaw;
@@ -6859,9 +6905,28 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       // Compute formatted by index; this now uses the proper formatter signature
       const formattedNow = (await this.updateExplanationText(i0))?.toString().trim() ?? '';
 
+      // Guard: skip empty or placeholder text, but wait one frame before giving up
       if (!formattedNow || formattedNow === 'No explanation available for this question.') {
-        console.log(`[QQC] 💤 Explanation not ready for Q${i0 + 1} — skipping emit.`);
-        return; // don’t emit placeholder
+        console.log(`[QQC] 💤 Explanation not ready for Q${i0 + 1} — deferring emit by one frame.`);
+      
+        // Wait one paint frame before re-checking
+        await new Promise(requestAnimationFrame);
+      
+        const retry = (await this.updateExplanationText(i0))?.toString().trim() ?? '';
+        if (!retry || retry === 'No explanation available for this question.') {
+          console.log(`[QQC] ⚠️ Still no explanation for Q${i0 + 1} — skipping emit.`);
+          return; // don’t emit placeholder
+        }
+      
+        // Use the retried value instead
+        this.explanationTextService.emitFormatted(i0, retry);
+        this.ngZone.run(() => {
+          this.explanationToDisplay = retry;
+          this.explanationToDisplayChange.emit(retry);
+          this.cdRef.markForCheck();
+          this.cdRef.detectChanges();
+        });
+        return;
       }
 
       this.explanationTextService.emitFormatted(i0, formattedNow);
