@@ -1247,19 +1247,18 @@ export class ExplanationTextService {
     console.log(
       `[ETS] emitFormatted → idx=${index}, active=${this._activeIndex}, locked=${this._fetLocked}`
     );
-
+  
     // Suppress startup or empty clears (prevents Q1 flash)
     if (index === -1 && (!value || value.trim() === '')) {
       console.log('[ETS emitFormatted] 💤 ignored empty startup clear');
       return;
     }
   
-    // Drop any emission not belonging to the active question (except -1 = explicit clear)
-    if (index !== this._activeIndex && index !== -1) {
+    // 🚫 Drop any emission not belonging to the active question
+    if (index !== this._activeIndex) {
       console.log(
-        `[ETS emitFormatted] 🚫 stale emission (incoming=${index}, active=${this._activeIndex})`
+        `[ETS emitFormatted] 🚫 stale emission ignored (incoming=${index}, active=${this._activeIndex})`
       );
-      this.latestExplanation = '';
       return;
     }
   
@@ -1285,17 +1284,21 @@ export class ExplanationTextService {
       return;
     }
   
-    // Valid emission — cache and broadcast after one paint
+    // Valid emission — cache and broadcast safely
+    this.latestExplanation = next;
+  
+    // Use RAF for smoothness, but re-check active index to prevent late Q1 leaks
     requestAnimationFrame(() => {
-      this.latestExplanation = next;
-      
+      if (index !== this._activeIndex || this._fetLocked) {
+        console.log(`[ETS emitFormatted] 🚫 skipped late emission for Q${index + 1}`);
+        return;
+      }
+  
       this.safeNext(text$, trimmed);
       this.safeNext(this.shouldDisplayExplanation$, true);
       this.safeNext(this.isExplanationTextDisplayed$, true);
       console.log(`[ETS emitFormatted] ✅ emitted FET for Q${index + 1}`);
     });
-  
-    console.log(`[ETS emitFormatted] ✅ emitted FET for Q${index + 1}`);
   }
   
   // ---- Per-index gate
