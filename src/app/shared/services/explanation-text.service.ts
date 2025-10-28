@@ -104,7 +104,7 @@ export class ExplanationTextService {
   // Track which indices currently have open gates (used for cleanup)
   public _gatesByIndex: Map<number, BehaviorSubject<boolean>> = new Map();
 
-  private _fetLocked = false;
+  public _fetLocked = false;
 
   public _emittedAtByIndex: Map<number, number> = new Map();  // track when each explanation text was emitted
 
@@ -1242,12 +1242,19 @@ export class ExplanationTextService {
     console.log(
       `[ETS] emitFormatted → idx=${index}, active=${this._activeIndex}, locked=${this._fetLocked}`
     );
+
+    // Suppress startup or empty clears (prevents Q1 flash)
+    if (index === -1 && (!value || value.trim() === '')) {
+      console.log('[ETS emitFormatted] 💤 ignored empty startup clear');
+      return;
+    }
   
     // Drop any emission not belonging to the active question (except -1 = explicit clear)
     if (index !== this._activeIndex && index !== -1) {
       console.log(
         `[ETS emitFormatted] 🚫 stale emission (incoming=${index}, active=${this._activeIndex})`
       );
+      this.latestExplanation = '';
       return;
     }
   
@@ -1780,38 +1787,54 @@ export class ExplanationTextService {
       console.log(`[ETS] 🔓 FET gate reopened for Q${newIndex + 1}`);
     }, 140);  // bump up slightly for safety on slower transitions
   } */
+  /* public purgeAndDefer(newIndex: number): void {
+    const token = ++this._gateToken;
+    console.log(`[ETS] 🔄 purgeAndDefer(${newIndex})`);
+  
+    // Immediately lock and change active index
+    this._fetLocked = true;
+    this._activeIndex = newIndex;
+  
+    // Wipe ALL caches to kill cross-question FET bleed
+    this.latestExplanation = '';
+    this.formattedExplanationSubject?.next('');
+    if (Array.isArray(this.formattedExplanations)) this.formattedExplanations.length = 0;
+    (this._textMap as any)?.clear?.();
+  
+    this.setShouldDisplayExplanation(false);
+    this.setIsExplanationTextDisplayed(false);
+  
+    // Unlock after 1 frame
+    requestAnimationFrame(() => {
+      this._fetLocked = false;
+      console.log(`[ETS] 🔓 unlocked for Q${newIndex + 1}`);
+    });
+  } */
   public purgeAndDefer(newIndex: number): void {
     const token = ++this._gateToken;
     console.log(`[ETS] 🔄 purgeAndDefer(${newIndex})`);
   
-    // 🔒 Immediately lock emissions
+    // 1️⃣ Flip index FIRST so all stale emissions get rejected
+    this._activeIndex = newIndex;
     this._fetLocked = true;
   
-    // Cancel any pending unlock
-    if (this._pendingReset) clearTimeout(this._pendingReset);
-  
-    // Replace old subject — late Q1 emissions are lost instantly
-    const prev = this._activeIndex;
-    this._textMap.set(prev, { text$: new ReplaySubject<string>(1) });
-  
-    // Clear global channels
-    this.formattedExplanationSubject?.next('');
+    // 2️⃣ Hard clear all previous state
     this.latestExplanation = '';
+    if (Array.isArray(this.formattedExplanations)) this.formattedExplanations.length = 0;
+    this.formattedExplanationSubject?.next('');
+    (this._textMap as any)?.clear?.();
   
-    // Immediately switch active index
-    this._activeIndex = newIndex;
-    this.activeIndex$.next(newIndex);
-    console.log(`[ETS] 🔒 locked + switched active index → Q${newIndex + 1}`);
+    // 3️⃣ Reset flags
+    this.setShouldDisplayExplanation(false);
+    this.setIsExplanationTextDisplayed(false);
   
-    // Unlock *after* next paint
-    this._pendingReset = window.setTimeout(() => {
-      if (this._gateToken !== token) return;
-      requestAnimationFrame(() => {
-        this._fetLocked = false;
-        console.log(`[ETS] 🔓 unlocked for Q${newIndex + 1}`);
-      });
-    }, 170);
+    // 4️⃣ Unlock after one frame (once DOM is ready)
+    requestAnimationFrame(() => {
+      this._fetLocked = false;
+      console.log(`[ETS] 🔓 unlocked for Q${newIndex + 1}`);
+    });
   }
+  
 
   public lockDuringTransition(ms = 100): void {
     this._transitionLock = true;
