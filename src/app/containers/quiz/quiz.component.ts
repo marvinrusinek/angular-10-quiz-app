@@ -2185,25 +2185,21 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       return;
     }
 
-    console.group(`[updateContentBasedOnIndex] Navigation → Q${adjustedIndex + 1}`);
-    console.log('Previous:', this.previousIndex, 'Next:', adjustedIndex);
-
-    // 0) No-op guard
+    // No-op guard
     if (this.previousIndex === adjustedIndex && !this.isNavigatedByUrl) {
       console.log('[updateContentBasedOnIndex] No navigation needed.');
       console.groupEnd();
       return;
     }
 
-    // 1) Publish the new index to all consumers FIRST (stops Q1→Q2 bleed)
+    // Publish the new index to all consumers FIRST (stops Q1→Q2 bleed)
     try {
       this.currentQuestionIndex = adjustedIndex;
       this.previousIndex = adjustedIndex;
-      // Use your real setter; fallback to BehaviorSubject if needed
-      (this.quizService as any).currentQuestionIndexSource?.next(adjustedIndex);
+      this.quizService.currentQuestionIndexSource?.next(adjustedIndex);
     } catch {}
 
-    // 2) Purge FET for the *new* active index (so late Q1 emits get rejected)
+    // Purge FET for the *new* active index (so late Q1 emits get rejected)
     try {
       this.explanationTextService.purgeAndDefer(adjustedIndex);
       console.log(`[updateContentBasedOnIndex] 🔄 Purged FET for Q${adjustedIndex + 1}`);
@@ -2211,12 +2207,12 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       console.warn(`[updateContentBasedOnIndex] ⚠️ purgeAndDefer failed`, err);
     }
 
-    // 3) Clear transient UI state
+    // Clear transient UI state
     this.resetExplanationText();
 
-    // 4) Clear selection/feedback (prevents first-option auto-highlight)
+    // Clear selection/feedback (prevents first-option auto-highlight)
     try {
-      this.selectedOptionService.resetAllStates?.();
+      this.selectedOptionService.resetAllStates();
       this.selectedOptionService.clearSelectionsForQuestion(adjustedIndex);
       // As a belt-and-suspenders, also scrub options arrays if they linger flags
       const qArr = this.quizService.questions ?? [];
@@ -2233,15 +2229,15 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       console.warn('[updateContentBasedOnIndex] ⚠️ State reset failed', err);
     }
 
-    // 5) Ensure explanation flags are OFF before rendering the next question
+    // Ensure explanation flags are OFF before rendering the next question
     this.explanationTextService.setShouldDisplayExplanation(false);
     this.explanationTextService.setIsExplanationTextDisplayed(false);
     this.explanationTextService.latestExplanation = '';
 
-    // 6) Give purge a frame to unlock so Q1 can’t sneak in
+    // Give purge a frame to unlock so Q1 can’t sneak in
     await this.nextFrame();
 
-    // 7) Load and render the new question
+    // Load and render the new question
     try {
       await this.loadQuestionByRouteIndex(index);
 
@@ -2249,8 +2245,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       const q = this.quizService.questions?.[adjustedIndex];
       const qText = (q?.questionText ?? '').toString().trim();
       if (qText) {
-        // Use your actual question text subject if different
-        (this as any).questionToDisplaySubject?.next(qText);
+        this.questionToDisplaySubject.next(qText);
         console.log('[updateContentBasedOnIndex] 🪄 Seeded question text for Q', adjustedIndex + 1);
       }
 
@@ -2261,8 +2256,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     } finally {
       this.isNavigatedByUrl = false;
     }
-
-    console.groupEnd();
   }
 
 
