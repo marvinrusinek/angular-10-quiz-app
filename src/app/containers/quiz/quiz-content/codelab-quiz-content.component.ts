@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, EventEmitter, Input, NgZone, OnChanges, OnDestroy, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core';
 import { ActivatedRoute, ParamMap } from '@angular/router';
-import { animationFrameScheduler, BehaviorSubject, combineLatest, EMPTY, forkJoin, Observable, of, Subject, Subscription, timer } from 'rxjs';
-import { auditTime, catchError, concatMap, concatWith, debounce, debounceTime, defer, delay, distinctUntilChanged, filter, first, map, mapTo, observeOn, pairwise, scan, shareReplay, skip, skipUntil, skipWhile, startWith, switchMap, take, takeUntil, tap, throttleTime, withLatestFrom } from 'rxjs/operators';
+import { animationFrameScheduler, BehaviorSubject, combineLatest, defer, EMPTY, forkJoin, Observable, of, Subject, Subscription, timer } from 'rxjs';
+import { auditTime, catchError, concatMap, concatWith, debounce, debounceTime, delay, distinctUntilChanged, filter, first, map, mapTo, observeOn, pairwise, scan, shareReplay, skip, skipUntil, skipWhile, startWith, switchMap, take, takeUntil, tap, throttleTime, withLatestFrom } from 'rxjs/operators';
 import { firstValueFrom } from '../../../shared/utils/rxjs-compat';
 
 import { CombinedQuestionDataType } from '../../../shared/models/CombinedQuestionDataType.model';
@@ -1281,11 +1281,13 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       shareReplay({ bufferSize: 1, refCount: true })
     );    
 
-    const questionText$ = this.questionToDisplay$.pipe(
-      startWith(''), // 🪄 ensure combineLatest has an initial value
-      map(q => (q ?? '').trim()),
-      distinctUntilChanged(),
-      shareReplay({ bufferSize: 1, refCount: true })
+    const questionText$ = defer(() => this.questionToDisplay$).pipe(
+      map(q => (q ?? '').trim()),                     // normalize to trimmed strings
+      filter(q => q.length > 0),                      // skip empty startup emissions
+      debounceTime(0),                                // merge microtasks in one tick
+      observeOn(animationFrameScheduler),             // wait for paint frame
+      distinctUntilChanged(),                         // avoid same-string repaint
+      shareReplay({ bufferSize: 1, refCount: true })  // cache latest stable text
     );
   
     /* const questionText$ = this.questionToDisplay$.pipe(
@@ -1468,80 +1470,62 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       // Coalesce multi-stream bursts (question, banner, FET clears)
       // Prevents flash of empty strings between renders
       // ────────────────────────────────
-      auditTime(50),  // waits ~1 frame before passing combined emission
+      auditTime(32),  // waits ~1 frame before passing combined emission
       filter(([ , question ]) => question?.trim().length > 0),
-      filter(() => !this.explanationTextService._fetLocked),
   
-      map(
-        ([ idx, question, banner, fet, shouldShow, ..._rest]: 
-         [ number, string, string, 
-          { idx: number; text: string; gate: boolean },
-          boolean, ...unknown[]
-        ]) => {
-        const qText = question.trim();
-        const bannerText = banner.trim();
-        const fetText = (fet?.text ?? '').trim();
-  
-        // HARD GUARD: skip stale index
-        const active = this.quizService.getCurrentQuestionIndex();
-        if (idx !== active) {
-          console.log(`[FrameDrop] stale idx=${idx}, active=${active}`);
-          return this._lastQuestionText || qText;
-        }
-  
-        // Only allow FET if it belongs to the current idx AND gate is open AND mode is explanation
-        const mode = this.quizStateService.displayStateSubject?.value?.mode ?? 'question';
-
-        // Drop any FET whose active index doesn't match the current question index
-        if (fet?.idx !== idx && fetText.length > 0) {
-          console.log(`[FrameSkip] Ignoring mismatched FET (fet.idx=${fet.idx}, current=${idx})`);
-          return this._lastQuestionText || question.trim();
-        }
-
-        const fetAllowed =
-          !!fet?.gate &&
-          fetText.length > 2 &&  // ignore trivial/seeded empty strings
-          fet.idx === idx &&
-          (shouldShow || mode === 'explanation');
-  
-        if (fetAllowed) {
-          this._lastQuestionText = fetText;  // remember what we showed
-          return fetText;
-        }
-        
-        // Ignore redundant FET re-emits
-        if (fetAllowed && this._lastQuestionText !== fetText) {
-          this._lastQuestionText = fetText;
-          return fetText;
-        }
-  
-        // Merge banner only in question mode
-        const qObj = this.quizService.questions?.[idx];
-        const isMulti =
-          !!qObj &&
-          (qObj.type === QuestionType.MultipleAnswer ||
-            (Array.isArray(qObj.options) && qObj.options.some(o => o.correct)));
-  
-        let merged = qText;
-        if (isMulti && bannerText && mode === 'question') {
-          merged = `${qText} <span class="correct-count">${bannerText}</span>`;
-        }
-  
-        this._lastQuestionText = merged;
-        return merged;
-      }),
+      map(([idx, question, banner, fet, shouldShow, ..._rest]) =>
+        this.resolveTextToDisplay(idx, question, banner, fet, shouldShow)
+      ),
 
       // Coalesce bursts to a single animation frame once gate opens
       auditTime(16),
+      distinctUntilChanged((a, b) => a.trim() === b.trim()),  // don’t re-render identical HTML strings
       observeOn(animationFrameScheduler),
-  
-      // Don’t re-render identical HTML strings
-      distinctUntilChanged((a, b) => a.trim() === b.trim()),
       shareReplay({ bufferSize: 1, refCount: true })
     ) as Observable<string>;
   }
   
+  private resolveTextToDisplay(
+    idx: number,
+    question: string,
+    banner: string,
+    fet: { idx: number; text: string; gate: boolean } | null,
+    shouldShow: boolean
+  ): string {
+    const active = this.quizService.getCurrentQuestionIndex();
+    const fetTxt = fet?.text?.trim() ?? '';
+    const qTxt = question?.trim() ?? '';
   
+    // Skip stale or mismatched explanations outright
+    if (fet && fet.idx !== active) return qTxt;
+  
+    // If locked, always show question (prevents rapid flicker)
+    if (this.explanationTextService._fetLocked) return qTxt;
+  
+    // Gate FET — only show once the gate is open and explanation is ready
+    const fetAllowed =
+      fet?.gate && fetTxt.length > 2 && shouldShow;
+  
+    if (fetAllowed) {
+      this._lastQuestionText = fetTxt;
+      return fetTxt;
+    }
+  
+    // Merge banner only in question mode
+    const qObj = this.quizService.questions?.[idx];
+    const isMulti =
+      !!qObj &&
+      (qObj.type === QuestionType.MultipleAnswer ||
+        (Array.isArray(qObj.options) && qObj.options.some(o => o.correct)));
+  
+    let merged = qTxt;
+    if (isMulti && banner?.trim() && this.quizStateService.displayStateSubject?.value?.mode === 'question') {
+      merged = `${qTxt} <span class="correct-count">${banner.trim()}</span>`;
+    }
+  
+    this._lastQuestionText = merged;
+    return merged;
+  }
 
   private emitContentAvailableState(): void {
     this.isContentAvailable$.pipe(takeUntil(this.destroy$)).subscribe({
