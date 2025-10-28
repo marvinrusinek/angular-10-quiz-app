@@ -5363,63 +5363,71 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   async updateExplanationText(index: number): Promise<string> {
     const i0 = this.normalizeIndex(index);
     const q = this.questions?.[i0];
- 
-    // Prefer model raw; fallback to service cache if model is empty
-    const svcCached = (this.explanationTextService?.formattedExplanations?.[i0]?.explanation ?? '').toString().trim();
-    const baseRaw = ((q?.explanation ?? '') as string).toString().trim() || svcCached;
- 
+  
+    // ────────────────────────────────────────────────
+    // 🧹 Step 1: Purge previous FET *before anything else*
+    // (This clears Q1’s cache before we even touch Q2’s data)
+    // ────────────────────────────────────────────────
+    try {
+      this.explanationTextService.purgeAndDefer(i0);
+      console.log(`[QQC] 🔄 Purged FET state before formatting Q${i0 + 1}`);
+    } catch (err) {
+      console.warn(`[QQC] ⚠️ purgeAndDefer failed for Q${i0 + 1}`, err);
+    }
+  
+    // Allow one animation frame for the purge to settle
+    await new Promise(res => requestAnimationFrame(res));
+  
+    // ────────────────────────────────────────────────
+    // 🧠 Step 2: Determine the base explanation text
+    // ────────────────────────────────────────────────
+    // Prefer the model’s raw explanation; ignore cache if index mismatch
+    const svc = this.explanationTextService;
+    const svcCached =
+      (svc?.formattedExplanations?.[i0]?.explanation ?? '')
+        .toString()
+        .trim();
+
+    // Always favor the question's own text first
+    let baseRaw = ((q?.explanation ?? '') as string).toString().trim();
+
+    // Prevent Q1→Q2 bleed: ignore cached value if it came from another index
+    if (svc._activeIndex !== i0) {
+      console.log(`[QQC] 🧹 Ignoring stale cached explanation for Q${i0 + 1}`);
+      baseRaw = baseRaw || '';  // don’t pull from svcCached if mismatch
+    } else if (!baseRaw && svcCached) {
+      // Fallback only when same index *and* no in-question explanation
+      baseRaw = svcCached;
+    }
+  
     console.warn('[🧠 updateExplanationText CALLED]', {
       index: i0,
       currentIndex: this.currentQuestionIndex,
       baseRaw,
     });
- 
-    // NEW: Guard for explanation readiness to prevent Q1→Q2 bleed
-    const ready =
-      (this.explanationTextService as any).readyForExplanation ??
-      true; // assume true if not tracked
-    const shouldDisplay =
-      (this.explanationTextService as any)._shouldDisplayExplanation ??
-      false; // assume hidden initially
- 
-    if (!ready) {
-      console.warn(`[🧠 FET] Skipping updateExplanationText for Q${i0 + 1} — service not ready`);
-      return baseRaw;
-    }
- 
+  
     if (!q) {
       this.explanationTextService.setExplanationText(baseRaw || 'Explanation not available.');
-      const qState0 = this.quizStateService.getQuestionState(this.quizId, i0);
-      this.quizStateService.setQuestionState(this.quizId, i0, {
-        ...qState0,
-        explanationDisplayed: true,
-        explanationText: baseRaw || 'Explanation not available.',
-      });
       return baseRaw;
     }
- 
-    // Derive correct option indices from the question itself (works on timeout)
-    const indices: number[] = Array.isArray(q.options)
-      ? q.options.map((opt, idx) => (opt?.correct ? idx + 1 : -1)).filter(n => n > 0)
-      : [];
- 
-    // Format explanation using your service; fallback to raw
+  
+    // ────────────────────────────────────────────────
+    // 🧩 Step 3: Format explanation safely
+    // ────────────────────────────────────────────────
     let formatted = '';
     try {
-      const svc: any = this.explanationTextService;
-      if (typeof svc.formatExplanation === 'function') {
-        formatted = svc.formatExplanation(q, indices, baseRaw);
-      } else {
-        formatted = baseRaw;
-      }
+      formatted =
+        typeof svc.formatExplanation === 'function'
+          ? svc.formatExplanation(q, q.options.map((o, i) => (o.correct ? i + 1 : -1)).filter(n => n > 0), baseRaw)
+          : baseRaw;
     } catch (e) {
       console.warn('[updateExplanationText] formatter threw; using raw', e);
       formatted = baseRaw;
     }
- 
-    const clean = (formatted ?? '').toString().trim();
- 
-    // Cache per-index in the service
+  
+    const clean = (formatted ?? '').trim();
+  
+    // Cache per-index
     try {
       const prev = this.explanationTextService.formattedExplanations?.[i0] as any;
       this.explanationTextService.formattedExplanations[i0] = {
@@ -5427,50 +5435,33 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         questionIndex: i0,
         explanation: clean || baseRaw,
       };
-      (this.explanationTextService as any).pushFormatted?.(clean || baseRaw);
     } catch (err) {
       console.warn('[updateExplanationText] cache push failed', err);
     }
- 
-    // NEW: adaptive bounce — allows DOM to settle before emission
-    const delayMs = q?.type === QuestionType.SingleAnswer ? 20 : 60;
-    await new Promise(res => requestAnimationFrame(() => setTimeout(res, delayMs)));
- 
-    // Only emit live explanation text when it matches the active question
-    /* if (this.currentQuestionIndex === i0 && (clean || baseRaw)) {
-      console.log(`[🧠 FET] Emitting formatted text for Q${i0 + 1}`);
-      this.explanationTextService.setExplanationText(clean || baseRaw);
-      this.explanationTextService.setShouldDisplayExplanation(shouldDisplay);
-    } else {
-      console.warn(`[🧠 FET] Skipped emit — index mismatch or empty text`);
-    } */
- 
-    // Keep question state in sync
-    const qState = this.quizStateService.getQuestionState(this.quizId, i0);
-    this.quizStateService.setQuestionState(this.quizId, i0, {
-      ...qState,
-      explanationDisplayed: true,
-      explanationText: clean || baseRaw,
-    });
-
-    if (this.currentQuestionIndex === i0 && this.explanationTextService._activeIndex === i0) {
-      const svc: any = this.explanationTextService;
-      const next = (clean || baseRaw).trim();
-    
-      if (!next || next === svc.latestExplanation?.trim()) return clean || baseRaw;
-    
-      svc.setExplanationText(next);
-      svc.setShouldDisplayExplanation(true);
-    
-      requestAnimationFrame(() => {
-        svc._fetLocked = false;
-        console.log(`[🧠 FET] 🔓 post-emit unlock for Q${i0 + 1}`);
-      });
-    
-      return next;
+  
+    // ────────────────────────────────────────────────
+    // 🕒 Step 4: Emit explanation *only if index still active*
+    // ────────────────────────────────────────────────
+    const next = (clean || baseRaw).trim();
+  
+    if (!next) return clean || baseRaw;
+  
+    // Prevent duplicate or cross-question FET
+    if (svc.latestExplanation?.trim() === next || svc._activeIndex !== i0) {
+      console.log(`[🧠 FET] ⏸ Skip duplicate or stale emit for Q${i0 + 1}`);
+      return clean || baseRaw;
     }
- 
-    return clean || baseRaw;
+  
+    // Unlock only *after* we set the new explanation
+    svc.setExplanationText(next);
+    svc.setShouldDisplayExplanation(true);
+  
+    requestAnimationFrame(() => {
+      svc._fetLocked = false;
+      console.log(`[🧠 FET] 🔓 post-emit unlock for Q${i0 + 1}`);
+    });
+  
+    return next;
   }
 
   public async handleOptionSelection(
