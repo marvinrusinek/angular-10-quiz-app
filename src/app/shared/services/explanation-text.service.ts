@@ -1288,9 +1288,12 @@ export class ExplanationTextService {
     // Valid emission — cache and broadcast after one paint
     requestAnimationFrame(() => {
       this.latestExplanation = next;
+
+      setTimeout(() => {
       this.safeNext(text$, trimmed);
-      this.safeNext(this.shouldDisplayExplanation$, true);
-      this.safeNext(this.isExplanationTextDisplayed$, true);
+      this.safeNext(this.shouldDisplayExplanation$, !!next);
+      this.safeNext(this.isExplanationTextDisplayed$, !!next);
+    }, 10);
       console.log(`[ETS emitFormatted] ✅ emitted FET for Q${index + 1}`);
     });
   
