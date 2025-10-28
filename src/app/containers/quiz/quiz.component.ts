@@ -2262,6 +2262,13 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
       // Defer feedback paint slightly to avoid interleaving with seeding
       setTimeout(() => this.displayFeedback(), 120);
+
+      // After loadQuestionByRouteIndex() and feedback
+      setTimeout(() => {
+        const optionButtons = document.querySelectorAll('.option-button, .mat-radio-button, .mat-checkbox');
+        optionButtons.forEach(btn => (btn as HTMLElement).style.pointerEvents = 'auto');
+        console.log('[updateContentBasedOnIndex] 🟢 Option buttons re-enabled');
+      }, 50);
     } catch (err) {
       console.error('[updateContentBasedOnIndex] ❌ Failed to load question', err);
     } finally {
