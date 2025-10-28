@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, EMPTY, Observable, of, ReplaySubject, Subject } from 'rxjs';
-import { debounceTime, distinctUntilChanged, filter, map, shareReplay, switchMap, take, timeout } from 'rxjs/operators';
+import { auditTime, debounceTime, distinctUntilChanged, filter, map, shareReplay, switchMap, take, timeout } from 'rxjs/operators';
 import { firstValueFrom } from '../../shared/utils/rxjs-compat';
 
 import { QuestionType } from '../../shared/models/question-type.enum';
@@ -126,21 +126,38 @@ export class ExplanationTextService {
   private _pendingReset?: number;
   private _transitionLock = false;
   private _gateToken = 0;
+  private _textMap: Map<number, { text$: ReplaySubject<string> }> = new Map();
 
   // Bridge stream to always show only the active question's explanation
   public readonly displayedFET$: Observable<string | null> = this.activeIndex$.pipe(
+    // Merge same-tick clears and index changes
     debounceTime(0),
-    switchMap(i =>
-      this.getOrCreate(i).text$.pipe(
-        // Ignore emissions while locked or from wrong index
+  
+    // For each active index, connect to its subject only
+    switchMap(activeIdx => {
+      // keep snapshot of the current active index
+      return this.getOrCreate(activeIdx).text$.pipe(
+        // Drop emissions that belong to old index or come while locked
         filter(txt => {
-          const valid = !this._fetLocked && !!txt && txt.trim() !== '' && txt.trim() !== 'No explanation available';
-          if (!valid) console.log(`[displayedFET$] ⏸ dropped (locked=${this._fetLocked})`);
+          const valid =
+            !this._fetLocked &&
+            !!txt &&
+            txt.trim() !== '' &&
+            txt.trim() !== 'No explanation available for this question.' &&
+            this._activeIndex === activeIdx;  // prevents cross-index
+          if (!valid) {
+            console.log(`[displayedFET$] ⏸ skip (locked=${this._fetLocked}, fetFor=${activeIdx}, active=${this._activeIndex})`);
+          }
           return valid;
         }),
+        // Ignore repeats
         distinctUntilChanged()
-      )
-    ),
+      );
+    }),
+  
+    // Only let the most recent value through once settled
+    auditTime(16),
+  
     shareReplay({ bufferSize: 1, refCount: true })
   );
 
@@ -151,7 +168,14 @@ export class ExplanationTextService {
   }
 
   updateExplanationText(question: QuizQuestion): void {
-    const expl = question.explanation?.trim() || 'No explanation available';
+    const expl = question.explanation?.trim();
+  
+    // Guard: don't push placeholder text early
+    if (!expl || expl === 'No explanation available') {
+      console.log('[ETS] ⏸ No valid explanation yet — skipping emit.');
+      return;
+    }
+  
     this.explanationTextSubject.next(expl);
   }
 
@@ -1459,10 +1483,32 @@ export class ExplanationTextService {
     }
   }
 
+  // Holds a per-question text$ stream (isolated subjects by index)
   private getOrCreate(index: number) {
-    if (!this._byIndex.has(index)) this._byIndex.set(index, new BehaviorSubject<string | null>(null));
-    if (!this._gate.has(index))   this._gate.set(index,   new BehaviorSubject<boolean>(false));
-    return { text$: this._byIndex.get(index)!, gate$: this._gate.get(index)! };
+    // Ensure a dedicated text$ stream exists for each question index
+    let textEntry = this._textMap.get(index);
+    if (!textEntry) {
+      textEntry = { text$: new ReplaySubject<string>(1) };
+      this._textMap.set(index, textEntry);
+    }
+
+    // Maintain compatibility with old BehaviorSubjects
+    // for gate control and legacy code paths
+    if (!this._byIndex.has(index)) {
+      this._byIndex.set(index, new BehaviorSubject<string | null>(null));
+    }
+
+    if (!this._gate.has(index)) {
+      this._gate.set(index, new BehaviorSubject<boolean>(false));
+    }
+
+    // Return the full set of subjects for this index
+    // text$: isolated ReplaySubject stream for FET
+    // gate$: per-index BehaviorSubject for display gating
+    return {
+      text$: textEntry.text$,
+      gate$: this._gate.get(index)!
+    };
   }
 
   // Reset explanation state cleanly for a new index
@@ -1742,7 +1788,12 @@ export class ExplanationTextService {
   
     // clear old text
     const prev = this._activeIndex;
-    this.getOrCreate(prev).text$?.next(null);
+    const prevSubject = this.getOrCreate(prev).text$;
+    if (prevSubject) {
+      // Replace the old subject with a fresh ReplaySubject so late emissions are lost
+      this._textMap.set(prev, { text$: new ReplaySubject<string>(1) });
+    }
+    this.getOrCreate(prev).text$?.next(null);  // clear old FET
     this.formattedExplanationSubject?.next('');
     this.latestExplanation = '';
   
@@ -1755,8 +1806,10 @@ export class ExplanationTextService {
     // reopen later
     this._pendingReset = window.setTimeout(() => {
       if (this._gateToken !== token) return;
-      this._fetLocked = false;
-      console.log(`[ETS] 🔓 unlocked for Q${newIndex + 1}`);
+      requestAnimationFrame(() => {
+        this._fetLocked = false;
+        console.log(`[ETS] 🔓 unlocked for Q${newIndex + 1}`);
+      });
     }, 170);
   }
 
