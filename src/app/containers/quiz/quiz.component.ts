@@ -2818,36 +2818,16 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
           // Ensures no stale FET (e.g., Q1) persists across sessions or restarts
           // ────────────────────────────────────────────────
           try {
-            // Core state reset
             const ets = this.explanationTextService;
             ets._activeIndex = -1;
             ets.latestExplanation = '';
             ets.setShouldDisplayExplanation(false);
             ets.setIsExplanationTextDisplayed(false);
-  
-            // Clear BehaviorSubject if it exists
-            (ets as any).formattedExplanationSubject?.next(null);
-            (ets as any).formattedExplanation$?.next('');  // handles BehaviorSubject variant
-
-             // Re-seed formattedExplanationSubject to drop any ReplaySubject residue
-            (ets as any).formattedExplanationSubject = new BehaviorSubject<string>('');
-            ets.formattedExplanation$ = (ets as any).formattedExplanationSubject.asObservable();
-
-            // Reset internal per-index caches if they exist
-            if ((ets as any).formattedExplanations) {
-              (ets as any).formattedExplanations = {};
-            }
-            if ((ets as any)._formattedMap) {
-              (ets as any)._formattedMap.clear?.();
-            }
-
-            // Close explanation gate flags
-            (ets as any).quietZoneUntil$?.next(0);
-            (ets as any).setGate(-1, false);
-  
-            console.log('[QUIZ INIT] 🧹 Cleared old FET cache before starting quiz');
+            ets.formattedExplanationSubject?.next('');
+            ets.emitFormatted(-1, null);  // run immediately, not deferred
+            console.log('[INIT] Cleared old FET state before first render');
           } catch (err) {
-            console.warn('[QUIZ INIT] ⚠️ Could not reset explanation cache', err);
+            console.warn('[INIT] ⚠️ FET clear failed', err);
           }
   
           // Kick off your explanation preload
@@ -5126,14 +5106,14 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
         // Start timer on next frame after paint
         requestAnimationFrame(() => {
-          this.timerService.resetTimer?.();
+          this.timerService.resetTimer();
           this.timerService.startTimer(this.timerService.timePerQuestion);
         });
       });
   
       // Regenerate option bindings
       queueMicrotask(() => {
-        this.sharedOptionComponent?.generateOptionBindings?.();
+        this.sharedOptionComponent?.generateOptionBindings();
         this.cdRef.detectChanges();
       });
     }).catch(err => console.error('❌ Navigation error on restart:', err));
