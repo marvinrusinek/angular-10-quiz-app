@@ -1159,7 +1159,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         } catch (fetErr) {
           console.warn('[onVisibilityChange] ⚠️ FET restore failed:', fetErr);
         } finally {
-          // 🔓 Unlock after a short delay — ensures streams stabilize first
+          // Unlock after a short delay — ensures streams stabilize first
           setTimeout(() => {
             (this.explanationTextService as any)._visibilityLocked = false;
             this._visibilityRestoreInProgress = false;
@@ -1169,9 +1169,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
                 const ets = this.explanationTextService;
                 const qIdx = this.currentQuestionIndex ?? 0;
             
-                // 🧩 Re-sync explanation subjects to the current question only
+                // Re-sync explanation subjects to the current question only
                 ets._activeIndex = qIdx;
-                ets.updateFormattedExplanation('', qIdx); // clear stale text
+                ets.updateFormattedExplanation('');  // clear stale text
                 ets.latestExplanation = '';
                 ets.setShouldDisplayExplanation(false);
                 ets.setIsExplanationTextDisplayed(false);
@@ -3947,9 +3947,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.isFeedbackApplied = true;
 
     // Explanation evaluation (optional)
-    const ready = !!this.explanationTextService.formattedExplanationSubject
-      .getValue()
-      ?.trim();
+    const ready = !!this.explanationTextService.latestExplanation?.trim();
     const show =
       this.explanationTextService.shouldDisplayExplanationSource.getValue();
 
@@ -6859,19 +6857,23 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       this.currentQuestionIndex = i0;
   
       // Compute formatted by index; this now uses the proper formatter signature
-      const formattedNow = (await this.updateExplanationText(i0)).toString().trim() ?? '';
-  
-      if (formattedNow) {
-        // We already wrote to the stream inside updateExplanationText if still on i0,
-        // but ensure the local mirrors are updated too.
-        this.ngZone.run(() => {
-          this.explanationToDisplay = formattedNow;
-          this.explanationToDisplayChange.emit(formattedNow);
-          this.cdRef.markForCheck();
-          this.cdRef.detectChanges();
-        });
-        return;  // formatted done
+      const formattedNow = (await this.updateExplanationText(i0))?.toString().trim() ?? '';
+
+      if (!formattedNow || formattedNow === 'No explanation available for this question.') {
+        console.log(`[QQC] 💤 Explanation not ready for Q${i0 + 1} — skipping emit.`);
+        return; // don’t emit placeholder
       }
+
+      this.explanationTextService.emitFormatted(i0, formattedNow);
+  
+      // We already wrote to the stream inside updateExplanationText if still on i0,
+      // but ensure the local mirrors are updated too.
+      this.ngZone.run(() => {
+        this.explanationToDisplay = formattedNow;
+        this.explanationToDisplayChange.emit(formattedNow);
+        this.cdRef.markForCheck();
+        this.cdRef.detectChanges();
+      });
   
       // If nothing formatted, seed with best available raw and keep UI consistent
       const rawBest =
@@ -6956,25 +6958,38 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
       // Try direct return first
       const out = await this.updateExplanationText(i0);
-      text = (out ?? '').toString().trim();
-  
+      let text = (out ?? '').toString().trim();
+
+      // ────────────────────────────────────────────────
       // Fallback: formatter writes to a stream
-      if (!text && this.explanationTextService.formattedExplanation$) {
+      // ────────────────────────────────────────────────
+      if ((!text || text === 'No explanation available for this question.') &&
+          this.explanationTextService.formattedExplanation$) {
+
         const src$ = this.explanationTextService.formattedExplanation$ as Observable<string | null | undefined>;
 
         const formatted$: Observable<string> = src$.pipe(
           filter((s: unknown): s is string => typeof s === 'string' && s.trim().length > 0),
           map(s => s.trim()),
-          timeout(timeoutMs),    // simple numeric overload
+          timeout(timeoutMs),
           take(1)
         );
+
         try {
           text = await firstValueFrom(formatted$);
         } catch {
           text = '';
         }
       }
-  
+
+      // ────────────────────────────────────────────────
+      // Final check — only emit real explanation text
+      // ────────────────────────────────────────────────
+      if (!text || text === 'No explanation available for this question.') {
+        console.log(`[QQC] 💤 Explanation not ready for Q${i0 + 1} — skipping emit.`);
+        return '';
+      }
+
       if (text && setCache) this._formattedByIndex.set(i0, text);
       return text;
     } catch (err) {
