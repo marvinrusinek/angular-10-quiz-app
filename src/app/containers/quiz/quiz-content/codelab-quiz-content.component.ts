@@ -1474,7 +1474,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       // Prevents flash of empty strings between renders
       // ────────────────────────────────
       auditTime(32),  // waits ~1 frame before passing combined emission
-      filter(([ , question ]) => question?.trim().length > 0),
+      filter(([ , question]) => typeof question === 'string' && question.trim().length > 0),
   
       map(([idx, question, banner, fet, shouldShow, ..._rest]) =>
         this.resolveTextToDisplay(idx, question, banner, fet, shouldShow)
@@ -1535,12 +1535,17 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     // ✅ Always get the latest active index directly from QuizService
     const active = this.quizService.getCurrentQuestionIndex();
 
-    // Guard: if current FET object is from an older index, drop immediately
-    if (fet && fet.idx < idx) {
+    // Guard: if FET text is present but belongs to a different question, skip it
+    if (fet && fet.idx !== idx) {
       console.log(
-        `[CombinedStream] 🚫 FET from older question dropped (fet.idx=${fet.idx}, current idx=${idx})`
+        `[CombinedStream] 🚫 FET belongs to Q${fet.idx + 1}, current is Q${idx + 1} → show question`
       );
-      return this._lastQuestionText || question.trim();
+      return question.trim(); // always show question text instead
+    }
+
+    // Guard: if FET is empty or gate is false, show question text
+    if (!fet?.text || !fet.gate) {
+      return question.trim();
     }
 
     // If this emission belongs to a different question, skip it
