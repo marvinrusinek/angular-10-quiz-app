@@ -1825,7 +1825,7 @@ export class ExplanationTextService {
       console.log(`[ETS] 🔓 unlocked for Q${newIndex + 1}`);
     });
   } */
-  public purgeAndDefer(newIndex: number): void {
+  /* public purgeAndDefer(newIndex: number): void {
     console.log(`[ETS ${this._instanceId}] 🔄 purgeAndDefer(${newIndex})`);
   
     // Create a new generation token and make it the active one
@@ -1855,6 +1855,42 @@ export class ExplanationTextService {
       this._fetLocked = false;
       console.log(`[ETS ${this._instanceId}] 🔓 gate reopened for Q${newIndex + 1}`);
     });
+  } */
+  public purgeAndDefer(newIndex: number): void {
+    console.log(`[ETS ${this._instanceId}] 🔄 purgeAndDefer(${newIndex})`);
+    this._gateToken++;
+    this._currentGateToken = this._gateToken;
+  
+    // Flip index FIRST to reject any stragglers
+    this._activeIndex = newIndex;
+    this._fetLocked = true;
+  
+    // Hard clear previous explanation data
+    this.latestExplanation = '';
+    (this._textMap as any)?.clear?.();
+    this.setShouldDisplayExplanation(false);
+    this.setIsExplanationTextDisplayed(false);
+  
+    // 🔒 Fully reset ReplaySubject to wipe any late subscribers
+    if (this.formattedExplanationSubject) {
+      try {
+        this.formattedExplanationSubject.complete();
+      } catch {}
+    }
+    this.formattedExplanationSubject = new ReplaySubject<string>(1);
+    this.formattedExplanation$ = this.formattedExplanationSubject.asObservable();
+    this.formattedExplanationSubject.next(''); // emit an empty safe frame
+  
+    // ✅ Unlock only if still the latest generation
+    const token = this._currentGateToken;
+    setTimeout(() => {
+      if (this._currentGateToken !== token) {
+        console.log(`[ETS ${this._instanceId}] 🚫 skipped outdated unlock`);
+        return;
+      }
+      this._fetLocked = false;
+      console.log(`[ETS ${this._instanceId}] 🔓 unlocked for Q${newIndex + 1}`);
+    }, 60);
   }
 
   public lockDuringTransition(ms = 100): void {
