@@ -5370,14 +5370,13 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   async updateExplanationText(index: number): Promise<string> {
     const i0 = this.normalizeIndex(index);
     const q = this.questions?.[i0];
-
+  
     if (this.explanationTextService._fetLocked) {
       console.log(`[QQC] 🔒 Skipping updateExplanationText for Q${index + 1} while locked`);
       return '';
     }
   
-    // 🧹 Step 1: Purge previous FET *before anything else*
-    // (This clears Q1’s cache before we even touch Q2’s data)
+    // Step 1: Purge previous FET *before anything else*
     try {
       this.explanationTextService.purgeAndDefer(i0);
       console.log(`[QQC] 🔄 Purged FET state before formatting Q${i0 + 1}`);
@@ -5385,29 +5384,22 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       console.warn(`[QQC] ⚠️ purgeAndDefer failed for Q${i0 + 1}`, err);
     }
   
-    // Allow one animation frame for the purge to settle
+    // Allow one animation frame for purge to settle
     await new Promise(res => requestAnimationFrame(res));
   
-    // 🧠 Step 2: Determine the base explanation text
-    // Prefer the model’s raw explanation; ignore cache if index mismatch
+    // Step 2: Determine the base explanation text
     const svc = this.explanationTextService;
-    const svcCached =
-      (svc?.formattedExplanations?.[i0]?.explanation ?? '')
-        .toString()
-        .trim();
-
-    // Always favor the question's own text first
+    const svcCached = (svc?.formattedExplanations?.[i0]?.explanation ?? '').toString().trim();
     let baseRaw = ((q?.explanation ?? '') as string).toString().trim();
-
-    // Prevent Q1→Q2 bleed: ignore cached value if it came from another index
+  
+    // Prevent cross-question bleed
     if (svc._activeIndex !== i0) {
       console.log(`[QQC] 🧹 Ignoring stale cached explanation for Q${i0 + 1}`);
-      baseRaw = baseRaw || '';  // don’t pull from svcCached if mismatch
+      baseRaw = baseRaw || ''; 
     } else if (!baseRaw && svcCached) {
-      // Fallback only when same index *and* no in-question explanation
       baseRaw = svcCached;
     }
-
+  
     // Wait until purge lock fully opens
     if (svc._fetLocked) {
       console.log(`[QQC] 💤 Waiting for FET unlock before formatting Q${i0 + 1}`);
@@ -5417,7 +5409,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
             clearInterval(interval);
             resolve();
           }
-        }, 10);  // check every 10 ms
+        }, 10);
       });
     }
   
@@ -5428,18 +5420,20 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     });
   
     if (!q) {
-      this.explanationTextService.setExplanationText(baseRaw || 'Explanation not available.');
+      svc.setExplanationText(baseRaw || 'Explanation not available.');
       return baseRaw;
     }
   
-    // ────────────────────────────────────────────────
-    // 🧩 Step 3: Format explanation safely
-    // ────────────────────────────────────────────────
+    // Step 3: Format explanation safely
     let formatted = '';
     try {
       formatted =
         typeof svc.formatExplanation === 'function'
-          ? svc.formatExplanation(q, q.options.map((o, i) => (o.correct ? i + 1 : -1)).filter(n => n > 0), baseRaw)
+          ? svc.formatExplanation(
+              q,
+              q.options.map((o, i) => (o.correct ? i + 1 : -1)).filter(n => n > 0),
+              baseRaw
+            )
           : baseRaw;
     } catch (e) {
       console.warn('[updateExplanationText] formatter threw; using raw', e);
@@ -5450,8 +5444,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
     // Cache per-index
     try {
-      const prev = this.explanationTextService.formattedExplanations?.[i0] as any;
-      this.explanationTextService.formattedExplanations[i0] = {
+      const prev = svc.formattedExplanations?.[i0] as any;
+      svc.formattedExplanations[i0] = {
         ...(prev ?? {}),
         questionIndex: i0,
         explanation: clean || baseRaw,
@@ -5459,29 +5453,27 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     } catch (err) {
       console.warn('[updateExplanationText] cache push failed', err);
     }
-
-    if (svc._fetLocked) {
-      console.log(`[QQC] 💤 Waiting for FET unlock before emitting for Q${i0 + 1}`);
-      await new Promise(res => requestAnimationFrame(res));
-    }
-    svc.setExplanationText(next);
-    svc.setShouldDisplayExplanation(true);
-
   
-    // ────────────────────────────────────────────────
-    // 🕒 Step 4: Emit explanation *only if index still active*
-    // ────────────────────────────────────────────────
+    // Step 4: Emit explanation *only if index still active*
     const next = (clean || baseRaw).trim();
-  
     if (!next) return clean || baseRaw;
   
-    // Prevent duplicate or cross-question FET
-    if (svc.latestExplanation?.trim() === next || svc._activeIndex !== i0) {
-      console.log(`[🧠 FET] ⏸ Skip duplicate or stale emit for Q${i0 + 1}`);
+    // HARD GUARD — emit only if both indices match
+    const active = svc._activeIndex;
+    if (this.currentQuestionIndex !== i0 || active !== i0) {
+      console.log(
+        `[🧠 FET] ⏸ Skip emit — index mismatch (current=${this.currentQuestionIndex}, active=${active}, target=${i0})`
+      );
       return clean || baseRaw;
     }
   
-    // Unlock only *after* we set the new explanation
+    // Prevent duplicate FET emission
+    if (svc.latestExplanation?.trim() === next) {
+      console.log(`[🧠 FET] ⏸ Skip duplicate FET for Q${i0 + 1}`);
+      return clean || baseRaw;
+    }
+  
+    // Unlock only *after* setting the new explanation
     svc.setExplanationText(next);
     svc.setShouldDisplayExplanation(true);
   
@@ -5492,6 +5484,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
     return next;
   }
+  
 
   public async handleOptionSelection(
     option: SelectedOption,
