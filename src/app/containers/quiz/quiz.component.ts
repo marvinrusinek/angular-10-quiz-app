@@ -2185,7 +2185,15 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       return;
     }
 
-    // No-op guard
+    // Purge FET for the *new* active index (so late Q1 emits get rejected)
+    try {
+      this.explanationTextService.purgeAndDefer(adjustedIndex);
+      console.log(`[updateContentBasedOnIndex] 🔄 Purged FET for Q${adjustedIndex + 1}`);
+    } catch (err) {
+      console.warn(`[updateContentBasedOnIndex] ⚠️ purgeAndDefer failed`, err);
+    }
+
+    // No-op guard (safe to skip reloading)
     if (this.previousIndex === adjustedIndex && !this.isNavigatedByUrl) {
       console.log('[updateContentBasedOnIndex] No navigation needed.');
       console.groupEnd();
@@ -2196,16 +2204,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     try {
       this.currentQuestionIndex = adjustedIndex;
       this.previousIndex = adjustedIndex;
-      this.quizService.currentQuestionIndexSource?.next(adjustedIndex);
+      this.quizService.currentQuestionIndexSource.next(adjustedIndex);
     } catch {}
-
-    // Purge FET for the *new* active index (so late Q1 emits get rejected)
-    try {
-      this.explanationTextService.purgeAndDefer(adjustedIndex);
-      console.log(`[updateContentBasedOnIndex] 🔄 Purged FET for Q${adjustedIndex + 1}`);
-    } catch (err) {
-      console.warn(`[updateContentBasedOnIndex] ⚠️ purgeAndDefer failed`, err);
-    }
 
     // Clear transient UI state
     this.resetExplanationText();
