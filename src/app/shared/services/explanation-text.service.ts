@@ -1261,10 +1261,8 @@ export class ExplanationTextService {
     }
   
     // Drop any emission not belonging to the active question
-    if (index !== this._activeIndex) {
-      console.log(
-        `[ETS emitFormatted] 🚫 stale emission ignored (incoming=${index}, active=${this._activeIndex})`
-      );
+    if (index !== this._activeIndex || this._fetLocked) {
+      console.log(`[ETS] 🚫 stale emit blocked (incoming=${index}, active=${this._activeIndex})`);
       return;
     }
   
