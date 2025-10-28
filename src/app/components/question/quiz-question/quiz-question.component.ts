@@ -204,6 +204,16 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     mode: 'question' as 'question' | 'explanation',
     answered: false
   };
+  public displayStateSubject = new BehaviorSubject<{
+    mode: 'question' | 'explanation',
+    answered: boolean
+  }>({
+    mode: 'question',
+    answered: false
+  });
+  displayState$ = this.displayStateSubject.asObservable();
+  displayedExplanationIndex: number | null = null;
+  
   private forceQuestionDisplay = true;
   readyForExplanationDisplay = false;
   isExplanationReady = false;
@@ -230,16 +240,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   public finalRenderReady$ = this.finalRenderReadySubject.asObservable();
   public finalRenderReady = false;
   public internalBufferReady = false;
-
-  public displayStateSubject = new BehaviorSubject<{
-    mode: 'question' | 'explanation',
-    answered: boolean
-  }>({
-    mode: 'question',
-    answered: false
-  });
-  displayState$ = this.displayStateSubject.asObservable();
-  displayedExplanationIndex: number | null = null;
 
   explanationTextSubject = new BehaviorSubject<string>('');
   explanationText$ = this.explanationTextSubject.asObservable();
