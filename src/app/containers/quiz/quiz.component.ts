@@ -2200,12 +2200,17 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       return;
     }
 
-    // Publish the new index to all consumers FIRST (stops Q1→Q2 bleed)
+    // Wait one frame so purge finishes resetting subjects
+    await this.nextFrame();
+
+    // Now broadcast the new index (everything downstream will be clean)
     try {
       this.currentQuestionIndex = adjustedIndex;
       this.previousIndex = adjustedIndex;
       this.quizService.currentQuestionIndexSource.next(adjustedIndex);
-    } catch {}
+    } catch (err) {
+      console.warn('[updateContentBasedOnIndex] ⚠️ Index broadcast failed', err);
+    }
 
     // Clear transient UI state
     this.resetExplanationText();
@@ -2214,13 +2219,13 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     try {
       this.selectedOptionService.resetAllStates();
       this.selectedOptionService.clearSelectionsForQuestion(adjustedIndex);
-      // As a belt-and-suspenders, also scrub options arrays if they linger flags
+      // Scrub options arrays if they linger flags
       const qArr = this.quizService.questions ?? [];
       for (const q of qArr) {
         q.options?.forEach(o => {
           o.selected = false;
-          (o as any).highlight = false;
-          (o as any).showFeedback = false;
+          o.highlight = false;
+          o.showFeedback = false;
         });
       }
       this.nextButtonStateService.setNextButtonState(false);
