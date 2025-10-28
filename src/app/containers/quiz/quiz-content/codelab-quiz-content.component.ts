@@ -1492,7 +1492,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     fet: { idx: number; text: string; gate: boolean } | null,
     shouldShow: boolean
   ): string {
-    const active = this.quizService.getCurrentQuestionIndex();
+    /* const active = this.quizService.getCurrentQuestionIndex();
     const fetTxt = fet?.text?.trim() ?? '';
     const qTxt = question?.trim() ?? '';
   
@@ -1523,6 +1523,49 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       merged = `${qTxt} <span class="correct-count">${banner.trim()}</span>`;
     }
   
+    this._lastQuestionText = merged;
+    return merged; */
+    const qText = question.trim();
+    const bannerText = banner.trim();
+    const fetText = (fet?.text ?? '').trim();
+
+    // ✅ Always get the latest active index directly from QuizService
+    const active = this.quizService.getCurrentQuestionIndex();
+
+    // 🚫 If this emission belongs to a different question, skip it
+    if (fet && fet.idx !== active) {
+      console.log(
+        `[CombinedStream] 🚫 Dropping stale FET from Q${fet.idx + 1}, current=${active + 1}`
+      );
+      return this._lastQuestionText || qText;
+    }
+
+    // ✅ Only allow FET if its gate is open and it belongs to current question
+    const mode = this.quizStateService.displayStateSubject?.value?.mode ?? 'question';
+    const fetAllowed =
+      fetText.length > 0 &&
+      fet?.gate &&
+      fet.idx === active &&
+      (shouldShow || mode === 'explanation');
+
+    if (fetAllowed) {
+      console.log(`[CombinedStream] ✅ Showing FET for Q${active + 1}`);
+      this._lastQuestionText = fetText;
+      return fetText;
+    }
+
+    // ✅ Otherwise show the question text
+    const qObj = this.quizService.questions?.[idx];
+    const isMulti =
+      !!qObj &&
+      (qObj.type === QuestionType.MultipleAnswer ||
+        (Array.isArray(qObj.options) && qObj.options.some(o => o.correct)));
+
+    let merged = qText;
+    if (isMulti && bannerText && mode === 'question') {
+      merged = `${qText} <span class="correct-count">${bannerText}</span>`;
+    }
+
     this._lastQuestionText = merged;
     return merged;
   }
