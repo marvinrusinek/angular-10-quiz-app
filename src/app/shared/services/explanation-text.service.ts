@@ -1242,48 +1242,45 @@ export class ExplanationTextService {
     console.log(
       `[ETS] emitFormatted → idx=${index}, active=${this._activeIndex}, locked=${this._fetLocked}`
     );
-
-    // Drop any emission that does not belong to the currently active question
-    if (index !== this._activeIndex) {
+  
+    // Drop any emission not belonging to the active question (except -1 = explicit clear)
+    if (index !== this._activeIndex && index !== -1) {
       console.log(
-        `[ETS emitFormatted] 🚫 stale emission from Q${index + 1} (active=${this._activeIndex + 1})`
+        `[ETS emitFormatted] 🚫 stale emission (incoming=${index}, active=${this._activeIndex})`
       );
       return;
     }
-
-    // Drop while locked
-    if (this._fetLocked) {
-      console.log(`[ETS emitFormatted] ⏸ locked → suppress emit for Q${index + 1}`);
+  
+    // Drop while locked or transitioning
+    if (this._fetLocked || this._transitionLock) {
+      console.log(`[ETS emitFormatted] ⏸ locked/transition → suppress emit for Q${index + 1}`);
       return;
     }
-    
+  
+    // Prepare text
     const { text$ } = this.getOrCreate(index);
     const trimmed = (value ?? '').trim() || null;
-  
-    // Transition/gate lock: silence emissions during navigation
-    if (this._fetLocked || this._transitionLock) {
-      console.log(`[ETS emitFormatted] 🔒 locked, drop emit for Q${index + 1}`);
+    if (!trimmed) {
+      console.log(`[ETS emitFormatted] ⏸ empty value → skip`);
       return;
     }
   
-    // Only accept for the current active index
-    // (allow -1 for explicit "clear" calls)
-    if (index !== this._activeIndex && index !== -1) {
-      console.log(`[ETS emitFormatted] 🚫 stale emit (incoming=${index}, active=${this._activeIndex})`);
-      return;
-    }
-  
-    // Skip duplicate FET re-emits for same text
+    // Skip duplicate emissions
     const last = (this.latestExplanation ?? '').trim();
-    const next = (trimmed ?? '').trim();
-    if (last && next && last === next) return;
+    const next = trimmed;
+    if (last && next === last) {
+      console.log(`[ETS emitFormatted] ⏸ duplicate FET emit for Q${index + 1}`);
+      return;
+    }
   
-    // Update cache and emit safely
+    // Valid emission — cache and broadcast
     this.latestExplanation = next;
     this.safeNext(text$, trimmed);
-    this.safeNext(this.shouldDisplayExplanation$, !!next);
-    this.safeNext(this.isExplanationTextDisplayed$, !!next);
-  }  
+    this.safeNext(this.shouldDisplayExplanation$, true);
+    this.safeNext(this.isExplanationTextDisplayed$, true);
+  
+    console.log(`[ETS emitFormatted] ✅ emitted FET for Q${index + 1}`);
+  }
   
   // ---- Per-index gate
   public gate$(index: number): Observable<boolean> {
