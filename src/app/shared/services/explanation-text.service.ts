@@ -1830,7 +1830,7 @@ export class ExplanationTextService {
   
     // Create a new generation token and make it the active one
     this._gateToken++;
-    this._currentGateToken = this._gateToken;
+    const token = this._gateToken; // use a local snapshot for race protection
   
     // Flip index FIRST so all stale emissions get rejected
     this._activeIndex = newIndex;
@@ -1846,13 +1846,16 @@ export class ExplanationTextService {
     this.setShouldDisplayExplanation(false);
     this.setIsExplanationTextDisplayed(false);
   
-    // Unlock shortly after the DOM settles
-    setTimeout(() => {
+    // Unlock only if this purge is still the latest call
+    requestAnimationFrame(() => {
+      if (this._gateToken !== token) {
+        console.log(`[ETS ${this._instanceId}] ⏸ stale purge ignored (token=${token})`);
+        return;
+      }
       this._fetLocked = false;
-      console.log(`[ETS ${this._instanceId}] 🔓 early unlock for Q${newIndex + 1}`);
-    }, 40);
+      console.log(`[ETS ${this._instanceId}] 🔓 gate reopened for Q${newIndex + 1}`);
+    });
   }
-  
 
   public lockDuringTransition(ms = 100): void {
     this._transitionLock = true;
