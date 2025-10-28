@@ -130,34 +130,31 @@ export class ExplanationTextService {
 
   // Bridge stream to always show only the active question's explanation
   public readonly displayedFET$: Observable<string | null> = this.activeIndex$.pipe(
-    // Merge same-tick clears and index changes
+    // Collapse same-tick index updates
     debounceTime(0),
   
-    // For each active index, connect to its subject only
     switchMap(activeIdx => {
-      // keep snapshot of the current active index
-      return this.getOrCreate(activeIdx).text$.pipe(
-        // Drop emissions that belong to old index or come while locked
+      const entry = this.getOrCreate(activeIdx);
+      return entry.text$.pipe(
         filter(txt => {
           const valid =
             !this._fetLocked &&
             !!txt &&
             txt.trim() !== '' &&
             txt.trim() !== 'No explanation available for this question.' &&
-            this._activeIndex === activeIdx;  // prevents cross-index
+            this._activeIndex === activeIdx; // ← hard guard
+  
           if (!valid) {
-            console.log(`[displayedFET$] ⏸ skip (locked=${this._fetLocked}, fetFor=${activeIdx}, active=${this._activeIndex})`);
+            console.log(`[displayedFET$] drop: fetFor=${activeIdx}, active=${this._activeIndex}, locked=${this._fetLocked}`);
           }
           return valid;
         }),
-        // Ignore repeats
         distinctUntilChanged()
       );
     }),
   
-    // Only let the most recent value through once settled
+    // Merge bursts (FET clear + new) into one paint
     auditTime(16),
-  
     shareReplay({ bufferSize: 1, refCount: true })
   );
 
@@ -1788,12 +1785,11 @@ export class ExplanationTextService {
   
     // clear old text
     const prev = this._activeIndex;
-    const prevSubject = this.getOrCreate(prev).text$;
-    if (prevSubject) {
-      // Replace the old subject with a fresh ReplaySubject so late emissions are lost
-      this._textMap.set(prev, { text$: new ReplaySubject<string>(1) });
-    }
-    this.getOrCreate(prev).text$?.next(null);  // clear old FET
+
+    // Replace the old subject with a fresh ReplaySubject so late emissions are lost
+    this._textMap.set(prev, { text$: new ReplaySubject<string>(1) });
+
+    // Clear old global FET channels
     this.formattedExplanationSubject?.next('');
     this.latestExplanation = '';
   
