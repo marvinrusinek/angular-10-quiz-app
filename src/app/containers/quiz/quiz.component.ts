@@ -5133,21 +5133,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
     // Reset any internal locks / trackers
     this.explanationTextService._fetLocked = null;
-    this.explanationTextService._fetLockedIndex = null;
-  
-    // Clear local component render trackers
-    this._lastRenderedIndex = -1;
-    this._fetLockedIndex = null;
-    this._firstStableFrameDone = false;
-    this._lastQuestionText = '';
-    this._lastQuestionPaintTime = 0;
-    this._fetLockedFrameTime = 0;
-    this._indexSwitchTime = 0;
-    this._renderStableAfter = 0;
   
     // Reset question text BehaviorSubject (prevents “?” or old Q showing)
     try {
-      this.quizQuestionLoaderService?.questionToDisplay$?.next('');
+      this.quizQuestionLoaderService?.questionToDisplaySubject.next('');
     } catch {
       console.warn('[RESET] questionToDisplay$ not available');
     }
