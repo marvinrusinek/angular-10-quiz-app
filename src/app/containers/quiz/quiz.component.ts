@@ -2154,6 +2154,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     } catch (err) {
       console.warn('[updateContentBasedOnIndex] ⚠️ State reset failed', err);
     }
+
+    // Ensure no old FET is visible before new question loads
+    this.explanationTextService.setShouldDisplayExplanation(false);
+    this.explanationTextService.setIsExplanationTextDisplayed(false);
+    this.explanationTextService.latestExplanation = '';
   
     // ✅ 5. Load and render the new question
     try {
