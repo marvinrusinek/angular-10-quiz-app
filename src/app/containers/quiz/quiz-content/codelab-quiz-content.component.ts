@@ -1312,6 +1312,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       this.explanationTextService.shouldDisplayExplanation$ ?? of(false),
       this.explanationTextService.activeIndex$ ?? of(-1)
     ]).pipe(
+      auditTime(0), // ⏱ coalesce microticks; ensures index and text align
       map(([text, gate, idx]) => ({
         idx,
         text: (text ?? '').trim(),
@@ -1322,7 +1323,6 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       ),
       shareReplay({ bufferSize: 1, refCount: true })
     );
-    
   
     const shouldShow$ = this.explanationTextService.shouldDisplayExplanation$.pipe(
       map(Boolean),
@@ -1463,11 +1463,15 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
 
       // Ignore mismatched FETs — prevents Q1 text replaying for Q2
       filter(([idx, , , fet]) => {
-        if (fet && fet.idx !== idx) {
-          console.log(`[DisplayGate] 🚫 Dropping mismatched FET (fet.idx=${fet.idx}, current=${idx})`);
-          return false;
+        const isMatch = fet?.idx === idx || !fet?.text?.trim();
+      
+        if (!isMatch) {
+          console.log(
+            `[DisplayGate] 🚫 Suppressing mismatched FET (fet.idx=${fet?.idx}, current=${idx})`
+          );
         }
-        return true;
+      
+        return isMatch;
       }),
 
       // Coalesce multi-stream bursts (question, banner, FET clears)
