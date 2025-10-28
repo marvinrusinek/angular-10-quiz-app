@@ -1827,13 +1827,15 @@ export class ExplanationTextService {
   } */
   public purgeAndDefer(newIndex: number): void {
     console.log(`[ETS ${this._instanceId}] 🔄 purgeAndDefer(${newIndex})`);
+  
+    // Create a new generation token and make it the active one
     this._gateToken++;
     this._currentGateToken = this._gateToken;
-
+  
     // Flip index FIRST so all stale emissions get rejected
     this._activeIndex = newIndex;
     this._fetLocked = true;
-
+  
     // Hard clear all previous state
     this.latestExplanation = '';
     if (Array.isArray(this.formattedExplanations)) this.formattedExplanations.length = 0;
@@ -1843,14 +1845,14 @@ export class ExplanationTextService {
     // Reset flags
     this.setShouldDisplayExplanation(false);
     this.setIsExplanationTextDisplayed(false);
- 
+  
     // Unlock shortly after the DOM settles
     setTimeout(() => {
-      // if (this._gateToken !== token) return;
       this._fetLocked = false;
       console.log(`[ETS ${this._instanceId}] 🔓 early unlock for Q${newIndex + 1}`);
     }, 40);
   }
+  
 
   public lockDuringTransition(ms = 100): void {
     this._transitionLock = true;
