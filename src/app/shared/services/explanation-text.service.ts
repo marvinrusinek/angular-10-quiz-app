@@ -1818,36 +1818,40 @@ export class ExplanationTextService {
   } */
   public purgeAndDefer(newIndex: number): void {
     console.log(`[ETS ${this._instanceId}] 🔄 purgeAndDefer(${newIndex})`);
-    console.log("PURGE AND DEFER");
     const token = ++this._gateToken;
-    console.log(`[ETS] 🔄 purgeAndDefer(${newIndex})`);
   
     // 1️⃣ Flip index FIRST so all stale emissions get rejected
     this._activeIndex = newIndex;
     this._fetLocked = true;
   
-    // 2️⃣ Hard clear all previous state
-    this.latestExplanation = '';
-    if (Array.isArray(this.formattedExplanations)) this.formattedExplanations.length = 0;
-    this.formattedExplanationSubject?.next('');
-    (this._textMap as any)?.clear?.();
+    // 2️⃣ Hard clear any residual state
+    if (Array.isArray(this.formattedExplanations)) {
+      this.formattedExplanations.length = 0;
+    }
   
-    // 3️⃣ Reset flags
+    // 🧹 Rebuild the ReplaySubject to drop old FET replays entirely
+    if (this.formattedExplanationSubject) {
+      this.formattedExplanationSubject.complete();
+      this.formattedExplanationSubject = new ReplaySubject<string>(1);
+      this.formattedExplanation$ = this.formattedExplanationSubject.asObservable();
+      this.formattedExplanationSubject.next(''); // benign placeholder for combineLatest
+      console.log(`[ETS ${this._instanceId}] 🧹 rebuilt formattedExplanationSubject`);
+    }
+  
+    (this._textMap as any)?.clear?.();
+    this.latestExplanation = '';
+  
+    // 3️⃣ Reset gating flags
     this.setShouldDisplayExplanation(false);
     this.setIsExplanationTextDisplayed(false);
   
-    // 4️⃣ Unlock after one frame (once DOM is ready)
-    /* requestAnimationFrame(() => {
-      this._fetLocked = false;
-      console.log(`[ETS] 🔓 unlocked for Q${newIndex + 1}`);
-    }); */
-
+    // 4️⃣ Unlock shortly after the DOM settles
     setTimeout(() => {
+      if (this._gateToken !== token) return;
       this._fetLocked = false;
       console.log(`[ETS ${this._instanceId}] 🔓 early unlock for Q${newIndex + 1}`);
     }, 40);
   }
-  
 
   public lockDuringTransition(ms = 100): void {
     this._transitionLock = true;
