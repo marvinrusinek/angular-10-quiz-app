@@ -1532,7 +1532,15 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     // ✅ Always get the latest active index directly from QuizService
     const active = this.quizService.getCurrentQuestionIndex();
 
-    // 🚫 If this emission belongs to a different question, skip it
+    // Guard: if current FET object is from an older index, drop immediately
+    if (fet && fet.idx < idx) {
+      console.log(
+        `[CombinedStream] 🚫 FET from older question dropped (fet.idx=${fet.idx}, current idx=${idx})`
+      );
+      return this._lastQuestionText || question.trim();
+    }
+
+    // If this emission belongs to a different question, skip it
     if (fet && fet.idx !== active) {
       console.log(
         `[CombinedStream] 🚫 Dropping stale FET from Q${fet.idx + 1}, current=${active + 1}`
@@ -1542,11 +1550,20 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
 
     // ✅ Only allow FET if its gate is open and it belongs to current question
     const mode = this.quizStateService.displayStateSubject?.value?.mode ?? 'question';
-    const fetAllowed =
+    /* const fetAllowed =
       fetText.length > 0 &&
       fet?.gate &&
       fet.idx === active &&
+      (shouldShow || mode === 'explanation'); */
+    const fetAllowed =
+      fet &&
+      fetText.length > 2 &&
+      fet.idx === active &&
+      fet.idx === idx &&
+      fet.gate &&
       (shouldShow || mode === 'explanation');
+
+    console.log(`[CombinedStream] active=${active}, idx=${idx}, fet.idx=${fet?.idx}`);
 
     if (fetAllowed) {
       console.log(`[CombinedStream] ✅ Showing FET for Q${active + 1}`);
