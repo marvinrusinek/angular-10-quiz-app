@@ -5426,28 +5426,48 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
   
     // Step 5: Emit only if we’re still on this index and it’s not locked
+    // Step 5: Emit only if we’re still on this index and it’s not locked
     const next = (clean || baseRaw).trim();
     if (!next) return clean || baseRaw;
-  
-    const stillActive = i0 === this.currentQuestionIndex && svc._activeIndex === i0 && !svc._fetLocked;
+
+    // Combine both local and service-level index checks
+    const stillActive =
+      i0 === this.currentQuestionIndex &&
+      svc._activeIndex === i0 &&
+      !svc._fetLocked &&
+      !this.explanationTextService._fetLocked; // cross-verify no lingering global lock
+
     if (!stillActive) {
-      console.log(`[🧠 FET] ⏸ Skip emit — index mismatch or locked (Q${i0 + 1})`);
+      console.log(
+        `[🧠 FET] ⏸ Skip emit — index mismatch or locked (Q${i0 + 1}, active=${svc._activeIndex}, current=${this.currentQuestionIndex})`
+      );
       return clean || baseRaw;
     }
-  
+
+    // Drop duplicates or stale echoes before emit
     if (svc.latestExplanation?.trim() === next) {
       console.log(`[🧠 FET] ⏸ Skip duplicate emit for Q${i0 + 1}`);
       return clean || baseRaw;
     }
-  
+
+    // Emit explanation text and flag atomically
     svc.setExplanationText(next);
     svc.setShouldDisplayExplanation(true);
-  
+    svc.latestExplanation = next;
+
+    // Unlock only *after* the new explanation is committed
     requestAnimationFrame(() => {
-      svc._fetLocked = false;
-      console.log(`[🧠 FET] 🔓 post-emit unlock for Q${i0 + 1}`);
+      // make sure this unlock belongs to the same active index
+      if (svc._activeIndex === i0 && this.currentQuestionIndex === i0) {
+        svc._fetLocked = false;
+        console.log(`[🧠 FET] 🔓 post-emit unlock for Q${i0 + 1}`);
+      } else {
+        console.log(
+          `[🧠 FET] ⏭ skipped unlock (mismatch active=${svc._activeIndex}, current=${this.currentQuestionIndex})`
+        );
+      }
     });
-  
+
     return next;
   }  
 
