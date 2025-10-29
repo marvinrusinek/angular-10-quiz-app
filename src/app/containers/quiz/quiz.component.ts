@@ -2257,22 +2257,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     try {
       await this.loadQuestionByRouteIndex(index);
     
-      // ✅ Unlock FET only after render is stable — guarded by current token
-      const ets = this.explanationTextService;
-      const currentToken = ets._gateToken;
-    
-      requestAnimationFrame(() => {
-        setTimeout(() => {
-          // Only unlock if this is still the latest purge cycle
-          if (ets._gateToken !== currentToken) {
-            console.log(`[updateContentBasedOnIndex] 🚫 Skipped stale unlock for Q${adjustedIndex + 1}`);
-            return;
-          }
-          ets._fetLocked = false;
-          console.log(`[updateContentBasedOnIndex] 🔓 Deferred unlock post-render for Q${adjustedIndex + 1}`);
-        }, 80);
-      });
-    
       // ✅ Seed question text directly after load
       const q = this.quizService.questions?.[adjustedIndex];
       const qText = (q?.questionText ?? '').trim();
@@ -2282,7 +2266,25 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       }
     
       // 🪄 Minor delay before feedback (avoids racing)
-      setTimeout(() => this.displayFeedback(), 140);
+      setTimeout(() => {
+        this.displayFeedback();
+    
+        // ✅ Unlock FET only *after* feedback + render are stable — guarded by token
+        const ets = this.explanationTextService;
+        const currentToken = ets._gateToken;
+    
+        requestAnimationFrame(() => {
+          setTimeout(() => {
+            // Only unlock if this is still the latest purge cycle
+            if (ets._gateToken !== currentToken) {
+              console.log(`[updateContentBasedOnIndex] 🚫 Skipped stale unlock for Q${adjustedIndex + 1}`);
+              return;
+            }
+            ets._fetLocked = false;
+            console.log(`[updateContentBasedOnIndex] 🔓 Gate opened safely after feedback for Q${adjustedIndex + 1}`);
+          }, 80);
+        });
+      }, 140);
     
       // 🟢 Ensure all option buttons are clickable
       setTimeout(() => {
@@ -2290,13 +2292,13 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
           .querySelectorAll('.option-button, .mat-radio-button, .mat-checkbox')
           .forEach(btn => (btn as HTMLElement).style.pointerEvents = 'auto');
         console.log('[updateContentBasedOnIndex] 🟢 Option buttons re-enabled');
-      }, 60);
+      }, 160);
     } catch (err) {
       console.error('[updateContentBasedOnIndex] ❌ Failed to load question', err);
     } finally {
       this.isNavigatedByUrl = false;
       console.groupEnd();
-    }   
+    }
   }
 
   resetExplanationText(): void {
