@@ -1905,34 +1905,33 @@ export class ExplanationTextService {
       console.log(`[ETS ${this._instanceId}] 🔓 unlocked for Q${newIndex + 1}`);
     }, 60);
   } */
-  public purgeAndDefer(newIndex: number): void {
+  public async purgeAndDefer(newIndex: number): Promise<void> {
     console.log(`[ETS ${this._instanceId}] 🔄 purgeAndDefer(${newIndex})`);
-  
-    // Generate a unique token for this purge
     const token = ++this._gateToken;
     this._currentGateToken = token;
   
-    // Immediately flip the index so stale FETs are rejected
     this._activeIndex = newIndex;
     this._fetLocked = true;
   
-    // Hard clear everything
+    // Clear previous state
     this.latestExplanation = '';
     this.formattedExplanationSubject?.next('');
     (this._textMap as any)?.clear?.();
     this.setShouldDisplayExplanation(false);
     this.setIsExplanationTextDisplayed(false);
   
-    // Schedule unlock — only if token still current
-    setTimeout(() => {
-      if (this._currentGateToken !== token) {
-        console.log(`[ETS ${this._instanceId}] 🚫 Skip unlock — superseded by newer purge`);
-        return;
-      }
-      this._fetLocked = false;
-      console.log(`[ETS ${this._instanceId}] 🔓 Unlocked for Q${newIndex + 1}`);
-    }, 140);
+    // Resolve only when the correct token unlocks
+    return new Promise<void>((resolve) => {
+      setTimeout(() => {
+        if (this._currentGateToken === token) {
+          this._fetLocked = false;
+          console.log(`[ETS ${this._instanceId}] 🔓 unlock for Q${newIndex + 1}`);
+          resolve();
+        }
+      }, 60);
+    });
   }
+ 
 
   public lockDuringTransition(ms = 100): void {
     this._transitionLock = true;
