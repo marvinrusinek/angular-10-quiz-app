@@ -1253,7 +1253,7 @@ export class ExplanationTextService {
       );
       return;
     }
-
+  
     // 🚫 Reject stale or cross-question emissions early
     if (index !== this._activeIndex) {
       console.log(
@@ -1262,51 +1262,43 @@ export class ExplanationTextService {
       return;
     }
   
-    // 🧹 Normalize and sanity-check text
     const trimmed = (value ?? '').trim();
-    if (!trimmed) {
-      console.log(`[ETS] ⏸ empty value — skip`);
-      return;
-    }
+    if (!trimmed) return;
   
-    // 🌀 Drop duplicate re-emits for same text
-    if (trimmed === (this.latestExplanation ?? '').trim()) {
+    // 🚫 Skip duplicate emissions
+    const last = (this.latestExplanation ?? '').trim();
+    if (last && trimmed === last) {
       console.log(`[ETS] ⏸ duplicate emit for Q${index + 1}`);
       return;
     }
   
-    // ✅ Cache new value
+    // ✅ Record latest clean explanation
     this.latestExplanation = trimmed;
   
-    // 🧠 Schedule safe emission (one animation frame later)
+    // 🔐 Strong inner guard before pushing to subjects
+    const sameToken = this._gateToken === this._currentGateToken;
+    const sameIndex = index === this._activeIndex;
+  
     requestAnimationFrame(() => {
-      // Re-check guards inside the frame — prevents late Q1→Q2 leaks
-      const sameIndex  = index === this._activeIndex;
-      const sameToken  = this._gateToken === this._currentGateToken;
-      const notLocked  = !this._fetLocked && !this._transitionLock;
-    
-      const stillActive = sameIndex && sameToken && notLocked;
-    
-      if (!stillActive) {
+      // ⛔ Bail out if a newer purge already happened or index changed
+      if (this._fetLocked || !sameToken || !sameIndex) {
         console.log(
-          `[ETS] 🚫 skipped late/stale emission for Q${index + 1} (active=${this._activeIndex}, token=${this._gateToken}/${this._currentGateToken}, locked=${this._fetLocked})`
+          `[ETS] 🚫 skipped late emission for Q${index + 1} (active=${this._activeIndex}, token=${this._gateToken}/${this._currentGateToken})`
         );
         return;
       }
-    
-      // Valid emission path
-      try {
-        this.safeNext(this.formattedExplanationSubject, trimmed);
-        this.safeNext(this.shouldDisplayExplanation$, true);
-        this.safeNext(this.isExplanationTextDisplayed$, true);
-        console.log(
-          `[ETS] ✅ emitted FET for Q${index + 1} (active=${this._activeIndex}, token=${this._currentGateToken})`
-        );
-      } catch (err) {
-        console.warn(`[ETS] ⚠️ emitFormatted failed for Q${index + 1}`, err);
-      }
-    });    
+  
+      // ✅ Safe to emit — token and index both match
+      this.safeNext(this.formattedExplanationSubject, trimmed);
+      this.safeNext(this.shouldDisplayExplanation$, true);
+      this.safeNext(this.isExplanationTextDisplayed$, true);
+  
+      console.log(
+        `[ETS] ✅ emitted FET for Q${index + 1} (active=${this._activeIndex}, token=${this._gateToken})`
+      );
+    });
   }
+  
   
   // ---- Per-index gate
   public gate$(index: number): Observable<boolean> {
