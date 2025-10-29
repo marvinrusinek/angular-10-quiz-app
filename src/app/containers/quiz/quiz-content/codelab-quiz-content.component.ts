@@ -1593,6 +1593,8 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     let merged = qText;
     if (isMulti && bannerText && mode === 'question') {
       merged = `${qText} <span class="correct-count">${bannerText}</span>`;
+    } else {
+      merged = qText;  // prevent bleed-over of Q1 banner
     }
 
     this._lastQuestionText = merged;
