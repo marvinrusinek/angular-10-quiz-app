@@ -1245,78 +1245,60 @@ export class ExplanationTextService {
 
   // ---- Emit per-index formatted text; coalesces duplicates and broadcasts event
   public emitFormatted(index: number, value: string | null): void {
-    // Drop if this emission belongs to an outdated purge cycle
-    if (this._gateToken !== this._currentGateToken) {
-      console.log(`[ETS] 🚫 Late emission dropped for Q${index + 1}`);
-      return;
-    }
-  
-    // Log emission context
-    console.log(
-      `[ETS] emitFormatted → idx=${index}, active=${this._activeIndex}, locked=${this._fetLocked}`
-    );
-
-    if (this._fetLocked) {
-      console.log(`[ETS emitFormatted] ⏸ locked → ignore early FET for Q${index + 1}`);
-      return;
-    }
-  
-    // Drop if older than the current active question
-    if (index < this._activeIndex) {
-      console.log(`[ETS emitFormatted] 🚫 stale emit from older question Q${index + 1}`);
-      return;
-    }
-  
-    // Ignore startup clears (prevents initial flash)
-    if (index === -1 && (!value || value.trim() === '')) {
-      console.log('[ETS emitFormatted] 💤 ignored empty startup clear');
-      return;
-    }
-  
-    // Guard against wrong question or lock states
-    if (index !== this._activeIndex || this._fetLocked || this._transitionLock) {
+    // 🔒 Reject if locked or token doesn’t match the latest purge
+    if (this._fetLocked || this._gateToken !== this._currentGateToken) {
       console.log(
-        `[ETS emitFormatted] 🚫 emit blocked (incoming=${index}, active=${this._activeIndex}, locked=${this._fetLocked})`
+        `[ETS] ⏸ locked or stale token — skip emit for Q${index + 1} (active=${this._activeIndex})`
       );
       return;
     }
   
-    // Prepare sanitized text
-    const { text$ } = this.getOrCreate(index);
-    const trimmed = (value ?? '').trim() || null;
+    // 🚫 Reject stale or cross-question emissions
+    if (index !== this._activeIndex) {
+      console.log(
+        `[ETS] 🚫 stale emit (incoming=${index}, active=${this._activeIndex})`
+      );
+      return;
+    }
+  
+    // 🧹 Normalize and sanity-check text
+    const trimmed = (value ?? '').trim();
     if (!trimmed) {
-      console.log(`[ETS emitFormatted] ⏸ empty value → skip`);
+      console.log(`[ETS] ⏸ empty value — skip`);
       return;
     }
   
-    // Drop duplicate FET emissions
-    const last = (this.latestExplanation ?? '').trim();
-    const next = trimmed;
-    if (last && next === last) {
-      console.log(`[ETS emitFormatted] ⏸ duplicate FET emit for Q${index + 1}`);
+    // 🌀 Drop duplicate re-emits for same text
+    if (trimmed === (this.latestExplanation ?? '').trim()) {
+      console.log(`[ETS] ⏸ duplicate emit for Q${index + 1}`);
       return;
     }
   
-    // Cache new explanation text
-    this.latestExplanation = next;
+    // ✅ Cache new value
+    this.latestExplanation = trimmed;
   
-    // Use RAF for smooth paint but confirm same index before broadcast
+    // 🧠 Schedule safe emission (one animation frame later)
     requestAnimationFrame(() => {
-      // Re-validate after one frame in case navigation changed mid-frame
-      if (
-        this._fetLocked ||
-        this._gateToken !== this._currentGateToken ||
-        index !== this._activeIndex
-      ) {
-        console.log(`[ETS emitFormatted] 🚫 skipped late emission for Q${index + 1}`);
+      // ⏸ Re-check guards inside the frame — prevents late Q1→Q2 leaks
+      const stillActive =
+        !this._fetLocked &&
+        this._gateToken === this._currentGateToken &&
+        index === this._activeIndex;
+  
+      if (!stillActive) {
+        console.log(
+          `[ETS] 🚫 skipped late emission for Q${index + 1} (active=${this._activeIndex})`
+        );
         return;
       }
   
-      // ✅ Safe broadcast
-      this.safeNext(text$, trimmed);
+      this.safeNext(this.formattedExplanationSubject, trimmed);
       this.safeNext(this.shouldDisplayExplanation$, true);
       this.safeNext(this.isExplanationTextDisplayed$, true);
-      console.log(`[ETS emitFormatted] ✅ emitted FET for Q${index + 1}`);
+  
+      console.log(
+        `[ETS] ✅ emitted FET for Q${index + 1} (active=${this._activeIndex})`
+      );
     });
   }
   
