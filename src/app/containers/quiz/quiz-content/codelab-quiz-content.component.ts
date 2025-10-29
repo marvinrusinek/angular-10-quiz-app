@@ -15,7 +15,7 @@ import { QuizQuestionLoaderService } from '../../../shared/services/quizquestion
 import { QuizQuestionManagerService } from '../../../shared/services/quizquestionmgr.service';
 import { QuizStateService } from '../../../shared/services/quizstate.service';
 import { ExplanationTextService } from '../../../shared/services/explanation-text.service';
-import type { QuizQuestionComponent } from '../../../components/question/quiz-question/quiz-question.component';
+import { QuizQuestionComponent } from '../../../components/question/quiz-question/quiz-question.component';
 
 interface QuestionViewState {
   index: number,
