@@ -72,8 +72,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   sharedOptionComponent!: SharedOptionComponent;
   @ViewChild('nextButton', { static: false })
   nextButtonTooltip!: MatTooltip;
-  @ViewChild(CodelabQuizContentComponent, { read: ChangeDetectorRef })
-  private contentCd!: ChangeDetectorRef;
   @Input() data: QuizQuestion;
   @Input() selectedQuiz: Quiz = {} as Quiz;
   @Input() currentQuestion: QuizQuestion | null = null;
