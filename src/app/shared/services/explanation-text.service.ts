@@ -1251,20 +1251,20 @@ export class ExplanationTextService {
 
   // ---- Emit per-index formatted text; coalesces duplicates and broadcasts event
   public emitFormatted(index: number, value: string | null): void {
-    // 🔒 Reject if locked or token doesn’t match the latest purge
     const token = this._currentGateToken;
+    const active = this._activeIndex;
+  
+    // 🔒 Reject if locked or token mismatch
     if (this._fetLocked || this._gateToken !== token) {
       console.log(
-        `[ETS] ⏸ locked or stale token — skip emit for Q${index + 1} (active=${this._activeIndex}, token=${this._gateToken}/${token})`
+        `[ETS] ⏸ locked/stale token — skip emit for Q${index + 1} (active=${active}, token=${this._gateToken}/${token})`
       );
       return;
     }
   
-    // 🚫 Reject stale or cross-question emissions early
-    if (index !== this._activeIndex) {
-      console.log(
-        `[ETS] 🚫 stale emit (incoming=${index}, active=${this._activeIndex})`
-      );
+    // 🚫 Reject stale or cross-question emissions
+    if (index !== active) {
+      console.log(`[ETS] 🚫 stale emit (incoming=${index}, active=${active})`);
       return;
     }
   
@@ -1274,52 +1274,43 @@ export class ExplanationTextService {
       return;
     }
   
-    // 🚫 Skip duplicate emissions
-    const last = (this.latestExplanation ?? '').trim();
-    if (last && trimmed === last) {
+    // 🚫 Skip duplicates
+    if (trimmed === (this.latestExplanation ?? '').trim()) {
       console.log(`[ETS] ⏸ duplicate emit for Q${index + 1}`);
       return;
     }
   
-    // ✅ Record latest clean explanation
+    // ✅ Record latest
     this.latestExplanation = trimmed;
   
-    // 🔐 Capture token + index snapshot for one-frame validation
-    const capturedToken = this._gateToken;
-    const capturedIndex = this._activeIndex;
+    // 🧱 Snapshot both index & token for safety
+    const capturedToken = token;
+    const capturedIndex = active;
   
-    // 🧹 Cancel any previous queued RAF to prevent overlapping emits
-    if (this._emitRAFId != null) {
-      cancelAnimationFrame(this._emitRAFId);
-      this._emitRAFId = null;
-    }
+    // 🪄 Next animation frame: only push if still current
+    requestAnimationFrame(() => {
+      // 🧩 Strong guard: verify token & index haven’t changed mid-frame
+      const tokenValid = this._currentGateToken === capturedToken;
+      const indexValid = this._activeIndex === capturedIndex;
   
-    // 🪄 Schedule the emission on the next animation frame
-    this._emitTokenSnapshot = capturedToken;
-    this._emitRAFId = requestAnimationFrame(() => {
-      // ⛔ Bail out if a newer purge already happened or index changed
-      if (
-        this._fetLocked ||
-        capturedToken !== this._currentGateToken ||
-        capturedIndex !== this._activeIndex ||
-        this._emitTokenSnapshot !== this._currentGateToken
-      ) {
+      if (this._fetLocked || !tokenValid || !indexValid) {
         console.log(
-          `[ETS] 🚫 skipped late emission for Q${index + 1} (active=${this._activeIndex}, token=${this._gateToken}/${this._currentGateToken})`
+          `[ETS] 🚫 blocked stale RAF emit (Q${index + 1}, active=${this._activeIndex}, token=${this._gateToken}/${capturedToken})`
         );
         return;
       }
   
-      // ✅ Safe to emit — token and index both still match
+      // ✅ Everything matches → safe emit
       this.safeNext(this.formattedExplanationSubject, trimmed);
       this.safeNext(this.shouldDisplayExplanation$, true);
       this.safeNext(this.isExplanationTextDisplayed$, true);
   
       console.log(
-        `[ETS] ✅ emitted FET for Q${index + 1} (active=${this._activeIndex}, token=${this._gateToken})`
+        `[ETS] ✅ committed FET for Q${index + 1} (token=${capturedToken}, idx=${capturedIndex})`
       );
     });
   }
+  
 
   // ---- Per-index gate
   public gate$(index: number): Observable<boolean> {
