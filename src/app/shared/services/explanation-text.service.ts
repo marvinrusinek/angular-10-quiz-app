@@ -1887,33 +1887,42 @@ export class ExplanationTextService {
       console.log(`[ETS ${this._instanceId}] 🔓 unlocked for Q${newIndex + 1}`);
     }, 60);
   } */
-  public async purgeAndDefer(newIndex: number): Promise<void> {
+  public purgeAndDefer(newIndex: number): void {
     console.log(`[ETS ${this._instanceId}] 🔄 purgeAndDefer(${newIndex})`);
-    const token = ++this._gateToken;
-    this._currentGateToken = token;
   
+    // new generation token
+    this._gateToken++;
+    this._currentGateToken = this._gateToken;
     this._activeIndex = newIndex;
     this._fetLocked = true;
   
-    // Clear previous state
+    // 💣 hard-replace subject immediately to drop buffered emissions
+    if (this.formattedExplanationSubject) {
+      try { this.formattedExplanationSubject.complete(); } catch {}
+    }
+    this.formattedExplanationSubject = new ReplaySubject<string>(1);
+    this.formattedExplanation$ = this.formattedExplanationSubject.asObservable();
+  
+    // clear all previous caches synchronously
     this.latestExplanation = '';
-    this.formattedExplanationSubject?.next('');
-    (this._textMap as any)?.clear?.();
     this.setShouldDisplayExplanation(false);
     this.setIsExplanationTextDisplayed(false);
+    this._textMap?.clear?.();
   
-    // Resolve only when the correct token unlocks
-    return new Promise<void>((resolve) => {
-      setTimeout(() => {
-        if (this._currentGateToken === token) {
-          this._fetLocked = false;
-          console.log(`[ETS ${this._instanceId}] 🔓 unlock for Q${newIndex + 1}`);
-          resolve();
-        }
-      }, 60);
+    // 🚫 cancel any late frame that could emit from the previous index
+    cancelAnimationFrame(this._unlockRAFId as any);
+  
+    // ⏳ one-frame deferred unlock — but only if token still current
+    this._unlockRAFId = requestAnimationFrame(() => {
+      if (this._gateToken !== this._currentGateToken) {
+        console.log(`[ETS ${this._instanceId}] ⏸ stale purge unlock skipped`);
+        return;
+      }
+      this._fetLocked = false;
+      console.log(`[ETS ${this._instanceId}] 🔓 gate reopened for Q${newIndex + 1}`);
     });
   }
- 
+
 
   public lockDuringTransition(ms = 100): void {
     this._transitionLock = true;
