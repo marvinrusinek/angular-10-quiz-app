@@ -129,7 +129,8 @@ export class ExplanationTextService {
   private _currentGateToken = 0;
   private _textMap: Map<number, { text$: ReplaySubject<string> }> = new Map();
 
-  private _instanceId: string = ''; 
+  private _instanceId: string = '';
+  private _unlockRAFId: number | null = null;
 
   // Bridge stream to always show only the active question's explanation
   public readonly displayedFET$: Observable<string | null> = this.activeIndex$.pipe(
@@ -1890,29 +1891,31 @@ export class ExplanationTextService {
   public purgeAndDefer(newIndex: number): void {
     console.log(`[ETS ${this._instanceId}] 🔄 purgeAndDefer(${newIndex})`);
   
-    // new generation token
     this._gateToken++;
     this._currentGateToken = this._gateToken;
     this._activeIndex = newIndex;
     this._fetLocked = true;
   
-    // 💣 hard-replace subject immediately to drop buffered emissions
+    // 💣 Hard-replace subject immediately to drop buffered emissions
     if (this.formattedExplanationSubject) {
       try { this.formattedExplanationSubject.complete(); } catch {}
     }
     this.formattedExplanationSubject = new ReplaySubject<string>(1);
     this.formattedExplanation$ = this.formattedExplanationSubject.asObservable();
   
-    // clear all previous caches synchronously
+    // Reset caches and flags
     this.latestExplanation = '';
     this.setShouldDisplayExplanation(false);
     this.setIsExplanationTextDisplayed(false);
     this._textMap?.clear?.();
   
-    // 🚫 cancel any late frame that could emit from the previous index
-    cancelAnimationFrame(this._unlockRAFId as any);
+    // 🚫 Cancel any pending unlock frame (from earlier purges)
+    if (this._unlockRAFId != null) {
+      cancelAnimationFrame(this._unlockRAFId);
+      this._unlockRAFId = null;
+    }
   
-    // ⏳ one-frame deferred unlock — but only if token still current
+    // ⏳ One-frame deferred unlock — only if token still current
     this._unlockRAFId = requestAnimationFrame(() => {
       if (this._gateToken !== this._currentGateToken) {
         console.log(`[ETS ${this._instanceId}] ⏸ stale purge unlock skipped`);
@@ -1922,6 +1925,7 @@ export class ExplanationTextService {
       console.log(`[ETS ${this._instanceId}] 🔓 gate reopened for Q${newIndex + 1}`);
     });
   }
+  
 
 
   public lockDuringTransition(ms = 100): void {
