@@ -64,7 +64,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   dynamicAnswerContainer!: ViewContainerRef;
   @ViewChild(SharedOptionComponent, { static: false })
   sharedOptionComponent!: SharedOptionComponent;
-
   @Output() answer = new EventEmitter<number>();
   @Output() answeredChange = new EventEmitter<boolean>();
   @Output() selectionChanged: EventEmitter<{
