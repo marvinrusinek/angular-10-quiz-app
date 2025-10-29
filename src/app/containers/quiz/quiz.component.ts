@@ -2241,20 +2241,38 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     // ✅ Step 5: Allow purge and state reset to settle
     // ────────────────────────────────────────────────
     await this.nextFrame();
+
+    // 🔒 Wait until FET is actually unlocked (so Q1’s ghost can’t sneak in)
+    await new Promise<void>((resolve) => {
+      const check = () => {
+        if (!this.explanationTextService._fetLocked) return resolve();
+        requestAnimationFrame(check);
+      };
+      requestAnimationFrame(check);
+    });
   
     // ────────────────────────────────────────────────
     // ✅ Step 6: Load and render the question
     // ────────────────────────────────────────────────
     try {
       await this.loadQuestionByRouteIndex(index);
-  
-      // ✅ Unlock FET only after render is stable
-      // (Prevents race with previous explanation emissions)
-      setTimeout(() => {
-        ets._fetLocked = false;
-        console.log(`[updateContentBasedOnIndex] 🔓 Deferred unlock after render for Q${adjustedIndex + 1}`);
-      }, 80);
-  
+    
+      // ✅ Unlock FET only after render is stable — guarded by current token
+      const ets = this.explanationTextService;
+      const currentToken = ets._gateToken;
+    
+      requestAnimationFrame(() => {
+        setTimeout(() => {
+          // Only unlock if this is still the latest purge cycle
+          if (ets._gateToken !== currentToken) {
+            console.log(`[updateContentBasedOnIndex] 🚫 Skipped stale unlock for Q${adjustedIndex + 1}`);
+            return;
+          }
+          ets._fetLocked = false;
+          console.log(`[updateContentBasedOnIndex] 🔓 Deferred unlock post-render for Q${adjustedIndex + 1}`);
+        }, 80);
+      });
+    
       // ✅ Seed question text directly after load
       const q = this.quizService.questions?.[adjustedIndex];
       const qText = (q?.questionText ?? '').trim();
@@ -2262,22 +2280,23 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         this.questionToDisplaySubject.next(qText);
         console.log(`[updateContentBasedOnIndex] 🪄 Seeded fresh Q${adjustedIndex + 1} text`);
       }
-  
+    
       // 🪄 Minor delay before feedback (avoids racing)
       setTimeout(() => this.displayFeedback(), 140);
-  
+    
       // 🟢 Ensure all option buttons are clickable
       setTimeout(() => {
         document
           .querySelectorAll('.option-button, .mat-radio-button, .mat-checkbox')
           .forEach(btn => (btn as HTMLElement).style.pointerEvents = 'auto');
+        console.log('[updateContentBasedOnIndex] 🟢 Option buttons re-enabled');
       }, 60);
     } catch (err) {
       console.error('[updateContentBasedOnIndex] ❌ Failed to load question', err);
     } finally {
       this.isNavigatedByUrl = false;
       console.groupEnd();
-    }
+    }   
   }
 
   resetExplanationText(): void {
