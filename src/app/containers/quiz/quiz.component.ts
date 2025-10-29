@@ -2188,8 +2188,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     console.group(`[updateContentBasedOnIndex] Navigation → Q${adjustedIndex + 1}`);
   
     // ────────────────────────────────────────────────
-    // ✅ Step 1: Lock and purge FET immediately
-    // Ensures any late Q1 emissions are rejected before Q2 starts
+    // ✅ Step 1: Purge immediately before anything else
+    // Rejects all old FET emissions before new load starts
     // ────────────────────────────────────────────────
     const ets = this.explanationTextService;
     try {
@@ -2201,7 +2201,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     }
   
     // ────────────────────────────────────────────────
-    // ✅ Step 2: Prevent redundant reloads
+    // ✅ Step 2: Skip redundant reloads
     // ────────────────────────────────────────────────
     if (this.previousIndex === adjustedIndex && !this.isNavigatedByUrl) {
       console.log('[updateContentBasedOnIndex] No navigation needed.');
@@ -2210,14 +2210,14 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     }
   
     // ────────────────────────────────────────────────
-    // ✅ Step 3: Broadcast new active index downstream
+    // ✅ Step 3: Broadcast the new active index downstream
     // ────────────────────────────────────────────────
     this.currentQuestionIndex = adjustedIndex;
     this.previousIndex = adjustedIndex;
     this.quizService.currentQuestionIndexSource.next(adjustedIndex);
   
     // ────────────────────────────────────────────────
-    // ✅ Step 4: Clear transient UI and selection state
+    // ✅ Step 4: Reset all transient UI & selection state
     // ────────────────────────────────────────────────
     this.resetExplanationText();
     try {
@@ -2238,47 +2238,71 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     }
   
     // ────────────────────────────────────────────────
-    // ✅ Step 5: Allow purge and state reset to settle
+    // ✅ Step 5: Wait for purge to settle visually
     // ────────────────────────────────────────────────
     await this.nextFrame();
-
-    // 🔒 Wait until FET is actually unlocked (so Q1’s ghost can’t sneak in)
-    await new Promise<void>((resolve) => {
-      const check = () => {
-        if (!this.explanationTextService._fetLocked) return resolve();
-        requestAnimationFrame(check);
-      };
-      requestAnimationFrame(check);
-    });
   
     // ────────────────────────────────────────────────
-    // ✅ Step 6: Load and render the question
+    // ✅ Step 6: Load and render the new question
+    // Purge ensures clean state before load begins
     // ────────────────────────────────────────────────
     try {
       await this.loadQuestionByRouteIndex(index);
-    
-      // 🪄 Seed question text only after purge finishes and render is stable
+  
+      // 🪄 Immediately seed the question text (always first visual)
+      const q = this.quizService.questions?.[adjustedIndex];
+      const qText = (q?.questionText ?? '').trim();
+      if (qText) {
+        this.questionToDisplaySubject.next(qText);
+        console.log(`[updateContentBasedOnIndex] 🪄 Seeded fresh Q${adjustedIndex + 1} text`);
+      }
+  
+      // 💤 Keep gate closed while feedback renders
+      ets._fetLocked = true;
+      ets.setShouldDisplayExplanation(false);
+      ets.setIsExplanationTextDisplayed(false);
+      ets.latestExplanation = '';
+  
+      // 🪄 Wait for feedback + Angular’s stabilization before unlocking
       setTimeout(() => {
-        const q = this.quizService.questions?.[adjustedIndex];
-        const qText = (q?.questionText ?? '').trim();
-        if (qText) {
-          this.questionToDisplaySubject.next(qText);
-          console.log(`[updateContentBasedOnIndex] 🪄 Seeded clean Q${adjustedIndex + 1} text`);
-        }
-    
-        // 🔓 Unlock AFTER question text seed to block early FET flashes
-        const ets = this.explanationTextService;
-        const currentToken = ets._gateToken;
-        setTimeout(() => {
-          if (ets._gateToken !== currentToken) return;
-          ets._fetLocked = false;
-          console.log(`[updateContentBasedOnIndex] 🔓 Final unlock for Q${adjustedIndex + 1}`);
-        }, 80);
-      }, 60);
-    
-      setTimeout(() => this.displayFeedback(), 140);
+        this.displayFeedback();
+  
+        this.ngZone.onStable
+          .pipe(take(1))
+          .subscribe(() => {
+            requestAnimationFrame(() => {
+              setTimeout(() => {
+                const stillCurrent =
+                  ets._gateToken === ets._currentGateToken &&
+                  adjustedIndex === this.currentQuestionIndex;
+  
+                if (!stillCurrent) {
+                  console.log(
+                    `[updateContentBasedOnIndex] 🚫 stale unlock skipped for Q${adjustedIndex + 1}`
+                  );
+                  return;
+                }
+  
+                ets._fetLocked = false;
+                console.log(
+                  `[updateContentBasedOnIndex] 🔓 FET gate unlocked cleanly for Q${adjustedIndex + 1}`
+                );
+              }, 100);
+            });
+          });
+      }, 140);
+  
+      // 🟢 Ensure all options are clickable again
+      setTimeout(() => {
+        document
+          .querySelectorAll('.option-button,.mat-radio-button,.mat-checkbox')
+          .forEach(btn => (btn as HTMLElement).style.pointerEvents = 'auto');
+      }, 200);
     } catch (err) {
       console.error('[updateContentBasedOnIndex] ❌ Failed to load question', err);
+    } finally {
+      this.isNavigatedByUrl = false;
+      console.groupEnd();
     }
   }
 
