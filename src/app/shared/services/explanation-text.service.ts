@@ -1919,19 +1919,28 @@ export class ExplanationTextService {
     }
   
     // Schedule unlock after one frame + small delay, but only if token still matches
+    // Lock stays until the question has fully rendered + one extra frame
     const token = this._gateToken;
     this._unlockRAFId = requestAnimationFrame(() => {
-      setTimeout(() => {
-        // Skip unlock if a newer purge has already started
-        if (token !== this._currentGateToken) {
-          console.log(`[ETS ${this._instanceId}] 🚫 stale unlock skipped for Q${newIndex + 1}`);
-          return;
-        }
-  
-        // Finally release the lock — this is the only valid unlock
-        this._fetLocked = false;
-        console.log(`[ETS ${this._instanceId}] 🔓 gate reopened for Q${newIndex + 1}`);
-      }, 100); // ~1/10 second buffer helps DOM + async FET settle
+      requestAnimationFrame(() => {
+        setTimeout(() => {
+          // Skip unlock if a newer purge already occurred
+          if (token !== this._currentGateToken) {
+            console.log(`[ETS ${this._instanceId}] 🚫 stale unlock skipped for Q${newIndex + 1}`);
+            return;
+          }
+
+          // Verify DOM render actually completed
+          const activeStill = this._activeIndex === newIndex;
+          if (!activeStill) {
+            console.log(`[ETS ${this._instanceId}] 🚫 unlock aborted (active moved to ${this._activeIndex})`);
+            return;
+          }
+
+          this._fetLocked = false;
+          console.log(`[ETS ${this._instanceId}] 🔓 gate reopened safely for Q${newIndex + 1}`);
+        }, 140);  // wait ~1.4 frame times to allow render stabilization
+      });
     });
   }
 
