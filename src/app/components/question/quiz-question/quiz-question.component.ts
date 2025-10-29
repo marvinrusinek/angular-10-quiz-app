@@ -3418,13 +3418,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       this.explanationTextService.resetForIndex(idx);
       await new Promise(res => requestAnimationFrame(() => setTimeout(res, 60)));
  
-      // Open and emit cleanly
+      // Open and emit cleanly, force all explanation signals to fire together for this index
       this.explanationTextService.openExclusive(idx, formatted);
- 
-      // Force all explanation signals to fire together for this index
-      this.explanationTextService.setGate(idx, true);
-      this.explanationTextService.setShouldDisplayExplanation(true, { force: true });
-      this.explanationTextService.emitFormatted(idx, formatted);
  
       // Sync local + UI display
       this.displayStateSubject?.next({ mode: 'explanation', answered: true });
