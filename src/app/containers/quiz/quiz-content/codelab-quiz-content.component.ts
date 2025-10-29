@@ -1307,22 +1307,43 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   
     // FET source with explicit idx
     // Seed FET inputs so fetForIndex$ emits once at startup
+    // 🧩 FET stream — resets cleanly after each purge
     const fetForIndex$: Observable<FETState> = combineLatest([
-      this.explanationTextService.formattedExplanation$ ?? of(''),
-      this.explanationTextService.shouldDisplayExplanation$ ?? of(false),
-      this.explanationTextService.activeIndex$ ?? of(-1)
+      // Explanation text stream (resets on purge)
+      this.explanationTextService.formattedExplanation$.pipe(
+        startWith(''),                 // always start empty after purge
+        distinctUntilChanged()
+      ),
+
+      // Explanation visibility gate
+      this.explanationTextService.shouldDisplayExplanation$.pipe(
+        startWith(false),              // force off on purge
+        distinctUntilChanged()
+      ),
+
+      // Active index (drive alignment between text and question)
+      (this.explanationTextService.activeIndex$ ?? of(-1)).pipe(
+        startWith(-1),                 // seed baseline
+        distinctUntilChanged()
+      )
     ]).pipe(
-      auditTime(0), // ⏱ coalesce microticks; ensures index and text align
+      auditTime(0),                    // coalesce synchronous emissions in the same frame
       map(([text, gate, idx]) => ({
         idx,
         text: (text ?? '').trim(),
         gate: !!gate
       })),
+
+      // Hard guard: drop any FET whose idx doesn’t match the current question
+      filter(({ idx }) => idx === this.quizService.getCurrentQuestionIndex()),
+
       distinctUntilChanged((a, b) =>
         a.idx === b.idx && a.gate === b.gate && a.text === b.text
       ),
+
       shareReplay({ bufferSize: 1, refCount: true })
     );
+
   
     const shouldShow$ = this.explanationTextService.shouldDisplayExplanation$.pipe(
       map(Boolean),
