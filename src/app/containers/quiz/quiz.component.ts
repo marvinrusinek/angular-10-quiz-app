@@ -2187,6 +2187,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
     // Purge FET for the *new* active index (so late Q1 emits get rejected)
     try {
+      this.explanationTextService._activeIndex = adjustedIndex;
       this.explanationTextService.purgeAndDefer(adjustedIndex);
       console.log(`[updateContentBasedOnIndex] 🔄 Purged FET for Q${adjustedIndex + 1}`);
     } catch (err) {
