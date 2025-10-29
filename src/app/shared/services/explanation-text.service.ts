@@ -134,6 +134,8 @@ export class ExplanationTextService {
 
   private _instanceId: string = '';
   private _unlockRAFId: number | null = null;
+  private _emitRAFId: number | null = null;
+  private _emitTokenSnapshot: number | null = null;
 
   // Bridge stream to always show only the active question's explanation
   public readonly displayedFET$: Observable<string | null> = this.activeIndex$.pipe(
@@ -1286,13 +1288,21 @@ export class ExplanationTextService {
     const capturedToken = this._gateToken;
     const capturedIndex = this._activeIndex;
   
+    // 🧹 Cancel any previous queued RAF to prevent overlapping emits
+    if (this._emitRAFId != null) {
+      cancelAnimationFrame(this._emitRAFId);
+      this._emitRAFId = null;
+    }
+  
     // 🪄 Schedule the emission on the next animation frame
-    requestAnimationFrame(() => {
+    this._emitTokenSnapshot = capturedToken;
+    this._emitRAFId = requestAnimationFrame(() => {
       // ⛔ Bail out if a newer purge already happened or index changed
       if (
         this._fetLocked ||
         capturedToken !== this._currentGateToken ||
-        capturedIndex !== this._activeIndex
+        capturedIndex !== this._activeIndex ||
+        this._emitTokenSnapshot !== this._currentGateToken
       ) {
         console.log(
           `[ETS] 🚫 skipped late emission for Q${index + 1} (active=${this._activeIndex}, token=${this._gateToken}/${this._currentGateToken})`
@@ -1310,8 +1320,7 @@ export class ExplanationTextService {
       );
     });
   }
- 
-  
+
   // ---- Per-index gate
   public gate$(index: number): Observable<boolean> {
     return this.getOrCreate(index).gate$.asObservable();
