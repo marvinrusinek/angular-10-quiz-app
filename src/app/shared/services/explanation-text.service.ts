@@ -1280,27 +1280,32 @@ export class ExplanationTextService {
   
     // 🧠 Schedule safe emission (one animation frame later)
     requestAnimationFrame(() => {
-      // ⏸ Re-check guards inside the frame — prevents late Q1→Q2 leaks
-      const stillActive =
-        !this._fetLocked &&
-        this._gateToken === this._currentGateToken &&
-        index === this._activeIndex;
-  
+      // 🔒 Re-check guards inside the frame — prevents late Q1→Q2 leaks
+      const sameIndex  = index === this._activeIndex;
+      const sameToken  = this._gateToken === this._currentGateToken;
+      const notLocked  = !this._fetLocked && !this._transitionLock;
+    
+      const stillActive = sameIndex && sameToken && notLocked;
+    
       if (!stillActive) {
         console.log(
-          `[ETS] 🚫 skipped late emission for Q${index + 1} (active=${this._activeIndex})`
+          `[ETS] 🚫 skipped late/stale emission for Q${index + 1} (active=${this._activeIndex}, token=${this._gateToken}/${this._currentGateToken}, locked=${this._fetLocked})`
         );
         return;
       }
-  
-      this.safeNext(this.formattedExplanationSubject, trimmed);
-      this.safeNext(this.shouldDisplayExplanation$, true);
-      this.safeNext(this.isExplanationTextDisplayed$, true);
-  
-      console.log(
-        `[ETS] ✅ emitted FET for Q${index + 1} (active=${this._activeIndex})`
-      );
-    });
+    
+      // ✅ Valid emission path
+      try {
+        this.safeNext(this.formattedExplanationSubject, trimmed);
+        this.safeNext(this.shouldDisplayExplanation$, true);
+        this.safeNext(this.isExplanationTextDisplayed$, true);
+        console.log(
+          `[ETS] ✅ emitted FET for Q${index + 1} (active=${this._activeIndex}, token=${this._currentGateToken})`
+        );
+      } catch (err) {
+        console.warn(`[ETS] ⚠️ emitFormatted failed for Q${index + 1}`, err);
+      }
+    });    
   }
   
   // ---- Per-index gate
@@ -1919,27 +1924,22 @@ export class ExplanationTextService {
     }
   
     // Schedule unlock after one frame + small delay, but only if token still matches
-    // Lock stays until the question has fully rendered + one extra frame
+    // Keep everything locked until at least two paint frames after render
     const token = this._gateToken;
     this._unlockRAFId = requestAnimationFrame(() => {
       requestAnimationFrame(() => {
         setTimeout(() => {
-          // Skip unlock if a newer purge already occurred
           if (token !== this._currentGateToken) {
-            console.log(`[ETS ${this._instanceId}] 🚫 stale unlock skipped for Q${newIndex + 1}`);
+            console.log(`[ETS ${this._instanceId}] 🚫 stale unlock skipped (token mismatch)`);
             return;
           }
-
-          // Verify DOM render actually completed
-          const activeStill = this._activeIndex === newIndex;
-          if (!activeStill) {
-            console.log(`[ETS ${this._instanceId}] 🚫 unlock aborted (active moved to ${this._activeIndex})`);
+          if (this._activeIndex !== newIndex) {
+            console.log(`[ETS ${this._instanceId}] 🚫 unlock aborted; active=${this._activeIndex}, target=${newIndex}`);
             return;
           }
-
           this._fetLocked = false;
           console.log(`[ETS ${this._instanceId}] 🔓 gate reopened safely for Q${newIndex + 1}`);
-        }, 140);  // wait ~1.4 frame times to allow render stabilization
+        }, 180);  // wait roughly 2–3 frames after render
       });
     });
   }
