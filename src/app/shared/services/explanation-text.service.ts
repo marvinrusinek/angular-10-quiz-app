@@ -125,8 +125,11 @@ export class ExplanationTextService {
 
   private _pendingReset?: number;
   private _transitionLock = false;
+
+  public readonly gateToken$ = new BehaviorSubject<number>(0);
   private _gateToken = 0;
   private _currentGateToken = 0;
+  
   private _textMap: Map<number, { text$: ReplaySubject<string> }> = new Map();
 
   private _instanceId: string = '';
@@ -1891,6 +1894,7 @@ export class ExplanationTextService {
     // Invalidate all pending frames immediately
     this._gateToken++;
     this._currentGateToken = this._gateToken;
+    this.gateToken$.next(this._gateToken);
     this._fetLocked = true;
   
     // Cancel any old unlock or queued animation frame
