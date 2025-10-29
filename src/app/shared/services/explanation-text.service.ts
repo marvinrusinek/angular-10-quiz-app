@@ -1896,7 +1896,7 @@ export class ExplanationTextService {
     this._activeIndex = newIndex;
     this._fetLocked = true;
   
-    // 💣 Hard-replace subject immediately to drop buffered emissions
+    // Hard-replace subject immediately to drop buffered emissions
     if (this.formattedExplanationSubject) {
       try { this.formattedExplanationSubject.complete(); } catch {}
     }
@@ -1909,20 +1909,19 @@ export class ExplanationTextService {
     this.setIsExplanationTextDisplayed(false);
     this._textMap?.clear?.();
   
-    // 🚫 Cancel any pending unlock frame (from earlier purges)
+    // Cancel any pending unlock frame (from earlier purges)
     if (this._unlockRAFId != null) {
       cancelAnimationFrame(this._unlockRAFId);
       this._unlockRAFId = null;
     }
   
-    // ⏳ One-frame deferred unlock — only if token still current
+    // One-frame deferred unlock — only if token still current
     this._unlockRAFId = requestAnimationFrame(() => {
-      if (this._gateToken !== this._currentGateToken) {
-        console.log(`[ETS ${this._instanceId}] ⏸ stale purge unlock skipped`);
-        return;
-      }
-      this._fetLocked = false;
-      console.log(`[ETS ${this._instanceId}] 🔓 gate reopened for Q${newIndex + 1}`);
+      setTimeout(() => {
+        if (this._gateToken !== this._currentGateToken) return;  // still stale
+        this._fetLocked = false;
+        console.log(`[ETS ${this._instanceId}] 🔓 gate reopened for Q${newIndex + 1}`);
+      }, 100); // <-- add small buffer (~1/10s)
     });
   }
   
