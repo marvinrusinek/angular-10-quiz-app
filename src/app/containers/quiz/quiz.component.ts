@@ -2257,47 +2257,28 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     try {
       await this.loadQuestionByRouteIndex(index);
     
-      // ✅ Seed question text directly after load
-      const q = this.quizService.questions?.[adjustedIndex];
-      const qText = (q?.questionText ?? '').trim();
-      if (qText) {
-        this.questionToDisplaySubject.next(qText);
-        console.log(`[updateContentBasedOnIndex] 🪄 Seeded fresh Q${adjustedIndex + 1} text`);
-      }
-    
-      // 🪄 Minor delay before feedback (avoids racing)
+      // 🪄 Seed question text only after purge finishes and render is stable
       setTimeout(() => {
-        this.displayFeedback();
+        const q = this.quizService.questions?.[adjustedIndex];
+        const qText = (q?.questionText ?? '').trim();
+        if (qText) {
+          this.questionToDisplaySubject.next(qText);
+          console.log(`[updateContentBasedOnIndex] 🪄 Seeded clean Q${adjustedIndex + 1} text`);
+        }
     
-        // ✅ Unlock FET only *after* feedback + render are stable — guarded by token
+        // 🔓 Unlock AFTER question text seed to block early FET flashes
         const ets = this.explanationTextService;
         const currentToken = ets._gateToken;
+        setTimeout(() => {
+          if (ets._gateToken !== currentToken) return;
+          ets._fetLocked = false;
+          console.log(`[updateContentBasedOnIndex] 🔓 Final unlock for Q${adjustedIndex + 1}`);
+        }, 80);
+      }, 60);
     
-        requestAnimationFrame(() => {
-          setTimeout(() => {
-            // Only unlock if this is still the latest purge cycle
-            if (ets._gateToken !== currentToken) {
-              console.log(`[updateContentBasedOnIndex] 🚫 Skipped stale unlock for Q${adjustedIndex + 1}`);
-              return;
-            }
-            ets._fetLocked = false;
-            console.log(`[updateContentBasedOnIndex] 🔓 Gate opened safely after feedback for Q${adjustedIndex + 1}`);
-          }, 80);
-        });
-      }, 140);
-    
-      // 🟢 Ensure all option buttons are clickable
-      setTimeout(() => {
-        document
-          .querySelectorAll('.option-button, .mat-radio-button, .mat-checkbox')
-          .forEach(btn => (btn as HTMLElement).style.pointerEvents = 'auto');
-        console.log('[updateContentBasedOnIndex] 🟢 Option buttons re-enabled');
-      }, 160);
+      setTimeout(() => this.displayFeedback(), 140);
     } catch (err) {
       console.error('[updateContentBasedOnIndex] ❌ Failed to load question', err);
-    } finally {
-      this.isNavigatedByUrl = false;
-      console.groupEnd();
     }
   }
 

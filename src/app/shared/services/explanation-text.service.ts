@@ -1906,7 +1906,7 @@ export class ExplanationTextService {
       console.log(`[ETS ${this._instanceId}] 🔓 unlocked for Q${newIndex + 1}`);
     }, 60);
   } */
-  public purgeAndDefer(newIndex: number): void {
+  /* public purgeAndDefer(newIndex: number): void {
     console.log(`[ETS ${this._instanceId}] 🔄 purgeAndDefer(${newIndex})`);
   
     // Invalidate all pending frames immediately
@@ -1939,6 +1939,42 @@ export class ExplanationTextService {
       setTimeout(() => {
         if (this._gateToken !== localToken) {
           console.log(`[ETS ${this._instanceId}] ⏸ Skip unlock — stale token`);
+          return;
+        }
+        this._fetLocked = false;
+        console.log(`[ETS ${this._instanceId}] 🔓 gate reopened for Q${newIndex + 1}`);
+      }, 100);
+    });
+  } */
+  public purgeAndDefer(newIndex: number): void {
+    console.log(`[ETS ${this._instanceId}] 🔄 purgeAndDefer(${newIndex})`);
+  
+    // Increment generation token and mark new cycle
+    this._gateToken++;
+    this._currentGateToken = this._gateToken;
+    this._activeIndex = newIndex;
+    this._fetLocked = true;
+  
+    // 💣 Immediately nuke subjects to break any pending emissions
+    try { this.formattedExplanationSubject.complete(); } catch {}
+    this.formattedExplanationSubject = new ReplaySubject<string>(1);
+    this.formattedExplanation$ = this.formattedExplanationSubject.asObservable();
+  
+    this.latestExplanation = '';
+    this.setShouldDisplayExplanation(false);
+    this.setIsExplanationTextDisplayed(false);
+    this._textMap?.clear?.();
+  
+    // Cancel any previously queued unlocks or emits
+    cancelAnimationFrame(this._unlockRAFId ?? 0);
+    cancelAnimationFrame(this._emitRAFId ?? 0);
+  
+    // Deferred unlock tied strictly to the new token
+    const unlockToken = this._gateToken;
+    this._unlockRAFId = requestAnimationFrame(() => {
+      setTimeout(() => {
+        if (unlockToken !== this._currentGateToken) {
+          console.log(`[ETS ${this._instanceId}] 🚫 stale unlock ignored (Q${newIndex + 1})`);
           return;
         }
         this._fetLocked = false;
