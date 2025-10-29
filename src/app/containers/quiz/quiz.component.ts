@@ -2187,29 +2187,39 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
     console.group(`[updateContentBasedOnIndex] Navigation → Q${adjustedIndex + 1}`);
   
+    // ────────────────────────────────────────────────
     // ✅ Step 1: Lock and purge FET immediately
+    // Ensures any late Q1 emissions are rejected before Q2 starts
+    // ────────────────────────────────────────────────
+    const ets = this.explanationTextService;
     try {
-      this.explanationTextService.purgeAndDefer(adjustedIndex);
-      console.log(`[updateContentBasedOnIndex] 🔄 Purged and locked FET for Q${adjustedIndex + 1}`);
+      ets._fetLocked = true;
+      ets.purgeAndDefer(adjustedIndex);
+      console.log(`[updateContentBasedOnIndex] 🔒 Locked + purged FET for Q${adjustedIndex + 1}`);
     } catch (err) {
       console.warn(`[updateContentBasedOnIndex] ⚠️ purgeAndDefer failed`, err);
     }
   
-    // ✅ Step 2: Avoid redundant reloads
+    // ────────────────────────────────────────────────
+    // ✅ Step 2: Prevent redundant reloads
+    // ────────────────────────────────────────────────
     if (this.previousIndex === adjustedIndex && !this.isNavigatedByUrl) {
       console.log('[updateContentBasedOnIndex] No navigation needed.');
       console.groupEnd();
       return;
     }
   
-    // ✅ Step 3: Broadcast the new index downstream
+    // ────────────────────────────────────────────────
+    // ✅ Step 3: Broadcast new active index downstream
+    // ────────────────────────────────────────────────
     this.currentQuestionIndex = adjustedIndex;
     this.previousIndex = adjustedIndex;
     this.quizService.currentQuestionIndexSource.next(adjustedIndex);
   
-    // ✅ Step 4: Clear transient UI state and selections
+    // ────────────────────────────────────────────────
+    // ✅ Step 4: Clear transient UI and selection state
+    // ────────────────────────────────────────────────
     this.resetExplanationText();
-  
     try {
       this.selectedOptionService.resetAllStates();
       this.selectedOptionService.clearSelectionsForQuestion(adjustedIndex);
@@ -2221,38 +2231,46 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         })
       );
       this.nextButtonStateService.setNextButtonState(false);
-      console.log(`[updateContentBasedOnIndex] 🔄 Cleared state for Q${adjustedIndex + 1}`);
+      console.log(`[updateContentBasedOnIndex] 🔄 Cleared option states for Q${adjustedIndex + 1}`);
     } catch (err) {
       console.warn('[updateContentBasedOnIndex] ⚠️ State reset failed', err);
     }
   
-    // ✅ Step 5: Allow purge to settle before rendering
+    // ────────────────────────────────────────────────
+    // ✅ Step 5: Allow purge and state reset to settle
+    // ────────────────────────────────────────────────
     await this.nextFrame();
   
+    // ────────────────────────────────────────────────
     // ✅ Step 6: Load and render the question
+    // ────────────────────────────────────────────────
     try {
       await this.loadQuestionByRouteIndex(index);
   
-      // Unlock and seed text atomically after render
-      requestAnimationFrame(() => {
-        this.explanationTextService._fetLocked = false;
-        console.log(`[updateContentBasedOnIndex] 🔓 FET unlocked post-render for Q${adjustedIndex + 1}`);
-      });
+      // ✅ Unlock FET only after render is stable
+      // (Prevents race with previous explanation emissions)
+      setTimeout(() => {
+        ets._fetLocked = false;
+        console.log(`[updateContentBasedOnIndex] 🔓 Deferred unlock after render for Q${adjustedIndex + 1}`);
+      }, 80);
   
+      // ✅ Seed question text directly after load
       const q = this.quizService.questions?.[adjustedIndex];
       const qText = (q?.questionText ?? '').trim();
       if (qText) {
         this.questionToDisplaySubject.next(qText);
-        console.log(`[updateContentBasedOnIndex] 🪄 Seeded question text for Q${adjustedIndex + 1}`);
+        console.log(`[updateContentBasedOnIndex] 🪄 Seeded fresh Q${adjustedIndex + 1} text`);
       }
   
+      // 🪄 Minor delay before feedback (avoids racing)
       setTimeout(() => this.displayFeedback(), 140);
   
+      // 🟢 Ensure all option buttons are clickable
       setTimeout(() => {
-        const optionButtons = document.querySelectorAll('.option-button, .mat-radio-button, .mat-checkbox');
-        optionButtons.forEach(btn => (btn as HTMLElement).style.pointerEvents = 'auto');
-        console.log('[updateContentBasedOnIndex] 🟢 Option buttons re-enabled');
-      }, 50);
+        document
+          .querySelectorAll('.option-button, .mat-radio-button, .mat-checkbox')
+          .forEach(btn => (btn as HTMLElement).style.pointerEvents = 'auto');
+      }, 60);
     } catch (err) {
       console.error('[updateContentBasedOnIndex] ❌ Failed to load question', err);
     } finally {
