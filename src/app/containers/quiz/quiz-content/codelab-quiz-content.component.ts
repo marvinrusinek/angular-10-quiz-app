@@ -1499,7 +1499,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     banner: string,
     fet: { idx: number; text: string; gate: boolean } | null,
     shouldShow: boolean
-  ): string {
+  ): string { */
     /* const active = this.quizService.getCurrentQuestionIndex();
     const fetTxt = fet?.text?.trim() ?? '';
     const qTxt = question?.trim() ?? '';
@@ -1601,7 +1601,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     this._lastQuestionText = merged;
     return merged;
   } */
-  private resolveTextToDisplay(
+  /* private resolveTextToDisplay(
     idx: number,
     question: string,
     banner: string,
@@ -1665,8 +1665,80 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   
     this._lastQuestionText = merged;
     return merged;
+  } */
+  private resolveTextToDisplay(
+    idx: number,
+    question: string,
+    banner: string,
+    fet: { idx: number; text: string; gate: boolean } | null,
+    shouldShow: boolean
+  ): string {
+    const qText = (question ?? '').trim();
+    const bannerText = (banner ?? '').trim();
+    const fetText = (fet?.text ?? '').trim();
+    const active = this.quizService.getCurrentQuestionIndex();
+    const mode = this.quizStateService.displayStateSubject?.value?.mode ?? 'question';
+  
+    // ─────────────────────────────
+    // 1️⃣ If there’s no explanation yet, always show the question
+    // ─────────────────────────────
+    if (!fet || !fetText) {
+      this._lastQuestionText = qText;
+      return qText;
+    }
+  
+    // ─────────────────────────────
+    // 2️⃣ If indices don’t line up, reject the FET entirely
+    // ─────────────────────────────
+    if (fet.idx !== idx || fet.idx !== active) {
+      console.log(
+        `[resolveTextToDisplay] 🚫 FET mismatch (fet.idx=${fet.idx}, idx=${idx}, active=${active})`
+      );
+      this._lastQuestionText = qText;
+      return qText;
+    }
+  
+    // ─────────────────────────────
+    // 3️⃣ If gate closed or lock engaged, keep question visible
+    // ─────────────────────────────
+    if (this.explanationTextService._fetLocked || !fet.gate) {
+      return qText;
+    }
+  
+    // ─────────────────────────────
+    // 4️⃣ Only show FET when gate open, text nonempty, and in explanation mode
+    // ─────────────────────────────
+    const fetAllowed =
+      fetText.length > 2 &&
+      fet.gate &&
+      (shouldShow || mode === 'explanation') &&
+      !this.explanationTextService._fetLocked;
+  
+    if (fetAllowed) {
+      console.log(`[resolveTextToDisplay] ✅ Showing FET for Q${idx + 1}`);
+      this._lastQuestionText = fetText;
+      return fetText;
+    }
+  
+    // ─────────────────────────────
+    // 5️⃣ Default back to question text (include banner for multi-answer)
+    // ─────────────────────────────
+    const qObj = this.quizService.questions?.[idx];
+    const isMulti =
+      !!qObj &&
+      (qObj.type === QuestionType.MultipleAnswer ||
+        (Array.isArray(qObj.options) && qObj.options.some(o => o.correct)));
+  
+    let merged = qText;
+    if (isMulti && bannerText && mode === 'question') {
+      merged = `${qText} <span class="correct-count">${bannerText}</span>`;
+    }
+  
+    this._lastQuestionText = merged;
+    return merged;
   }
   
+
 
   private emitContentAvailableState(): void {
     this.isContentAvailable$.pipe(takeUntil(this.destroy$)).subscribe({
