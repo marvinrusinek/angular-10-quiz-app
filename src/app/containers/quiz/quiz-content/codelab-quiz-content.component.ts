@@ -1309,40 +1309,44 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     // Seed FET inputs so fetForIndex$ emits once at startup
     // 🧩 FET stream — resets cleanly after each purge
     const fetForIndex$: Observable<FETState> = combineLatest([
-      // Explanation text stream (resets on purge)
-      this.explanationTextService.formattedExplanation$.pipe(
-        startWith(''),                 // always start empty after purge
+      // Each fresh purge resets formattedExplanation$ → so re-seed empty emission first
+      (this.explanationTextService.formattedExplanation$ ?? of('')).pipe(
+        startWith(''),
+        map(text => (text ?? '').trim())
+      ),
+      (this.explanationTextService.shouldDisplayExplanation$ ?? of(false)).pipe(
+        startWith(false),
         distinctUntilChanged()
       ),
-
-      // Explanation visibility gate
-      this.explanationTextService.shouldDisplayExplanation$.pipe(
-        startWith(false),              // force off on purge
-        distinctUntilChanged()
-      ),
-
-      // Active index (drive alignment between text and question)
       (this.explanationTextService.activeIndex$ ?? of(-1)).pipe(
-        startWith(-1),                 // seed baseline
+        startWith(-1),
         distinctUntilChanged()
-      )
+      ),
+      // Add a purge token guard — ensures only the latest generation can emit
+      (this.explanationTextService.gateToken$ ?? of(0)).pipe(startWith(0))
     ]).pipe(
-      auditTime(0),                    // coalesce synchronous emissions in the same frame
-      map(([text, gate, idx]) => ({
+      // Wait one frame for the three streams to align
+      auditTime(0),
+      map(([text, gate, idx, token]) => ({
         idx,
         text: (text ?? '').trim(),
-        gate: !!gate
+        gate: !!gate,
+        token
       })),
-
-      // Hard guard: drop any FET whose idx doesn’t match the current question
-      filter(({ idx }) => idx === this.quizService.getCurrentQuestionIndex()),
-
-      distinctUntilChanged((a, b) =>
-        a.idx === b.idx && a.gate === b.gate && a.text === b.text
+      // Drop if any field is still in startup state
+      filter(fet => fet.idx >= 0 && !fet.text.includes('No explanation available')),
+      // Prevent Q1→Q2 replay
+      distinctUntilChanged(
+        (a, b) =>
+          a.idx === b.idx &&
+          a.gate === b.gate &&
+          a.text === b.text &&
+          a.token === b.token
       ),
-
+      // Share only once per purge cycle
       shareReplay({ bufferSize: 1, refCount: true })
     );
+    
 
   
     const shouldShow$ = this.explanationTextService.shouldDisplayExplanation$.pipe(
