@@ -2228,6 +2228,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
           o.selected = false;
           (o as any).highlight = false;
           (o as any).showFeedback = false;
+          (o as any).showIcon = false;
         })
       );
       this.nextButtonStateService.setNextButtonState(false);
