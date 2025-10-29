@@ -1896,33 +1896,33 @@ export class ExplanationTextService {
     }, 60);
   } */
   public purgeAndDefer(newIndex: number): void {
+    console.log(`[ETS ${this._instanceId}] 🔄 purgeAndDefer(${newIndex})`);
+  
+    // Generate a unique token for this purge
     const token = ++this._gateToken;
     this._currentGateToken = token;
   
-    // 🧭 Step 1: Flip index immediately — so any late Q1 emits are discarded
+    // Immediately flip the index so stale FETs are rejected
     this._activeIndex = newIndex;
     this._fetLocked = true;
-    console.log(`[ETS ${this._instanceId}] 🔄 purgeAndDefer(${newIndex}) [token=${token}]`);
   
-    // 🧹 Step 2: Clear everything stale
+    // Hard clear everything
     this.latestExplanation = '';
-    if (Array.isArray(this.formattedExplanations)) this.formattedExplanations.length = 0;
     this.formattedExplanationSubject?.next('');
     (this._textMap as any)?.clear?.();
     this.setShouldDisplayExplanation(false);
     this.setIsExplanationTextDisplayed(false);
   
-    // 🕒 Step 3: Unlock only the latest token after one animation frame
-    requestAnimationFrame(() => {
+    // Schedule unlock — only if token still current
+    setTimeout(() => {
       if (this._currentGateToken !== token) {
-        console.log(`[ETS ${this._instanceId}] ⏭ stale unlock ignored (token=${token})`);
+        console.log(`[ETS ${this._instanceId}] 🚫 Skip unlock — superseded by newer purge`);
         return;
       }
       this._fetLocked = false;
-      console.log(`[ETS ${this._instanceId}] 🔓 unlocked for Q${newIndex + 1}`);
-    });
+      console.log(`[ETS ${this._instanceId}] 🔓 Unlocked for Q${newIndex + 1}`);
+    }, 120);
   }
-  
 
   public lockDuringTransition(ms = 100): void {
     this._transitionLock = true;
