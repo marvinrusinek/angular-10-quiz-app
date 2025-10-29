@@ -1245,39 +1245,38 @@ export class ExplanationTextService {
 
   // ---- Emit per-index formatted text; coalesces duplicates and broadcasts event
   public emitFormatted(index: number, value: string | null): void {
+    // 1️⃣ Drop if this emission belongs to an outdated purge cycle
     if (this._gateToken !== this._currentGateToken) {
       console.log(`[ETS] 🚫 Late emission dropped for Q${index + 1}`);
       return;
     }
-    
+  
+    // Log emission context
     console.log(
       `[ETS] emitFormatted → idx=${index}, active=${this._activeIndex}, locked=${this._fetLocked}`
     );
-
+  
+    // Drop if older than the current active question
     if (index < this._activeIndex) {
       console.log(`[ETS emitFormatted] 🚫 stale emit from older question Q${index + 1}`);
       return;
     }
   
-    // Suppress startup or empty clears (prevents Q1 flash)
+    // Ignore startup clears (prevents initial flash)
     if (index === -1 && (!value || value.trim() === '')) {
       console.log('[ETS emitFormatted] 💤 ignored empty startup clear');
       return;
     }
   
-    // Drop any emission not belonging to the active question
-    if (index !== this._activeIndex || this._fetLocked) {
-      console.log(`[ETS] 🚫 stale emit blocked (incoming=${index}, active=${this._activeIndex})`);
+    // Guard against wrong question or lock states
+    if (index !== this._activeIndex || this._fetLocked || this._transitionLock) {
+      console.log(
+        `[ETS emitFormatted] 🚫 emit blocked (incoming=${index}, active=${this._activeIndex}, locked=${this._fetLocked})`
+      );
       return;
     }
   
-    // Drop while locked or transitioning
-    if (this._fetLocked || this._transitionLock) {
-      console.log(`[ETS emitFormatted] ⏸ locked/transition → suppress emit for Q${index + 1}`);
-      return;
-    }
-  
-    // Prepare text
+    // Prepare sanitized text
     const { text$ } = this.getOrCreate(index);
     const trimmed = (value ?? '').trim() || null;
     if (!trimmed) {
@@ -1285,7 +1284,7 @@ export class ExplanationTextService {
       return;
     }
   
-    // Skip duplicate emissions
+    // Drop duplicate FET emissions
     const last = (this.latestExplanation ?? '').trim();
     const next = trimmed;
     if (last && next === last) {
@@ -1293,16 +1292,22 @@ export class ExplanationTextService {
       return;
     }
   
-    // Valid emission — cache and broadcast safely
+    // Cache new explanation text
     this.latestExplanation = next;
   
-    // Use RAF for smoothness, but re-check active index to prevent late Q1 leaks
+    // Use RAF for smooth paint but confirm same index before broadcast
     requestAnimationFrame(() => {
-      if (index !== this._activeIndex || this._fetLocked) {
+      // Re-validate after one frame in case navigation changed mid-frame
+      if (
+        this._fetLocked ||
+        this._gateToken !== this._currentGateToken ||
+        index !== this._activeIndex
+      ) {
         console.log(`[ETS emitFormatted] 🚫 skipped late emission for Q${index + 1}`);
         return;
       }
   
+      // ✅ Safe broadcast
       this.safeNext(text$, trimmed);
       this.safeNext(this.shouldDisplayExplanation$, true);
       this.safeNext(this.isExplanationTextDisplayed$, true);
