@@ -1891,41 +1891,49 @@ export class ExplanationTextService {
   public purgeAndDefer(newIndex: number): void {
     console.log(`[ETS ${this._instanceId}] 🔄 purgeAndDefer(${newIndex})`);
   
+    // Increment and set a new generation token — any prior emits become invalid
     this._gateToken++;
     this._currentGateToken = this._gateToken;
+  
+    // Lock and assign the active index first
     this._activeIndex = newIndex;
     this._fetLocked = true;
   
-    // Hard-replace subject immediately to drop buffered emissions
-    if (this.formattedExplanationSubject) {
-      try { this.formattedExplanationSubject.complete(); } catch {}
-    }
+    // Immediately hard-replace the subject to flush any buffered FET emissions
+    try {
+      this.formattedExplanationSubject?.complete();
+    } catch {}
     this.formattedExplanationSubject = new ReplaySubject<string>(1);
     this.formattedExplanation$ = this.formattedExplanationSubject.asObservable();
   
-    // Reset caches and flags
+    // Clear caches and gate flags
     this.latestExplanation = '';
     this.setShouldDisplayExplanation(false);
     this.setIsExplanationTextDisplayed(false);
     this._textMap?.clear?.();
   
-    // Cancel any pending unlock frame (from earlier purges)
+    // Cancel any previous unlock frame — ensures only latest purge will unlock
     if (this._unlockRAFId != null) {
       cancelAnimationFrame(this._unlockRAFId);
       this._unlockRAFId = null;
     }
   
-    // One-frame deferred unlock — only if token still current
+    // Schedule unlock after one frame + small delay, but only if token still matches
+    const token = this._gateToken;
     this._unlockRAFId = requestAnimationFrame(() => {
       setTimeout(() => {
-        if (this._gateToken !== this._currentGateToken) return;  // still stale
+        // Skip unlock if a newer purge has already started
+        if (token !== this._currentGateToken) {
+          console.log(`[ETS ${this._instanceId}] 🚫 stale unlock skipped for Q${newIndex + 1}`);
+          return;
+        }
+  
+        // Finally release the lock — this is the only valid unlock
         this._fetLocked = false;
         console.log(`[ETS ${this._instanceId}] 🔓 gate reopened for Q${newIndex + 1}`);
-      }, 100); // <-- add small buffer (~1/10s)
+      }, 100); // ~1/10 second buffer helps DOM + async FET settle
     });
   }
-  
-
 
   public lockDuringTransition(ms = 100): void {
     this._transitionLock = true;
