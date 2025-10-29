@@ -1253,8 +1253,8 @@ export class ExplanationTextService {
       );
       return;
     }
-  
-    // 🚫 Reject stale or cross-question emissions
+
+    // 🚫 Reject stale or cross-question emissions early
     if (index !== this._activeIndex) {
       console.log(
         `[ETS] 🚫 stale emit (incoming=${index}, active=${this._activeIndex})`
@@ -1280,7 +1280,7 @@ export class ExplanationTextService {
   
     // 🧠 Schedule safe emission (one animation frame later)
     requestAnimationFrame(() => {
-      // 🔒 Re-check guards inside the frame — prevents late Q1→Q2 leaks
+      // Re-check guards inside the frame — prevents late Q1→Q2 leaks
       const sameIndex  = index === this._activeIndex;
       const sameToken  = this._gateToken === this._currentGateToken;
       const notLocked  = !this._fetLocked && !this._transitionLock;
@@ -1294,7 +1294,7 @@ export class ExplanationTextService {
         return;
       }
     
-      // ✅ Valid emission path
+      // Valid emission path
       try {
         this.safeNext(this.formattedExplanationSubject, trimmed);
         this.safeNext(this.shouldDisplayExplanation$, true);
@@ -1896,51 +1896,40 @@ export class ExplanationTextService {
   public purgeAndDefer(newIndex: number): void {
     console.log(`[ETS ${this._instanceId}] 🔄 purgeAndDefer(${newIndex})`);
   
-    // Increment and set a new generation token — any prior emits become invalid
+    // Invalidate all pending frames immediately
     this._gateToken++;
     this._currentGateToken = this._gateToken;
-  
-    // Lock and assign the active index first
-    this._activeIndex = newIndex;
     this._fetLocked = true;
   
-    // Immediately hard-replace the subject to flush any buffered FET emissions
-    try {
-      this.formattedExplanationSubject?.complete();
-    } catch {}
-    this.formattedExplanationSubject = new ReplaySubject<string>(1);
-    this.formattedExplanation$ = this.formattedExplanationSubject.asObservable();
-  
-    // Clear caches and gate flags
-    this.latestExplanation = '';
-    this.setShouldDisplayExplanation(false);
-    this.setIsExplanationTextDisplayed(false);
-    this._textMap?.clear?.();
-  
-    // Cancel any previous unlock frame — ensures only latest purge will unlock
+    // Cancel any old unlock or queued animation frame
     if (this._unlockRAFId != null) {
       cancelAnimationFrame(this._unlockRAFId);
       this._unlockRAFId = null;
     }
   
-    // Schedule unlock after one frame + small delay, but only if token still matches
-    // Keep everything locked until at least two paint frames after render
-    const token = this._gateToken;
+    // Hard reset state
+    this._activeIndex = newIndex;
+    this.latestExplanation = '';
+    this.setShouldDisplayExplanation(false);
+    this.setIsExplanationTextDisplayed(false);
+    this._textMap?.clear?.();
+  
+    // Reset the ReplaySubject itself to drop buffered emissions
+    try { this.formattedExplanationSubject?.complete(); } catch {}
+    this.formattedExplanationSubject = new ReplaySubject<string>(1);
+    this.formattedExplanation$ = this.formattedExplanationSubject.asObservable();
+  
+    // 🔒 Hold lock for at least one frame, only unlock if token still current
+    const localToken = this._gateToken;
     this._unlockRAFId = requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        setTimeout(() => {
-          if (token !== this._currentGateToken) {
-            console.log(`[ETS ${this._instanceId}] 🚫 stale unlock skipped (token mismatch)`);
-            return;
-          }
-          if (this._activeIndex !== newIndex) {
-            console.log(`[ETS ${this._instanceId}] 🚫 unlock aborted; active=${this._activeIndex}, target=${newIndex}`);
-            return;
-          }
-          this._fetLocked = false;
-          console.log(`[ETS ${this._instanceId}] 🔓 gate reopened safely for Q${newIndex + 1}`);
-        }, 180);  // wait roughly 2–3 frames after render
-      });
+      setTimeout(() => {
+        if (this._gateToken !== localToken) {
+          console.log(`[ETS ${this._instanceId}] ⏸ Skip unlock — stale token`);
+          return;
+        }
+        this._fetLocked = false;
+        console.log(`[ETS ${this._instanceId}] 🔓 gate reopened for Q${newIndex + 1}`);
+      }, 100);
     });
   }
 
