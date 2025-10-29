@@ -11,6 +11,7 @@ export interface ExplanationEvent {
   index: number,
   text: string | null
 }
+type FETPayload = { idx: number; text: string; token: number };
 
 @Injectable({ providedIn: 'root' })
 export class ExplanationTextService {
@@ -123,12 +124,15 @@ export class ExplanationTextService {
   public _hardMuteUntil = 0;
   public _fetGateLockUntil = 0;  // time until which the FET gate is locked
 
+  private _fetSubject = new ReplaySubject<FETPayload>(1);
+  public  fet$ = this._fetSubject.asObservable();
+
   private _pendingReset?: number;
   private _transitionLock = false;
 
   public readonly gateToken$ = new BehaviorSubject<number>(0);
   public _gateToken = 0;
-  private _currentGateToken = 0;
+  public _currentGateToken = 0;
   
   private _textMap: Map<number, { text$: ReplaySubject<string> }> = new Map();
 
@@ -1250,67 +1254,77 @@ export class ExplanationTextService {
   }
 
   // ---- Emit per-index formatted text; coalesces duplicates and broadcasts event
-  public emitFormatted(index: number, value: string | null): void {
-    const token = this._currentGateToken;
-    const active = this._activeIndex;
+  /* public emitFormatted(index: number, value: string | null): void {
+    const tokenNow = this._currentGateToken;
   
-    // 🔒 Reject if locked or token mismatch
-    if (this._fetLocked || this._gateToken !== token) {
-      console.log(
-        `[ETS] ⏸ locked/stale token — skip emit for Q${index + 1} (active=${active}, token=${this._gateToken}/${token})`
-      );
+    // Strong outer guards
+    if (this._fetLocked || this._gateToken !== tokenNow) {
+      console.log(`[ETS] ⏸ locked/stale-token → skip emit for Q${index + 1}`);
       return;
     }
-  
-    // 🚫 Reject stale or cross-question emissions
-    if (index !== active) {
-      console.log(`[ETS] 🚫 stale emit (incoming=${index}, active=${active})`);
+    if (index !== this._activeIndex) {
+      console.log(`[ETS] 🚫 cross-index emit (incoming=${index}, active=${this._activeIndex})`);
       return;
     }
   
     const trimmed = (value ?? '').trim();
     if (!trimmed) {
-      console.log(`[ETS] ⏸ empty value → skip emit for Q${index + 1}`);
+      console.log(`[ETS] ⏸ empty FET → skip`);
       return;
     }
   
-    // 🚫 Skip duplicates
-    if (trimmed === (this.latestExplanation ?? '').trim()) {
-      console.log(`[ETS] ⏸ duplicate emit for Q${index + 1}`);
+    // Dedup
+    if ((this.latestExplanation ?? '').trim() === trimmed) {
+      console.log(`[ETS] ⏸ duplicate FET for Q${index + 1}`);
       return;
     }
   
-    // ✅ Record latest
+    // Record mirror early; verify again inside RAF
     this.latestExplanation = trimmed;
+    const capturedToken = tokenNow;
+    const capturedIndex = index;
   
-    // 🧱 Snapshot both index & token for safety
-    const capturedToken = token;
-    const capturedIndex = active;
-  
-    // 🪄 Next animation frame: only push if still current
     requestAnimationFrame(() => {
-      // 🧩 Strong guard: verify token & index haven’t changed mid-frame
-      const tokenValid = this._currentGateToken === capturedToken;
-      const indexValid = this._activeIndex === capturedIndex;
-  
-      if (this._fetLocked || !tokenValid || !indexValid) {
-        console.log(
-          `[ETS] 🚫 blocked stale RAF emit (Q${index + 1}, active=${this._activeIndex}, token=${this._gateToken}/${capturedToken})`
-        );
+      // Re-check after paint: must still be the same generation+index and unlocked
+      if (
+        this._fetLocked ||
+        this._currentGateToken !== capturedToken ||
+        this._activeIndex !== capturedIndex
+      ) {
+        console.log(`[ETS] 🚫 skipped late FET for Q${index + 1}`);
         return;
       }
   
-      // ✅ Everything matches → safe emit
-      this.safeNext(this.formattedExplanationSubject, trimmed);
+      // Emit atomically
+      this.formattedExplanationSubject.next(trimmed);
+      this.shouldDisplayExplanation$.next(true);
+      this.isExplanationTextDisplayed$.next(true);
+      console.log(`[ETS] ✅ emitted FET for Q${index + 1} (token=${capturedToken})`);
+    });
+  } */
+  public emitFormatted(index: number, value: string | null): void {
+    const token = this._currentGateToken;
+  
+    // outer guards
+    if (this._fetLocked || this._gateToken !== token) return;
+    if (index !== this._activeIndex) return;
+  
+    const trimmed = (value ?? '').trim();
+    if (!trimmed || trimmed === (this.latestExplanation ?? '').trim()) return;
+  
+    this.latestExplanation = trimmed;
+  
+    // schedule 1 frame, then re-check token+index
+    requestAnimationFrame(() => {
+      if (this._fetLocked) return;
+      if (this._currentGateToken !== token) return;
+      if (index !== this._activeIndex) return;
+  
+      this.safeNext(this._fetSubject, { idx: index, text: trimmed, token });
       this.safeNext(this.shouldDisplayExplanation$, true);
       this.safeNext(this.isExplanationTextDisplayed$, true);
-  
-      console.log(
-        `[ETS] ✅ committed FET for Q${index + 1} (token=${capturedToken}, idx=${capturedIndex})`
-      );
     });
   }
-  
 
   // ---- Per-index gate
   public gate$(index: number): Observable<boolean> {
@@ -1345,126 +1359,33 @@ export class ExplanationTextService {
   }
 
   // Call to open a gate for an index
-  public openExclusive(index: number, formatted: string | null): void {
-    const { text$, gate$ } = this.getOrCreate(index);
-    const trimmed = (formatted ?? '').trim() || null;
+  public openExclusive(index: number, text: string): void {
+    const token = this._currentGateToken;
   
-    const now = performance.now();
-    const lastNav = this._lastNavTime ?? 0;
-    const sinceNav = now - lastNav;
-    const quietUntil = this._quietZoneUntil ?? 0;
-  
-    // ────────────────────────────────────────────────
-    // 🚫 HARD FIREWALL: Block any FET open during quiet zone or hard mute
-    // ────────────────────────────────────────────────
-    if (now < quietUntil || now < (this._hardMuteUntil ?? 0)) {
-      const wait = Math.max(quietUntil, this._hardMuteUntil ?? 0) - now;
-      console.log(
-        `[ETS] 🔇 Suppressing FET open (${wait.toFixed(
-          1
-        )}ms left in quiet/mute zone, idx=${index})`
-      );
+    // pre-guards
+    if (this._fetLocked || index !== this._activeIndex || token !== this._gateToken) {
+      console.log(`[ETS] ⏸ openExclusive rejected (idx=${index}, active=${this._activeIndex}, token=${token}/${this._gateToken})`);
       return;
     }
   
-    // ────────────────────────────────────────────────
-    // ⛔ DOUBLE-GATE: prevent reopen within ~2 frames of previous open
-    // ────────────────────────────────────────────────
-    const sinceLastOpen = now - this._lastOpenAt;
-    if (index === this._lastOpenIdx && sinceLastOpen < 34) {
-      console.log(
-        `[ETS] ⏸ Skipped redundant FET open (${sinceLastOpen.toFixed(1)}ms)`
-      );
-      return;
-    }
-    this._lastOpenIdx = index;
-    this._lastOpenAt = now;
+    const trimmed = (text ?? '').trim();
+    if (!trimmed || trimmed === this.latestExplanation?.trim()) return;
   
-    // ────────────────────────────────────────────────
-    // 🧹 STEP 1: Synchronous purge before CQCC samples
-    // ────────────────────────────────────────────────
-    if (index !== this._activeIndex) {
-      // Clear the global subjects FIRST (this ensures CQCC sees blanks)
-      this.formattedExplanationSubject?.next('');
-      this.shouldDisplayExplanationSource.next(false);
-      this.isExplanationTextDisplayedSource.next(false);
+    this.latestExplanation = trimmed;
   
-      // Flush all per-index subjects immediately
-      if (this._byIndex instanceof Map) {
-        for (const [k, subj] of this._byIndex.entries()) subj?.next?.('');
-      }
-      if (this._gate instanceof Map) {
-        for (const [k, gate] of this._gate.entries()) gate?.next?.(false);
-      }
-  
-      // And finally, clear both maps synchronously
-      this._byIndex.clear?.();
-      this._gate.clear?.();
-  
-      // Short post-purge lock to block reopens during same frame
-      this._fetGateLockUntil = now + 64;
-  
-      console.log(`[ETS] 🧨 Full FET cache flush before activating index ${index}`);
-    }
-  
-    // ────────────────────────────────────────────────
-    // 🧭 STEP 2: Update the active index AFTER purge
-    // ────────────────────────────────────────────────
-    this._activeIndex = index;
-  
-    // Double check: if somehow race set a different active index
-    if (index !== this._activeIndex) {
-      console.log(`[ETS] 🚫 Ignoring FET open for idx=${index}; active=${this._activeIndex}`);
-      return;
-    }
-  
-    // ────────────────────────────────────────────────
-    // ⏱️ STEP 3: Apply a small defer window post-navigation
-    // ────────────────────────────────────────────────
-    const delay = sinceNav < 72 ? 72 - sinceNav : 0;
-  
-    const activate = () => {
-      // Safety check: ensure still same index before emitting
-      if (index !== this._activeIndex) {
-        console.log(
-          `[ETS] ⚠️ Skipped FET open for outdated index ${index} (active=${this._activeIndex})`
-        );
+    // one-frame emit with re-checks
+    requestAnimationFrame(() => {
+      if (this._fetLocked || index !== this._activeIndex || token !== this._currentGateToken) {
+        console.log(`[ETS] 🚫 late openExclusive dropped for Q${index + 1}`);
         return;
       }
-  
-      text$.next(trimmed);
-      gate$.next(!!trimmed);
-  
-      console.log(
-        `[ETS] openExclusive(${index}) → gate=${!!trimmed}, len=${trimmed?.length ?? 0}, delayed=${delay.toFixed(1)}ms`
-      );
-    };
-  
-    // Minimal defer if navigation just happened
-    if (delay > 0) {
-      setTimeout(() => requestAnimationFrame(activate), delay);
-    } else {
-      requestAnimationFrame(activate);
-    }
-  
-    // ────────────────────────────────────────────────
-    // 🧩 STEP 4: Record diagnostics + proactive cleanup
-    // ────────────────────────────────────────────────
-    this._emittedAtByIndex ??= new Map<number, number>();
-    this._emittedAtByIndex.set(index, now);
-  
-    // Block new FET emissions briefly after this one
-    this._fetGateLockUntil = now + 48;
-  
-    // Clean up any residuals from older questions (Q1 bleed)
-    if (this._byIndex instanceof Map) {
-      for (const [idx, subj] of this._byIndex.entries()) {
-        if (idx < index - 1) subj?.next?.('');
-      }
-    }
-  
-    console.log(`[ETS] ✅ FET open finalized for Q${index + 1}, active=${this._activeIndex}`);
+      this.safeNext(this.formattedExplanationSubject, trimmed);
+      this.safeNext(this.shouldDisplayExplanation$, true);
+      this.safeNext(this.isExplanationTextDisplayed$, true);
+      console.log(`[ETS] ✅ FET opened for Q${index + 1}`);
+    });
   }
+  
 
   // Helper to fetch timestamp safely elsewhere
   public getLastEmitTime(index: number): number {
@@ -1940,37 +1861,53 @@ export class ExplanationTextService {
   public purgeAndDefer(newIndex: number): void {
     console.log(`[ETS ${this._instanceId}] 🔄 purgeAndDefer(${newIndex})`);
   
-    // Increment generation token and mark new cycle
+    // Bump generation and lock everything immediately
     this._gateToken++;
     this._currentGateToken = this._gateToken;
     this._activeIndex = newIndex;
     this._fetLocked = true;
   
-    // 💣 Immediately nuke subjects to break any pending emissions
-    try { this.formattedExplanationSubject.complete(); } catch {}
+    // Stop all lingering subjects to prevent replay from Q1
+    try {
+      if (this.formattedExplanationSubject) {
+        this.formattedExplanationSubject.complete();
+      }
+    } catch {}
     this.formattedExplanationSubject = new ReplaySubject<string>(1);
     this.formattedExplanation$ = this.formattedExplanationSubject.asObservable();
   
+    // Hard reset every flag
     this.latestExplanation = '';
     this.setShouldDisplayExplanation(false);
     this.setIsExplanationTextDisplayed(false);
     this._textMap?.clear?.();
   
-    // Cancel any previously queued unlocks or emits
-    cancelAnimationFrame(this._unlockRAFId ?? 0);
-    cancelAnimationFrame(this._emitRAFId ?? 0);
+    // Cancel any pending unlocks from older cycles
+    if (this._unlockRAFId != null) {
+      cancelAnimationFrame(this._unlockRAFId);
+      this._unlockRAFId = null;
+    }
   
-    // Deferred unlock tied strictly to the new token
-    const unlockToken = this._gateToken;
+    // ────────────────────────────────────────────────
+    // ✅ Strict token-based unlock logic
+    // ────────────────────────────────────────────────
+    const localToken = this._currentGateToken;
     this._unlockRAFId = requestAnimationFrame(() => {
       setTimeout(() => {
-        if (unlockToken !== this._currentGateToken) {
-          console.log(`[ETS ${this._instanceId}] 🚫 stale unlock ignored (Q${newIndex + 1})`);
+        // If a newer purge happened while waiting, abort
+        if (this._currentGateToken !== localToken) {
+          console.log(
+            `[ETS ${this._instanceId}] 🚫 stale unlock aborted for Q${newIndex + 1}`
+          );
           return;
         }
+  
+        // Token still current → unlock safely
         this._fetLocked = false;
-        console.log(`[ETS ${this._instanceId}] 🔓 gate reopened for Q${newIndex + 1}`);
-      }, 100);
+        console.log(
+          `[ETS ${this._instanceId}] 🔓 gate reopened cleanly for Q${newIndex + 1}`
+        );
+      }, 120); // small delay lets purge settle visually
     });
   }
 
