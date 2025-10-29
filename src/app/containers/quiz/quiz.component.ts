@@ -2187,17 +2187,23 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
     // Purge FET for the *new* active index (so late Q1 emits get rejected)
     try {
-      this.explanationTextService._activeIndex = adjustedIndex;
+      // Clear any lingering explanations before loading a new question
       this.explanationTextService.purgeAndDefer(adjustedIndex);
+  
+      // Immediately disable all explanation visibility flags
+      this.explanationTextService.setShouldDisplayExplanation(false);
+      this.explanationTextService.setIsExplanationTextDisplayed(false);
+      this.explanationTextService.latestExplanation = '';
+  
       console.log(`[updateContentBasedOnIndex] 🔄 Purged FET for Q${adjustedIndex + 1}`);
     } catch (err) {
       console.warn(`[updateContentBasedOnIndex] ⚠️ purgeAndDefer failed`, err);
     }
+    
 
     // No-op guard (safe to skip reloading)
     if (this.previousIndex === adjustedIndex && !this.isNavigatedByUrl) {
       console.log('[updateContentBasedOnIndex] No navigation needed.');
-      console.groupEnd();
       return;
     }
 
@@ -2234,11 +2240,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     } catch (err) {
       console.warn('[updateContentBasedOnIndex] ⚠️ State reset failed', err);
     }
-
-    // Ensure explanation flags are OFF before rendering the next question
-    this.explanationTextService.setShouldDisplayExplanation(false);
-    this.explanationTextService.setIsExplanationTextDisplayed(false);
-    this.explanationTextService.latestExplanation = '';
 
     // Give purge a frame to unlock so Q1 can’t sneak in
     await this.nextFrame();

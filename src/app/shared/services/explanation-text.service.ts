@@ -1245,7 +1245,7 @@ export class ExplanationTextService {
 
   // ---- Emit per-index formatted text; coalesces duplicates and broadcasts event
   public emitFormatted(index: number, value: string | null): void {
-    // 1️⃣ Drop if this emission belongs to an outdated purge cycle
+    // Drop if this emission belongs to an outdated purge cycle
     if (this._gateToken !== this._currentGateToken) {
       console.log(`[ETS] 🚫 Late emission dropped for Q${index + 1}`);
       return;
@@ -1255,6 +1255,11 @@ export class ExplanationTextService {
     console.log(
       `[ETS] emitFormatted → idx=${index}, active=${this._activeIndex}, locked=${this._fetLocked}`
     );
+
+    if (this._fetLocked) {
+      console.log(`[ETS emitFormatted] ⏸ locked → ignore early FET for Q${index + 1}`);
+      return;
+    }
   
     // Drop if older than the current active question
     if (index < this._activeIndex) {
@@ -1926,7 +1931,7 @@ export class ExplanationTextService {
       }
       this._fetLocked = false;
       console.log(`[ETS ${this._instanceId}] 🔓 Unlocked for Q${newIndex + 1}`);
-    }, 120);
+    }, 140);
   }
 
   public lockDuringTransition(ms = 100): void {
