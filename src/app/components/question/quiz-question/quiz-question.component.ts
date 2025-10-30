@@ -2158,7 +2158,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       }
 
       // Set backward nav flag if supported
-      (instance as unknown as AnswerComponent).isNavigatingBackwards =
+      //(instance as unknown as AnswerComponent).isNavigatingBackwards =
         this.navigatingBackwards ?? false;
       this.navigatingBackwards = false;
 
