@@ -67,7 +67,7 @@ interface Override { idx: number; html: string; }
 export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewInit {
   // private _quizQuestionComponent!: QuizQuestionComponent;
 
-  @ViewChild('quizQuestionComponent', { static: false })
+  @ViewChild(QuizQuestionComponent, { static: false })
   quizQuestionComponent!: QuizQuestionComponent;
   /* set quizQuestionComponent(component: unknown) {
     this._quizQuestionComponent = component as QuizQuestionComponent;
