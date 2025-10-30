@@ -38,7 +38,7 @@ interface FETState {
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy {
-  @ViewChild('quizQuestionComponent', { static: false })
+  @ViewChild(QuizQuestionComponent, { static: false })
   quizQuestionComponent!: QuizQuestionComponent | undefined;
   /* private _quizQuestionComponent: QuizQuestionComponent | undefined;
 
