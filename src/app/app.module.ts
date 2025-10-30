@@ -24,6 +24,7 @@ import { AngMusicPlayerModule } from 'ang-music-player';
 
 import { AppComponent } from './app.component';
 import { AnswerComponent } from './components/question/answer/answer-component/answer.component';
+import { BaseQuestionComponent } from './components/question/base/base-question.component';
 import { IntroductionComponent } from './containers/introduction/introduction.component';
 import { QuizComponent } from './containers/quiz/quiz.component';
 import { QuizQuestionComponent } from './components/question/quiz-question/quiz-question.component';
@@ -77,6 +78,7 @@ import { QuizGuard } from './router/guards/quiz.guard';
     IntroductionComponent,
     QuizComponent,
     QuizQuestionComponent,
+    BaseQuestionComponent,
     SharedOptionComponent,
     FeedbackComponent,
     QuizSelectionComponent,
