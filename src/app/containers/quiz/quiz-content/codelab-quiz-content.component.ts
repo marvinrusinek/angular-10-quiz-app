@@ -15,7 +15,7 @@ import { QuizQuestionLoaderService } from '../../../shared/services/quizquestion
 import { QuizQuestionManagerService } from '../../../shared/services/quizquestionmgr.service';
 import { QuizStateService } from '../../../shared/services/quizstate.service';
 import { ExplanationTextService } from '../../../shared/services/explanation-text.service';
-import type { QuizQuestionComponent } from '../../../components/question/quiz-question/quiz-question.component';
+import { QuizQuestionComponent } from '../../../components/question/quiz-question/quiz-question.component';
 
 interface QuestionViewState {
   index: number,
@@ -38,9 +38,9 @@ interface FETState {
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy {
-  // @ViewChild('quizQuestionComponent', { static: false })
-  // quizQuestionComponent!: QuizQuestionComponent | undefined;
-  private _quizQuestionComponent: QuizQuestionComponent | undefined;
+  @ViewChild('quizQuestionComponent', { static: false })
+  quizQuestionComponent!: QuizQuestionComponent | undefined;
+  /* private _quizQuestionComponent: QuizQuestionComponent | undefined;
 
   @ViewChild('quizQuestionComponent', { static: false })
   set quizQuestionComponent(component: unknown) {
@@ -49,7 +49,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
 
   get quizQuestionComponent(): QuizQuestionComponent | undefined {
     return this._quizQuestionComponent;
-  }
+  } */
   
   
   @ViewChild('qText', { static: true }) qText!: ElementRef<HTMLHeadingElement>;
