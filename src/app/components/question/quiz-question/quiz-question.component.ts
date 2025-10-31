@@ -42,7 +42,7 @@ import { TimerService } from '../../../shared/services/timer.service';
 import { UserPreferenceService } from '../../../shared/services/user-preference.service';
 import { BaseQuestionComponent } from '../../../components/question/base/base-question.component';
 import { SharedOptionComponent } from '../../../components/question/answer/shared-option-component/shared-option.component';
-// import { AnswerComponent } from '../../../components/question/answer/answer-component/answer.component';
+import { AnswerComponent } from '../../../components/question/answer/answer-component/answer.component';
 
 type FeedbackKey = number | string;
 

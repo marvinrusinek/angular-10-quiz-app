@@ -157,4 +157,33 @@ import { QuizGuard } from './router/guards/quiz.guard';
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
-export class AppModule {}
+export class AppModule {
+  constructor() {
+    console.log({
+      AppComponent,
+      AnswerComponent,
+      IntroductionComponent,
+      QuizQuestionComponent,
+      QuizComponent,
+      SharedOptionComponent,
+      FeedbackComponent,
+      QuizSelectionComponent,
+      ResultsComponent,
+      ScoreboardComponent,
+      ScoreComponent,
+      TimerComponent,
+      AccordionComponent,
+      ReturnComponent,
+      StatisticsComponent,
+      SummaryReportComponent,
+      SummaryIconsComponent,
+      SummaryStatsComponent,
+      ChallengeComponent,
+      CodelabQuizContentComponent,
+      CodelabQuizHeaderComponent,
+      HighlightOptionDirective,
+      ResetBackgroundDirective,
+      JoinPipe
+    });    
+  }
+}
