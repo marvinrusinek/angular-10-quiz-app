@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, EventEmitter, Input, NgZone, OnChanges, OnDestroy, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, EventEmitter, Input, NgZone, OnChanges, OnDestroy, OnInit, Output, SimpleChanges, ViewChild, forwardRef } from '@angular/core';
 import { ActivatedRoute, ParamMap } from '@angular/router';
 import { animationFrameScheduler, BehaviorSubject, combineLatest, defer, EMPTY, forkJoin, Observable, of, Subject, Subscription, timer } from 'rxjs';
 import { auditTime, catchError, concatMap, concatWith, debounce, debounceTime, delay, distinctUntilChanged, filter, first, map, mapTo, observeOn, pairwise, scan, shareReplay, skip, skipUntil, skipWhile, startWith, switchMap, take, takeUntil, tap, throttleTime, withLatestFrom } from 'rxjs/operators';
@@ -15,7 +15,7 @@ import { QuizQuestionLoaderService } from '../../../shared/services/quizquestion
 import { QuizQuestionManagerService } from '../../../shared/services/quizquestionmgr.service';
 import { QuizStateService } from '../../../shared/services/quizstate.service';
 import { ExplanationTextService } from '../../../shared/services/explanation-text.service';
-import { QuizQuestionComponent } from '../../../components/question/quiz-question/quiz-question.component';
+import type { QuizQuestionComponent } from '../../../components/question/quiz-question/quiz-question.component';
 
 interface QuestionViewState {
   index: number,
@@ -38,8 +38,8 @@ interface FETState {
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy {
-  @ViewChild(QuizQuestionComponent, { static: false })
-  quizQuestionComponent!: QuizQuestionComponent;
+  //@ViewChild(QuizQuestionComponent, { static: false })
+  //quizQuestionComponent!: QuizQuestionComponent;
   /* private _quizQuestionComponent: QuizQuestionComponent | undefined;
 
   @ViewChild('quizQuestionComponent', { static: false })
