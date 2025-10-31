@@ -1,4 +1,4 @@
-import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, OnInit, Output, QueryList, SimpleChanges, ViewChild, ViewChildren, ViewContainerRef } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, OnInit, Output, QueryList, SimpleChanges, ViewChild, ViewChildren, ViewContainerRef, forwardRef } from '@angular/core';
 import { FormBuilder } from '@angular/forms';
 import { BehaviorSubject, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -17,8 +17,9 @@ import { QuizQuestionManagerService } from '../../../../shared/services/quizques
 import { QuizStateService } from '../../../../shared/services/quizstate.service';
 import { SelectedOptionService } from '../../../../shared/services/selectedoption.service';
 import { BaseQuestionComponent } from '../../../../components/question/base/base-question.component';
-import { QuizQuestionComponent } from '../../../../components/question/quiz-question/quiz-question.component';
+import type { QuizQuestionComponent } from '../../../../components/question/quiz-question/quiz-question.component';
 import { SharedOptionComponent } from '../../../../components/question/answer/shared-option-component/shared-option.component';
+
 
 @Component({
   selector: 'codelab-question-answer',
@@ -31,8 +32,11 @@ export class AnswerComponent extends BaseQuestionComponent implements OnInit, On
   viewContainerRef!: ViewContainerRef;
   @ViewChild(SharedOptionComponent)
   sharedOptionComponent!: SharedOptionComponent;
+
   @Output() componentLoaded = new EventEmitter<QuizQuestionComponent>();
-  quizQuestionComponent: QuizQuestionComponent | undefined;
+  quizQuestionComponent?: QuizQuestionComponent;
+  // quizQuestionComponent?: InstanceType<ReturnType<typeof forwardRef>>;
+  //quizQuestionComponent: QuizQuestionComponent | undefined;
   @Output() optionSelected = new EventEmitter<{option: SelectedOption, index: number, checked: boolean}>();
   @Output() optionClicked = new EventEmitter<{
     option: SelectedOption | null;
