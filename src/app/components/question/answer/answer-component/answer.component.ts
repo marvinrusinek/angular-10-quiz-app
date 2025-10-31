@@ -33,7 +33,8 @@ export class AnswerComponent extends BaseQuestionComponent implements OnInit, On
   @ViewChild(SharedOptionComponent)
   sharedOptionComponent!: SharedOptionComponent;
 
-  @Output() componentLoaded = new EventEmitter<QuizQuestionComponent>();
+  //@Output() componentLoaded = new EventEmitter<QuizQuestionComponent>();
+  @Output() componentLoaded = new EventEmitter<any>();
   quizQuestionComponent?: QuizQuestionComponent;
   // quizQuestionComponent?: InstanceType<ReturnType<typeof forwardRef>>;
   //quizQuestionComponent: QuizQuestionComponent | undefined;
