@@ -6,6 +6,8 @@ import { catchError, debounceTime, distinctUntilChanged, filter, map, retry, sha
 import { firstValueFrom } from '../../shared/utils/rxjs-compat';
 import { MatTooltip } from '@angular/material/tooltip';
 
+import { QuizQuestionComponent } from '../../components/question/quiz-question/quiz-question.component';
+import { SharedOptionComponent } from '../../components/question/answer/shared-option-component/shared-option.component';
 import { Utils } from '../../shared/utils/utils';
 import { QuizStatus } from '../../shared/models/quiz-status.enum';
 import { QuestionType } from '../../shared/models/question-type.enum';
@@ -42,8 +44,6 @@ import { ResetBackgroundService } from '../../shared/services/reset-background.s
 import { SharedVisibilityService } from '../../shared/services/shared-visibility.service';
 import { SoundService } from '../../shared/services/sound.service';
 import { UserPreferenceService } from '../../shared/services/user-preference.service';
-import { QuizQuestionComponent } from '../../components/question/quiz-question/quiz-question.component';
-import { SharedOptionComponent } from '../../components/question/answer/shared-option-component/shared-option.component';
 import { ChangeRouteAnimation } from '../../animations/animations';
 
 type AnimationState = 'animationStarted' | 'none';
