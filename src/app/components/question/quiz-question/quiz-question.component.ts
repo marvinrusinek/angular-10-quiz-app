@@ -2168,7 +2168,7 @@ export class QuizQuestionComponent extends BaseQuestion
         structuredClone?.(options) ?? JSON.parse(JSON.stringify(options));
 
       try {
-        instance.question = { ...question };
+        (instance as any).question = { ...question };
         instance.optionsToDisplay = clonedOptions;
       } catch (error) {
         console.error('[❌ Assignment failed in loadDynamicComponent]', error, {
