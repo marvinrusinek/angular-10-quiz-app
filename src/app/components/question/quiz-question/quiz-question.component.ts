@@ -41,6 +41,7 @@ import { SoundService } from '../../../shared/services/sound.service';
 import { TimerService } from '../../../shared/services/timer.service';
 import { UserPreferenceService } from '../../../shared/services/user-preference.service';
 import { BaseQuestion } from '../base/base-question';
+import { AnswerComponent } from '../../../components/question/answer/answer-component/answer.component';
 import { SharedOptionComponent } from '../../../components/question/answer/shared-option-component/shared-option.component';
 
 type FeedbackKey = number | string;
@@ -2137,7 +2138,7 @@ export class QuizQuestionComponent extends BaseQuestion
       this.dynamicAnswerContainer.clear();
       await Promise.resolve();
 
-      const componentRef: ComponentRef<SingleAnswerComponent | MultipleAnswerComponent> =
+      const componentRef: ComponentRef<AnswerComponent> =
         await this.dynamicComponentService.loadComponent(
           this.dynamicAnswerContainer,
           isMultipleAnswer,
