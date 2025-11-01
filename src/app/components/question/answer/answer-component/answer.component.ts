@@ -18,7 +18,6 @@ import { QuizStateService } from '../../../../shared/services/quizstate.service'
 import { SelectedOptionService } from '../../../../shared/services/selectedoption.service';
 import { BaseQuestionComponent } from '../../../../components/question/base/base-question.component';
 import { SharedOptionComponent } from '../../../../components/question/answer/shared-option-component/shared-option.component';
-import type { QuizQuestionComponent } from '../../../../components/question/quiz-question/quiz-question.component';
 
 @Component({
   selector: 'codelab-question-answer',
@@ -33,8 +32,7 @@ export class AnswerComponent extends BaseQuestionComponent implements OnInit, On
   sharedOptionComponent!: SharedOptionComponent;
 
   //@Output() componentLoaded = new EventEmitter<QuizQuestionComponent>();
-  @Output() componentLoaded = new EventEmitter<QuizQuestionComponent>();
-  quizQuestionComponent?: QuizQuestionComponent;
+  @Output() componentLoaded = new EventEmitter<any>();
   // quizQuestionComponent?: InstanceType<ReturnType<typeof forwardRef>>;
   //quizQuestionComponent: QuizQuestionComponent | undefined;
   @Output() optionSelected = new EventEmitter<{option: SelectedOption, index: number, checked: boolean}>();
