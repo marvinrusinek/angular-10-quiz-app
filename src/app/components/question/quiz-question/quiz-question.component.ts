@@ -2219,7 +2219,7 @@ export class QuizQuestionComponent extends BaseQuestion
         isOptionSelected: false,
         correctMessage: '',
         feedback: '',
-        idx: this.currentQuestionIndex,
+        idx: this.currentQuestionIndex
       };
 
       this.questionData = { ...(instance as any).question, options: clonedOptions };

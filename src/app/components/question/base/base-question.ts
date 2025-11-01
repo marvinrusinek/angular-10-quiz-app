@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChange, SimpleChanges, ViewChild, ViewContainerRef } from '@angular/core';
+import { ChangeDetectorRef, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChange, SimpleChanges, ViewChild, ViewContainerRef } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { BehaviorSubject, Subscription } from 'rxjs';
 import { filter } from 'rxjs/operators';
@@ -64,7 +64,6 @@ export abstract class BaseQuestion implements OnInit, OnChanges, OnDestroy
     this.initializeQuestionIfAvailable();
     await this.initializeSharedOptionConfig();
     this.subscribeToQuestionChanges();
-    console.log('Initial options:', this.optionsToDisplay);
   }
 
   async ngOnChanges(changes: SimpleChanges): Promise<void> {
@@ -74,7 +73,7 @@ export abstract class BaseQuestion implements OnInit, OnChanges, OnDestroy
       const newQuestion = changes.question.currentValue;
       if (!newQuestion || !Array.isArray(newQuestion.options) || newQuestion.options.length === 0) {
         console.warn('[⏳ ngOnChanges] Question or options not ready. Will retry...');
-        setTimeout(() => this.ngOnChanges(changes), 50); // Retry once after delay
+        setTimeout(() => this.ngOnChanges(changes), 50);  // retry once after delay
         return;
       }
   
