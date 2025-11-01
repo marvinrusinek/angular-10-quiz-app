@@ -43,7 +43,7 @@ import { SummaryStatsComponent } from './containers/results/summary-report/summa
 import { ChallengeComponent } from './containers/results/challenge/challenge.component';
 
 // ─────────── Question Tree ───────────
-import { QuizQuestionComponent } from './components/question/quiz-question/quiz-question.component';
+import { QuizQuestionXComponent } from './components/question/quiz-question/quiz-question.component';
 import { AnswerComponent } from './components/question/answer/answer-component/answer.component';
 import { SharedOptionComponent } from './components/question/answer/shared-option-component/shared-option.component';
 import { FeedbackComponent } from './components/question/answer/feedback/feedback.component';
@@ -84,7 +84,7 @@ import { AnswerTrackingService } from './shared/services/answer-tracking.service
   declarations: [
     AppComponent,
     QuizComponent,
-    QuizQuestionComponent,
+    QuizQuestionXComponent,
     CodelabQuizContentComponent,
     CodelabQuizHeaderComponent,
     IntroductionComponent,
