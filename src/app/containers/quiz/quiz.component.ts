@@ -76,7 +76,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   //quizQuestionComponent!: QuizQuestionComponent;
 
   @ViewChild('quizQuestionComponent', { static: false })
-  quizQuestionComponent!: QuizQuestionComponent;
+  quizQuestionComponent!: QuizQuestionXComponent;
   
   /* set quizQuestionComponent(component: unknown) {
     this._quizQuestionComponent = component as QuizQuestionComponent;
