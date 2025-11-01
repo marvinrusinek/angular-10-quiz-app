@@ -42,7 +42,7 @@ import { ResetBackgroundService } from '../../shared/services/reset-background.s
 import { SharedVisibilityService } from '../../shared/services/shared-visibility.service';
 import { SoundService } from '../../shared/services/sound.service';
 import { UserPreferenceService } from '../../shared/services/user-preference.service';
-import type { QuizQuestionComponent } from '../../components/question/quiz-question/quiz-question.component';
+import { QuizQuestionComponent } from '../../components/question/quiz-question/quiz-question.component';
 import { SharedOptionComponent } from '../../components/question/answer/shared-option-component/shared-option.component';
 import { ChangeRouteAnimation } from '../../animations/animations';
 
@@ -70,9 +70,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   //@ViewChild(QuizQuestionComponent, { static: false })
   //quizQuestionComponent!: QuizQuestionComponent;
   
-  @ViewChild('quizQuestionComponent', { static: false })
+  //@ViewChild('quizQuestionComponent', { static: false })
+  //quizQuestionComponent!: QuizQuestionComponent;
+  @ViewChild(forwardRef(() => QuizQuestionComponent), { static: false })
   quizQuestionComponent!: QuizQuestionComponent;
-  
+
   /* set quizQuestionComponent(component: unknown) {
     this._quizQuestionComponent = component as QuizQuestionComponent;
   }
