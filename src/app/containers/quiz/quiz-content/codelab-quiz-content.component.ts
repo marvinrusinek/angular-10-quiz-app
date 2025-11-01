@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, EventEmitter, Input, NgZone, OnChanges, OnDestroy, OnInit, Output, SimpleChanges, ViewChild, forwardRef } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, EventEmitter, Input, NgZone, OnChanges, OnDestroy, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core';
 import { ActivatedRoute, ParamMap } from '@angular/router';
 import { animationFrameScheduler, BehaviorSubject, combineLatest, defer, EMPTY, forkJoin, Observable, of, Subject, Subscription, timer } from 'rxjs';
 import { auditTime, catchError, concatMap, concatWith, debounce, debounceTime, delay, distinctUntilChanged, filter, first, map, mapTo, observeOn, pairwise, scan, shareReplay, skip, skipUntil, skipWhile, startWith, switchMap, take, takeUntil, tap, throttleTime, withLatestFrom } from 'rxjs/operators';
@@ -15,7 +15,7 @@ import { QuizQuestionLoaderService } from '../../../shared/services/quizquestion
 import { QuizQuestionManagerService } from '../../../shared/services/quizquestionmgr.service';
 import { QuizStateService } from '../../../shared/services/quizstate.service';
 import { ExplanationTextService } from '../../../shared/services/explanation-text.service';
-import type { QuizQuestionComponent } from '../../../components/question/quiz-question/quiz-question.component';
+import { QuizQuestionComponent } from '../../../components/question/quiz-question/quiz-question.component';
 
 interface QuestionViewState {
   index: number,
@@ -50,9 +50,13 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   get quizQuestionComponent(): QuizQuestionComponent | undefined {
     return this._quizQuestionComponent;
   } */
+
+  @ViewChild(QuizQuestionComponent, { static: false })
+  quizQuestionComponent!: QuizQuestionComponent;
   
   
-  @ViewChild('qText', { static: true }) qText!: ElementRef<HTMLHeadingElement>;
+  @ViewChild('qText', { static: true })
+  qText!: ElementRef<HTMLHeadingElement>;
   @Output() isContentAvailableChange = new EventEmitter<boolean>();
   @Input() combinedQuestionData$: Observable<CombinedQuestionDataType> | null = null;
   @Input() currentQuestion = new BehaviorSubject<QuizQuestion | null>(null);
