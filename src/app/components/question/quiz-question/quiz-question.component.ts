@@ -2226,7 +2226,7 @@ export class QuizQuestionComponent extends BaseQuestion
       this.sharedOptionConfig = instance.sharedOptionConfig;
       this.cdRef.markForCheck();
 
-      await instance.initializeSharedOptionConfig?.(clonedOptions);
+      await (instance as any).initializeSharedOptionConfig?.(clonedOptions);
 
       if (!Object.prototype.hasOwnProperty.call(instance, 'onOptionClicked')) {
         instance.onOptionClicked = this.onOptionClicked.bind(this);
