@@ -84,6 +84,7 @@ import { AnswerTrackingService } from './shared/services/answer-tracking.service
   declarations: [
     AppComponent,
     QuizComponent,
+    QuizQuestionComponent,
     CodelabQuizContentComponent,
     CodelabQuizHeaderComponent,
     IntroductionComponent,
@@ -99,7 +100,6 @@ import { AnswerTrackingService } from './shared/services/answer-tracking.service
     SummaryIconsComponent,
     SummaryStatsComponent,
     ChallengeComponent,
-    QuizQuestionComponent,
     AnswerComponent,
     SharedOptionComponent,
     FeedbackComponent,
