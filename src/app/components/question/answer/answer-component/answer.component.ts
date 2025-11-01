@@ -16,7 +16,7 @@ import { QuizQuestionLoaderService } from '../../../../shared/services/quizquest
 import { QuizQuestionManagerService } from '../../../../shared/services/quizquestionmgr.service';
 import { QuizStateService } from '../../../../shared/services/quizstate.service';
 import { SelectedOptionService } from '../../../../shared/services/selectedoption.service';
-import { BaseQuestionComponent } from '../../../../components/question/base/base-question.component';
+import { BaseQuestion } from '../../../../components/question/base/base-question';
 import { SharedOptionComponent } from '../../../../components/question/answer/shared-option-component/shared-option.component';
 
 @Component({
@@ -24,7 +24,7 @@ import { SharedOptionComponent } from '../../../../components/question/answer/sh
   templateUrl: './answer.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class AnswerComponent extends BaseQuestionComponent implements OnInit, OnChanges, AfterViewInit {
+export class AnswerComponent extends BaseQuestion implements OnInit, OnChanges, AfterViewInit {
   @ViewChildren('dynamicAnswerContainer', { read: ViewContainerRef })
   viewContainerRefs!: QueryList<ViewContainerRef>;
   viewContainerRef!: ViewContainerRef;
