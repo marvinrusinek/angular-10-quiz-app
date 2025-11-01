@@ -2137,7 +2137,7 @@ export class QuizQuestionComponent extends BaseQuestion
       this.dynamicAnswerContainer.clear();
       await Promise.resolve();
 
-      const componentRef: ComponentRef<BaseQuestionComponent> =
+      const componentRef: ComponentRef<SingleAnswerComponent | MultipleAnswerComponent> =
         await this.dynamicComponentService.loadComponent(
           this.dynamicAnswerContainer,
           isMultipleAnswer,
