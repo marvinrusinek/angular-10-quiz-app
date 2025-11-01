@@ -2222,7 +2222,7 @@ export class QuizQuestionComponent extends BaseQuestion
         idx: this.currentQuestionIndex,
       };
 
-      this.questionData = { ...instance.question, options: clonedOptions };
+      this.questionData = { ...(instance as any).question, options: clonedOptions };
       this.sharedOptionConfig = instance.sharedOptionConfig;
       this.cdRef.markForCheck();
 
