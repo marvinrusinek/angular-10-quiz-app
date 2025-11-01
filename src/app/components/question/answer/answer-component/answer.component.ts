@@ -16,7 +16,7 @@ import { QuizQuestionLoaderService } from '../../../../shared/services/quizquest
 import { QuizQuestionManagerService } from '../../../../shared/services/quizquestionmgr.service';
 import { QuizStateService } from '../../../../shared/services/quizstate.service';
 import { SelectedOptionService } from '../../../../shared/services/selectedoption.service';
-import { BaseQuestion } from '../base/base-question';
+import { BaseQuestion } from '../basex/base-question';
 import { SharedOptionComponent } from '../../../../components/question/answer/shared-option-component/shared-option.component';
 
 @Component({

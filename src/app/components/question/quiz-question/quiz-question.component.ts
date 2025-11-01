@@ -40,7 +40,7 @@ import { SharedVisibilityService } from '../../../shared/services/shared-visibil
 import { SoundService } from '../../../shared/services/sound.service';
 import { TimerService } from '../../../shared/services/timer.service';
 import { UserPreferenceService } from '../../../shared/services/user-preference.service';
-import { BaseQuestion } from '../base/base-question';
+import { BaseQuestion } from '../basex/base-question';
 import { AnswerComponent } from '../../../components/question/answer/answer-component/answer.component';
 import { SharedOptionComponent } from '../../../components/question/answer/shared-option-component/shared-option.component';
 
