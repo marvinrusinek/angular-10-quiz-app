@@ -40,7 +40,7 @@ import { SharedVisibilityService } from '../../../shared/services/shared-visibil
 import { SoundService } from '../../../shared/services/sound.service';
 import { TimerService } from '../../../shared/services/timer.service';
 import { UserPreferenceService } from '../../../shared/services/user-preference.service';
-import { BaseQuestion } from '../../../components/question/base/base-question';
+import { BaseQuestion } from '../base/base-question';
 import { SharedOptionComponent } from '../../../components/question/answer/shared-option-component/shared-option.component';
 
 type FeedbackKey = number | string;
