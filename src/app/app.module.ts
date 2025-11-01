@@ -105,7 +105,7 @@ import { AnswerTrackingService } from './shared/services/answer-tracking.service
     FeedbackComponent,
     HighlightOptionDirective,
     ResetBackgroundDirective,
-    JoinPipe,
+    JoinPipe
   ],
   imports: [
     CommonModule,
@@ -129,12 +129,12 @@ import { AnswerTrackingService } from './shared/services/answer-tracking.service
     MatToolbarModule,
     NgbModule,
     AngMusicPlayerModule,
-    IonicModule.forRoot(),
+    IonicModule.forRoot()
   ],
   exports: [
     HighlightOptionDirective,
     ResetBackgroundDirective,
-    MatExpansionModule,
+    MatExpansionModule
   ],
   providers: [
     QuizGuard,
@@ -159,7 +159,7 @@ import { AnswerTrackingService } from './shared/services/answer-tracking.service
     ResetBackgroundService,
     ResetStateService,
     SharedVisibilityService,
-    AnswerTrackingService,
+    AnswerTrackingService
   ],
   bootstrap: [AppComponent],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
