@@ -55,7 +55,7 @@ export interface FeedbackConfig {
 
 
 @Component({
-  selector: 'codelab-quiz-question',
+  selector: 'codelab-quiz-question-x',
   templateUrl: './quiz-question.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
