@@ -14,10 +14,6 @@ import { QuizService } from '../../../shared/services/quiz.service';
 import { QuizStateService } from '../../../shared/services/quizstate.service';
 import { SelectedOptionService } from '../../../shared/services/selectedoption.service';
 
-@Component({
-  selector: 'app-base-question',
-  changeDetection: ChangeDetectionStrategy.OnPush
-})
 export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDestroy
 {
   @ViewChild('dynamicAnswerContainer', { read: ViewContainerRef, static: false })
