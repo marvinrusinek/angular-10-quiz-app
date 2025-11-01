@@ -14,7 +14,7 @@ import { QuizService } from '../../../shared/services/quiz.service';
 import { QuizStateService } from '../../../shared/services/quizstate.service';
 import { SelectedOptionService } from '../../../shared/services/selectedoption.service';
 
-export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDestroy
+export abstract class BaseQuestion implements OnInit, OnChanges, OnDestroy
 {
   @ViewChild('dynamicAnswerContainer', { read: ViewContainerRef, static: false })
   dynamicAnswerContainer!: ViewContainerRef;
