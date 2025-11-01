@@ -40,7 +40,7 @@ import { SharedVisibilityService } from '../../../shared/services/shared-visibil
 import { SoundService } from '../../../shared/services/sound.service';
 import { TimerService } from '../../../shared/services/timer.service';
 import { UserPreferenceService } from '../../../shared/services/user-preference.service';
-import { BaseQuestionComponent } from '../../../components/question/base/base-question.component';
+import { BaseQuestion } from '../../../components/question/base/base-question';
 import { SharedOptionComponent } from '../../../components/question/answer/shared-option-component/shared-option.component';
 
 type FeedbackKey = number | string;
@@ -58,7 +58,7 @@ export interface FeedbackConfig {
   templateUrl: './quiz-question.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class QuizQuestionComponent extends BaseQuestionComponent
+export class QuizQuestionComponent extends BaseQuestion
   implements OnInit, OnChanges, OnDestroy, AfterViewInit {
   @ViewChild('dynamicAnswerContainer', { read: ViewContainerRef, static: false })
   dynamicAnswerContainer!: ViewContainerRef;
