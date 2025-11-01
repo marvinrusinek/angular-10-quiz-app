@@ -6,7 +6,7 @@ import { catchError, debounceTime, distinctUntilChanged, filter, map, retry, sha
 import { firstValueFrom } from '../../shared/utils/rxjs-compat';
 import { MatTooltip } from '@angular/material/tooltip';
 
-import { QuizQuestionComponent } from '../../components/question/quiz-question/quiz-question.component';
+import { QuizQuestionXComponent } from '../../components/question/quiz-question/quiz-question.component';
 import { SharedOptionComponent } from '../../components/question/answer/shared-option-component/shared-option.component';
 import { Utils } from '../../shared/utils/utils';
 import { QuizStatus } from '../../shared/models/quiz-status.enum';
@@ -75,8 +75,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   //@ViewChild(QuizQuestionComponent, { static: false })
   //quizQuestionComponent!: QuizQuestionComponent;
 
-  //@ViewChild('quizQuestionComponent', { static: false })
-  //quizQuestionComponent!: QuizQuestionComponent;
+  @ViewChild('quizQuestionComponent', { static: false })
+  quizQuestionComponent!: QuizQuestionComponent;
   
   /* set quizQuestionComponent(component: unknown) {
     this._quizQuestionComponent = component as QuizQuestionComponent;
