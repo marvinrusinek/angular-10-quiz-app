@@ -122,7 +122,7 @@ export class AnswerComponent extends BaseQuestion implements OnInit, OnChanges, 
   }
 
   async ngOnChanges(changes: SimpleChanges): Promise<void> {
-    // Let BaseQuestionComponent do its work first
+    // Execute shared BaseQuestion lifecycle logic before handling local changes
     await super.ngOnChanges?.(changes as any);
 
     let shouldMark = false;
