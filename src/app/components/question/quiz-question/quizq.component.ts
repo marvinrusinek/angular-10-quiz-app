@@ -3,7 +3,7 @@ import { BaseQuestion } from '../base/base-question';
 
 @Component({
   selector: 'quizq',
-  template: `<p>quizq works!</p>`
+  templateUrl: './quizq.component.html'
 })
 export class QuizQComponent extends BaseQuestion {
   loadDynamicComponent(...args: any[]): Promise<void> {
