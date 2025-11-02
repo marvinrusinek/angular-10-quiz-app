@@ -17,7 +17,7 @@
           [explanationToDisplay]="explanationToDisplay"
         ></codelab-quiz-content>
         
-        <codelab-quiz-question-x
+        <quizq
           [questionPayload]="qa"
           [question]="qa.question"
           [options]="qa.options"
@@ -29,7 +29,7 @@
           (answer)="selectedAnswer($event)"
           (optionSelected)="onOptionSelected($event)"
           (selectionMessageChange)="onSelectionMessageChange($event)"
-        ></codelab-quiz-question-x>
+        ></quizq>
       </ng-container>
     </mat-card-content>
 
