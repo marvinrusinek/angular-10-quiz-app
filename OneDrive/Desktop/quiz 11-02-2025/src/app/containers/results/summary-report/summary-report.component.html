@@ -1,0 +1,35 @@
+<ng-container *ngFor="let quiz of quizzes$ | async">
+  <div class="summary-report" *ngIf="quiz.quizId === (quizName$ | async)">
+    <h2>Summary Report</h2>
+    <codelab-summary-icons
+      [quizPercentage]="quizMetadata.percentage"
+    ></codelab-summary-icons>
+    <codelab-summary-stats> </codelab-summary-stats>
+
+    <br />
+
+    <span *ngIf="checkedShuffle" class="quiz-note">
+      <i class="material-icons" matTooltip="quiz note" matTooltipPosition="left"
+        >announcement</i
+      >&nbsp; <strong><em>Note:</em></strong
+      >&nbsp;Questions and answers were shuffled prior to the start of the quiz.
+    </span>
+
+    <details>
+      <summary i18n>View High Scores</summary>
+      <h2 class="high-scores-heading">High Scores</h2>
+      <table data-i18n="High Scores">
+        <tr i18n>
+          <th>Milestone</th>
+          <th>Score (%)</th>
+          <th>Date/Time</th>
+        </tr>
+        <tr *ngFor="let highScore of highScoresArray" i18n>
+          <td>{{ highScore.quizId }}</td>
+          <td>{{ highScore.score }}</td>
+          <td>{{ highScore.attemptDateTime | date: 'medium' }}</td>
+        </tr>
+      </table>
+    </details>
+  </div>
+</ng-container>

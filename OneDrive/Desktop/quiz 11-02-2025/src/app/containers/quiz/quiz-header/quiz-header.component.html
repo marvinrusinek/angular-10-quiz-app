@@ -1,0 +1,20 @@
+<mat-card-header>
+  <img
+    mat-card-avatar
+    class="header-image"
+    loading="lazy"
+    [routerLink]="['/select']"
+    matTooltip="back to Codelab Quiz Selection"
+    matTooltipPosition="left"
+  />
+  <div class="header-titles" *ngIf="currentQuiz$ | async as currentQuiz">
+    <mat-card-title i18n
+      >
+      {{ currentQuiz?.milestone || 'No questions found' }} Quiz</mat-card-title
+    >
+    <mat-card-subtitle i18n
+      >Assess your knowledge of
+      {{ currentQuiz?.milestone || 'No questions found' }}</mat-card-subtitle
+    >
+  </div>
+</mat-card-header>

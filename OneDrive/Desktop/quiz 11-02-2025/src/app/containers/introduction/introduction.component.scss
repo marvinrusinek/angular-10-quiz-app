@@ -1,0 +1,69 @@
+@import "../../../_variables.scss";
+
+mat-card-header {
+  display: block;
+
+  .header-image {
+    margin: 5px 0 0 15px;
+  }
+}
+
+.quiz-topic-image {
+  display: flex;
+  justify-content: center;
+  width: 400px;
+  height: 270px;
+  margin-top: 10px;
+  margin: 0 auto;
+}
+
+mat-card-content {
+  display: flex;
+  justify-content: center;
+  flex: 1;
+  margin-top: 5px;
+
+  span {
+    text-align: justify;
+  }
+}
+
+mat-card-actions {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding-bottom: 25px !important;
+  margin-top: -20px;
+
+  .intro-preferences {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    width: 100%;
+
+    mat-slide-toggle {
+      text-align: center;
+    }
+
+    mat-button {
+      display: block;
+      margin: 0 auto;
+      margin-top: -5px;
+      background: $vivid-blue;
+      color: $black;
+      width: 180px;
+
+      &:hover {
+        border: 2px solid $black;
+      }
+
+      &:disabled {
+        opacity: 0.65;
+        cursor: not-allowed;
+      }
+    }  
+  }
+}
