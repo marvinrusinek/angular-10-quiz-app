@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { BaseQuestion } from '../basex/base-question';
+import { BaseQuestion } from '../base/base-question';
 
 @Component({
   selector: 'quizq',
