@@ -47,8 +47,8 @@ cd quiz-app
 npm install
 ng serve
 
-
 Then visit: http://localhost:4200
+
 </p>
 
 <h3>🚘 How to Use</h3>
@@ -94,12 +94,15 @@ git clone https://github.com/YOUR_USERNAME/quiz-app.git
 cd quiz-app
 
 # Create a feature branch
+
 git checkout -b my-new-feature
 
 # Commit your changes
+
 git commit -m "Add cool feature"
 
 # Push and open a PR
+
 git push origin my-new-feature
 
 <h3>🚧 Roadmap</h3>
