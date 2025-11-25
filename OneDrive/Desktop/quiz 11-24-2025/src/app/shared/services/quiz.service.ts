@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, firstValueFrom, from, Observable, of, Subject, take } from 'rxjs';
-import { auditTime, catchError, distinctUntilChanged, filter, map, shareReplay, startWith, tap } from 'rxjs/operators';
+import { BehaviorSubject, firstValueFrom, from, Observable, of, Subject } from 'rxjs';
+import { auditTime, catchError, distinctUntilChanged, filter, map, shareReplay, startWith, take, tap } from 'rxjs/operators';
 import _, { isEqual } from 'lodash';
 
 import { QUIZ_DATA, QUIZ_RESOURCES } from '../quiz';
@@ -540,10 +540,10 @@ export class QuizService {
     return this.questions$.pipe(
       startWith(this.questionsSubject.getValue()), // Include current value
       // Wait for questions to be available (filter out empty arrays)
-      filter((questions: QuizQuestion[] | null) => 
+      filter((questions): questions is QuizQuestion[] =>
         Array.isArray(questions) && questions.length > 0
       ),
-      take(1), // Take the first emission that has questions
+      take(1),  // take the first emission that has questions
       map((questions: QuizQuestion[]) => {
         if (index < 0 || index >= questions.length) {
           console.warn(`[QuizService] Invalid index ${index}. Questions length: ${questions.length}`);
