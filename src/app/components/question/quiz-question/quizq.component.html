@@ -1,0 +1,20 @@
+<ng-container>
+  <form [formGroup]="questionForm" (ngSubmit)="onSubmit()">
+
+    <!-- Dynamic component container -->
+    <div #dynamicAnswerContainer></div>
+
+    <!-- Loading spinner -->
+    <div *ngIf="isLoading" class="loading-spinner" aria-label="Loading">
+      <!-- Enable spinner -->
+    </div>
+  </form>
+
+  <app-answer
+    *ngIf="shouldRenderOptions"
+    [questionData]="questionToDisplay"
+    [optionsToDisplay]="optionsToDisplay"
+    [currentQuestionIndex]="currentQuestionIndex"
+    (optionClicked)="onOptionClicked($event)">
+  </app-answer>
+</ng-container>

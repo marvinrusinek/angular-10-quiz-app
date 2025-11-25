@@ -1,0 +1,381 @@
+@import "../../../../variables";
+
+.options-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1rem;
+}
+
+.options-group {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.option-control {
+  width: 100%;
+}
+
+.option-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.option-wrapper {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  transition: background-color 0.5s ease;
+  padding: 0.5rem 0.75rem; // tightened
+  min-height: auto;
+}
+
+.single-option {
+  align-items: start;
+}
+
+.multiple-option {
+  align-items: start;
+}
+
+.option-item {
+  display: flex;
+  align-items: center;
+  //gap: 0.5rem;
+}
+
+.options {
+  margin: 0 0 -15px 6.5px;
+  padding: 5px;
+
+  mat-checkbox,
+  mat-radio-button {
+    display: flex;
+    cursor: pointer !important;
+    width: 630px;
+    height: auto !important;
+    font: 20px/1.35 $font-stack;
+    color: $dark-brown;
+    background-color: $light-gray;
+    border: 2px solid $medium-gray;
+    padding: 5px 10px 0px 20px; 
+    margin-left: -20px !important;
+    padding-left: -25px !important;
+    overflow: unset !important;
+    margin-bottom: 20px !important;
+    padding-bottom: -30px !important;
+
+    &:hover {
+      border: 2px solid $vivid-blue;
+    }
+
+    &:first-child {
+      margin-top: -25px;
+    }
+
+    .option-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+    }
+
+    .option-text {
+      flex-grow: 1;
+      white-space: normal;
+    }
+
+    .option-text,
+    .opt-icon {
+      pointer-events: none;
+    }
+
+    label.options {
+      cursor: pointer;
+      user-select: none;
+    }
+    
+    /* everything inside should let the click bubble up */
+    label.options * {
+      pointer-events: none;
+    }
+
+    mat-icon {
+      font-size: 30px;
+      position: absolute;
+      margin-top: -5px;
+      right: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: black;
+    }
+  }
+
+  .correct {
+    background-color: $green;
+  }
+
+  .incorrect {
+    background-color: $red;
+  }
+
+  .correct, .incorrect {
+    border: 2px solid $vivid-blue;
+  }
+
+  span {
+    white-space: normal;
+    margin-top: 5px;
+  }
+}
+
+/* the mat radio/checkbox itself is the click target */
+.option-row.mat-radio-button,
+.option-row.mat-checkbox {
+  display: flex;          /* take entire line */
+  align-items: center;
+  width: 100%;
+  padding: 8px 15px 8px 35px;
+  background: #eee;
+  border: 2px solid #ccc;
+  cursor: pointer;
+}
+
+/* stop the inner span / icon from stealing clicks */
+.option-row .opt-text,
+.option-row .opt-icon {
+  pointer-events: none;
+}
+
+/* full-width label content (Angular-Material inner span) */
+.option-row .mat-radio-label-content,
+.option-row .mat-checkbox-layout .mat-checkbox-label {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* icons stay inside the grey box */
+.opt-icon {
+  font-size: 22px;
+  vertical-align: middle;
+  line-height: 1;
+  // display: inline-flex;
+  // align-items: center;
+  margin-right: -20px;
+}
+
+mat-icon {
+  font-size: 22px;
+  vertical-align: middle;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  margin-right: -20px;
+}
+
+
+
+// Hide the default checkbox and radio button elements
+::ng-deep .mat-checkbox .mat-checkbox-frame,
+::ng-deep .mat-checkbox .mat-checkbox-background,
+::ng-deep .mat-radio-button .mat-radio-outer-circle,
+::ng-deep .mat-radio-button .mat-radio-inner-circle,
+::ng-deep .mat-radio-button .mat-radio-label-content .mat-radio-container {
+  display: none !important;
+}
+
+::ng-deep .mat-checkbox-inner-container,
+::ng-deep .mat-radio-container {
+  display: none !important;
+}
+
+// Ensure the layout is correct
+.mat-checkbox-layout,
+.mat-radio-layout {
+  display: block !important;
+}
+
+/* the wrapper Angular-Material injects for every radio/checkbox */
+/* ::ng-deep .mat-radio-label,
+::ng-deep .mat-checkbox-layout{
+  display: flex; // change from block to flex
+  align-items: center; // keep baseline aligned
+  width: 100%; // let the bar span full width
+  padding: 0; // we control spacing ourselves
+} */
+
+/* the span that holds text */
+/* ::ng-deep .mat-radio-label-content,
+::ng-deep .mat-checkbox-label {
+  display: inline; // was block – forces new line
+  white-space: normal; // allow wrapping for long answers
+} */
+
+/* make input reachable but invisible */
+/* ::ng-deep .mat-radio-container,
+::ng-deep .mat-checkbox-inner-container {
+  opacity: 0; // invisible
+  width: 0; // no visual width
+  height: 0;  // no visual height
+  margin: 0;
+  position: absolute;  // so it doesn’t disturb layout
+} */
+
+/* the label has to be the positioning anchor */
+.options, .option-row {
+  position: relative;
+}
+
+/* enlarge the REAL input – radio & checkbox variant */
+::ng-deep .mat-radio-input,
+::ng-deep .mat-checkbox-input {
+  position: absolute !important;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+/* hide the visual circles/frames */
+::ng-deep .mat-radio-outer-circle,
+::ng-deep .mat-radio-inner-circle,
+::ng-deep .mat-checkbox-frame,
+::ng-deep .mat-checkbox-background {
+  display: none !important;
+}
+
+/* put the (invisible) input on top of everything */
+::ng-deep .mat-radio-input,
+::ng-deep .mat-checkbox-input {
+  z-index: 5; // always above content
+}
+
+/* all visual children should let the click pass through */
+.option-row * {
+  pointer-events: none; // click goes straight to the input
+}
+
+
+/* @import '../../../../variables';
+
+.options {
+  display: flex;
+  align-items: center;
+  width: 630px;
+  height: auto;
+  font-family: $font-stack;
+  font-size: 20px;
+  color: $dark-brown;
+  background-color: $light-gray;
+  border: 2px solid $medium-gray;
+  padding: 10px 5px 10px 30px;
+  margin-left: 5px;
+  cursor: pointer;
+
+  &:hover {
+    border: 2px solid $vivid-blue;
+  }
+
+  .option-row {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    gap: 12px;
+  }
+
+  input[type='radio'],
+  input[type='checkbox'] {
+    margin-right: 12px;
+    transform: scale(1.2);
+    accent-color: $vivid-blue;
+    cursor: pointer;
+  }
+  
+  .option-wrapper {
+    display: flex;
+    align-items: center;
+    width: 100%;
+  }
+
+  .option-text {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-right: 10px;
+    flex-grow: 1;
+    font-size: 20px;
+    color: black;
+  }
+
+  .native-input {
+    margin-right: 12px;
+    transform: scale(1.2);
+    accent-color: $vivid-blue;
+  }
+
+  .feedback-wrapper {
+    margin-top: 8px;
+    width: 100%;
+  }
+
+  .option-text {
+    display: inline-block;
+  }
+
+  input.native-input {
+    margin-right: 12px;
+    transform: scale(1.2);
+    accent-color: $vivid-blue;
+    flex-shrink: 0;
+  }
+
+  .inline-feedback {
+    flex-shrink: 0;
+    margin-left: 10px;
+  }
+
+  .material-icons.icon {
+    flex-shrink: 0;
+    font-size: 22px;
+    // color: $dark-gray;
+  }
+
+  .feedback-row {
+    margin-top: 8px;
+    width: 100%;
+    font-size: 14px;
+    line-height: 1.5;
+    color: $dark-brown;
+  }
+}
+
+.correct {
+  background-color: $green;
+}
+
+.incorrect {
+  background-color: $red;
+}
+
+.correct,
+.incorrect {
+  border: 2px solid $vivid-blue;
+}
+
+.correct-icon {
+  color: green;
+  margin-left: 10px;
+}
+
+.incorrect-icon {
+  color: red;
+  margin-left: 10px;
+} */

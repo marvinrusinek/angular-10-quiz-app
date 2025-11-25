@@ -1,0 +1,36 @@
+@import '../../../../_variables.scss';
+@import '../../../../_mixins.scss';
+
+.score-toolbar {
+  float: left;
+  margin-left: 2rem;
+
+  .mat-menu {
+    margin-left: -40px;
+
+    .leader,
+    span.scoreboard {
+      margin: 0 0 0 40px;
+    }
+  }
+}
+
+.scoreboard-score {
+  margin-left: 5px;
+  margin-top: -10px;
+}
+
+mat-toolbar {
+  background: $white;
+}
+mat-toolbar:hover {
+  background-color: $white !important;
+}
+mat-toolbar .leader {
+  margin-left: -35px !important;
+}
+button {
+  outline: none;
+  text-transform: uppercase;
+  font-family: $font-stack;
+}

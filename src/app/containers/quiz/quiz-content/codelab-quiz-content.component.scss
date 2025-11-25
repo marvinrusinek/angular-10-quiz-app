@@ -1,0 +1,15 @@
+@import "../../../../variables";
+
+h3 {
+  float: left;
+  font-family: $font-stack;
+  margin: 5px 0 35px 6.5px;
+  padding: 10px 10px 15px 20px;
+  background-color: $light-gray;
+  border: 2px solid $vivid-blue;
+  color: $dark-brown;
+  width: 630px;
+  height: auto;
+  vertical-align: middle;
+  line-height: 1.35;
+}

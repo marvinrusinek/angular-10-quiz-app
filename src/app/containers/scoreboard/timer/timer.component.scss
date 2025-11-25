@@ -1,0 +1,35 @@
+@import '../../../../_variables.scss';
+@import '../../../../_mixins.scss';
+
+.timer-container {
+  float: right;
+  margin-right: 2rem;
+
+  button {
+    outline: none !important;
+    text-transform: uppercase;
+    font-family: $font-stack;
+
+    .timer-menu-button-text {
+      margin-left: -35px;
+      text-transform: uppercase;
+      font-family: $font-stack;
+      outline: none !important;
+    }
+  }
+
+  .mat-menu {
+    margin-left: -40px;
+    outline: none !important;
+
+    .timer-menu-button-text,
+    span.scoreboard-timer-text {
+      margin: 0 0 0 40px;
+    }
+  }
+
+  .scoreboard-timer {
+    margin-left: 5px;
+    margin-top: -10px;
+  }
+}
