@@ -1,0 +1,52 @@
+@use "../../../variables" as vars;
+
+mat-card-header {
+  display: block;
+  margin-top: 20px !important;
+
+  .header-image {
+    margin-left: 10px;
+  }
+
+  mat-card-title {
+    font-family: 'Roboto', arial, sans-serif;
+    font-size: 48px !important;
+    font-style: italic;
+    font-weight: 900;
+    color: vars.$green-angular-leaf;
+    text-shadow: 1px 0 0 vars.$black,
+                 0 -1px 0 vars.$black,
+                 0 1px 0 vars.$black,
+                 -1px 0 0 vars.$black;
+  }
+}
+
+.results {
+  display: block;
+  clear: both;
+
+  h3 {
+    font-family: vars.$congratulations-font;
+    font-size: 32px;
+    font-style: italic;
+    text-align: center;
+  }
+
+  .quiz-summary {
+    display: flex;
+    flex-direction: column;
+    margin-top: 20px;
+
+    details {
+      display: block;
+
+      summary {
+        font-size: 16px;
+        color: vars.$vivid-blue;
+        font-weight: vars.$font-weight-max;
+        outline: none;
+        text-align: center;
+      }
+    }
+  }
+}

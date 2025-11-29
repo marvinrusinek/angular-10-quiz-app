@@ -1,0 +1,45 @@
+@use "variables" as vars;
+@use 'sass:color';
+
+@mixin leader {
+  display: block;
+  font-family: vars.$font-stack;
+  font-weight: vars.$font-weight-max;
+  font-size: 18px;
+  text-transform: uppercase;
+  position: relative;
+  padding: 0 10px;
+  background-color: color.scale(vars.$pastel-green, $lightness: -5%);
+  color: vars.$black;
+  border-radius: 5px;
+  text-align: center;
+}
+
+@mixin scoreboard-span {
+  font-family: 'DjbUpOnTheScoreboard', vars.$font-stack;
+  font-weight: vars.$font-weight-max;
+  font-size: 30px;
+  color: color.scale(vars.$dark-green, $lightness: -5%);
+  display: inline-block;
+}
+
+@mixin message {
+  font-weight: vars.$font-weight-max;
+  font-style: italic;
+  font-size: 16px;
+  border-radius: 5px;
+  word-wrap: break-word;
+}
+
+
+.leader {
+  @include leader;
+}
+
+span.scoreboard {
+  @include scoreboard-span;
+}
+
+.message, .correct-message, .wrong-message {
+  @include message;
+}

@@ -1,0 +1,15 @@
+<app-shared-option 
+  *ngIf="optionsToDisplay?.length"
+  [optionsToDisplay]="optionsToDisplay"
+  [optionBindings]="optionBindings"
+  [questionIndex]="currentQuestionIndex"
+  [currentQuestionIndex]="currentQuestionIndex"
+  [questionVersion]="questionVersion"
+  [quizId]="quizId"
+  [renderReady]="renderReady"
+  [config]="sharedOptionConfig"
+  [showFeedbackForOption]="showFeedbackForOption"
+  [isNavigatingBackwards]="isNavigatingBackwards"
+  (optionClicked)="onOptionClicked($any($event))"
+  [attr.data-key]="questionVersion"
+></app-shared-option>

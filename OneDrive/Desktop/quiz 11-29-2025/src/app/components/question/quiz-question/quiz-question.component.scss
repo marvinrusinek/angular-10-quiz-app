@@ -1,0 +1,157 @@
+@use "../../../../variables" as vars;
+
+/* Base layout for options */
+.options-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1rem;
+}
+
+.options-group {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.option-control {
+  width: 100%;
+}
+
+.option-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.option-wrapper {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  transition: background-color 0.3s ease;
+  padding: 0.5rem 0.75rem;
+}
+
+.option-item {
+  display: flex;
+  align-items: center;
+}
+
+/* ────────────────────────────────────────────────
+   MAIN OPTION BOX (replaces visible radio/checkbox)
+──────────────────────────────────────────────────*/
+/* ────────────────────────────────────────────────
+   Restore Angular-10 option text size & left alignment
+──────────────────────────────────────────────────*/
+/* ────────────────────────────────────────────────
+   Re-enable visible rectangular option boxes
+──────────────────────────────────────────────────*/
+.options {
+  margin-left: -5px;
+
+  mat-radio-button,
+  mat-checkbox {
+    /* Create the rectangular box visually */
+    background-color: vars.$light-gray;
+    border: 2px solid vars.$medium-gray;
+    border-radius: 4px;
+    padding: 10px;
+    margin-left: -10px;
+    margin-bottom: 10px;
+    box-sizing: border-box;
+    width: 610px;
+    display: flex !important;
+    align-items: center;
+    justify-content: flex-start;
+    position: relative;
+    cursor: pointer;
+    transition: border-color 0.25s ease, background-color 0.25s ease;
+
+    &:hover {
+      border-color: vars.$vivid-blue;
+    }
+
+    /* Maintain consistent text appearance */
+    .option-text {
+      font-family: vars.$font-stack;
+      font-size: 20px;
+      color: vars.$dark-brown;
+      flex-grow: 1;
+      margin-left: -20px;
+    }
+
+    /* keep icons to the right edge */
+    mat-icon {
+      position: absolute;
+      right: 20px;
+      font-size: 28px;
+      color: vars.$black;
+    }
+  }
+
+  /* feedback states */
+  .correct {
+    background-color: vars.$green;
+    border-color: vars.$vivid-blue;
+  }
+
+  .incorrect {
+    background-color: vars.$red;
+    border-color: vars.$vivid-blue;
+  }
+}
+
+
+/* ────────────────────────────────────────────────
+   HIDE all MDC radio/checkbox visuals (Angular 20)
+──────────────────────────────────────────────────*/
+::ng-deep .mat-mdc-radio-touch-target,
+::ng-deep .mat-mdc-radio-ripple,
+::ng-deep .mat-mdc-radio-button .mdc-radio__background,
+::ng-deep .mat-mdc-checkbox-touch-target,
+::ng-deep .mat-mdc-checkbox-ripple,
+::ng-deep .mat-mdc-checkbox .mdc-checkbox__background,
+::ng-deep .mdc-radio__native-control,
+::ng-deep .mdc-checkbox__native-control {
+  display: none !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+/* keep label text area as the click target */
+::ng-deep .mat-mdc-radio-button,
+::ng-deep .mat-mdc-checkbox {
+  cursor: pointer;
+  user-select: none;
+}
+
+/* ensure click region covers full option box */
+::ng-deep .mat-mdc-radio-button input[type="radio"],
+::ng-deep .mat-mdc-checkbox input[type="checkbox"] {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+  margin: 0;
+  z-index: 2;
+}
+
+/* allow text & icons to show above invisible input */
+.option-text,
+.opt-icon,
+mat-icon {
+  pointer-events: none;
+  position: relative;
+  z-index: 1;
+}
+
+/* alignment fixes for Angular 20 MDC labels */
+::ng-deep .mat-mdc-radio-label-content,
+::ng-deep .mat-mdc-checkbox .mdc-form-field {
+  display: flex !important;
+  align-items: center !important;
+  width: 100%;
+}

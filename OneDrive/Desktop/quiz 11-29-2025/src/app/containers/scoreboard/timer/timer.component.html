@@ -1,0 +1,14 @@
+<ng-container class="timer-container">
+    <div class="timer-menu-container">
+      <button mat-button [matMenuTriggerFor]="timerMenu" aria-label="Timer menu">
+        <span class="timer-menu-button-text leader" i18n>Timer &#x25BC;</span>
+      </button>
+      <mat-menu #timerMenu="matMenu">
+        <button mat-menu-item (click)="setTimerType(timerType.Countdown)" aria-label="Set to Countdown" i18n>Countdown</button>
+        <button mat-menu-item (click)="setTimerType(timerType.Stopwatch)" aria-label="Set to Stopwatch" i18n>Stopwatch</button>
+      </mat-menu>
+    </div>
+    <section class="scoreboard-timer">
+      <span class="scoreboard" i18n>0:{{ (timeLeft$ | async) | number: '2.0-0' }}</span>
+    </section>
+  </ng-container>

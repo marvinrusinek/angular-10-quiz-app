@@ -1,0 +1,93 @@
+<mat-accordion #accordion="matAccordion">
+  @for (question of questions; track $index; let i = $index) {
+    <mat-expansion-panel
+      class="quiz-summary-question"
+      (opened)="panelOpenState = true"
+      (closed)="panelOpenState = false"
+      hideToggle="true"
+    >
+      <mat-expansion-panel-header>
+        <mat-panel-description>
+          <i class="material-icons accordion-icon">
+            {{ panelOpenState ? 'remove' : 'add' }}
+          </i>
+        </mat-panel-description>
+
+        <mat-panel-title>
+          <span class="question-leader">Question #{{ i + 1 }}:</span>&nbsp;&nbsp;
+          <span class="question-text">{{ question.questionText }}</span>
+        </mat-panel-title>
+
+        <ng-template matExpansionPanelContent>
+          @if ((correctAnswers.length || 0) > 0) {
+            <ul class="quiz-summary-fields">
+              <!-- USER ANSWERS -->
+              <li>
+                <span class="leader">Your Answer(s):</span>
+
+                @if (results.userAnswers[i]) {
+                  {{ results.userAnswers[i].length === 1 ? 'Option' : 'Options' }}
+                  {{ results.userAnswers[i] | join }} &mdash;
+
+                  @for (item of results.userAnswers[i]; track $index; let isLast = $last) {
+                    {{ question.options[item - 1].text }}
+                    @if (!isLast) { <span> AND </span> }
+                  }
+
+                  <!-- Correct / Incorrect Icons -->
+                  @if (!checkIfAnswersAreCorrect(correctAnswers, results.userAnswers, i)) {
+                    <mat-icon class="incorrect">clear</mat-icon>
+                  }
+                  @else {
+                    <mat-icon class="correct">done</mat-icon>
+                  }
+                }
+                @else {
+                  <span>(no answer provided)</span>
+                }
+              </li>
+
+              <!-- CORRECT ANSWERS -->
+              <li>
+                <span class="leader">Correct Answer(s):</span>
+                {{ correctAnswers.length === 1 ? 'Option' : 'Options' }}
+
+                @if (correctAnswers.length === 1) {
+                  {{ correctAnswers[0] }} &mdash;
+                  {{ question.options[correctAnswers[0] - 1].text }}
+                }
+                @else {
+                  @for (item of correctAnswers; track $index; let isLast = $last) {
+                    {{ question.options[item - 1].text }}
+                    @if (!isLast) { <span> AND </span> }
+                  }
+                  &mdash; were correct because {{ question.explanation }}.
+                }
+              </li>
+
+              <!-- EXPLANATION -->
+              <li>
+                <span class="leader">Explanation:</span>
+
+                @if (correctAnswers.length === 1) {
+                  Option {{ correctAnswers[0] }} was correct because
+                  {{ question.explanation }}.
+                }
+                @else {
+                  Options {{ correctAnswers | join }} were correct because
+                  {{ question.explanation }}.
+                }
+              </li>
+
+              <!-- ELAPSED TIME -->
+              <li>
+                <span class="leader">Elapsed Time:</span>
+                <span>{{ results.elapsedTimes[i] }} seconds</span>
+              </li>
+            </ul>
+          }
+        </ng-template>
+      </mat-expansion-panel-header>
+    </mat-expansion-panel>
+  }
+</mat-accordion>

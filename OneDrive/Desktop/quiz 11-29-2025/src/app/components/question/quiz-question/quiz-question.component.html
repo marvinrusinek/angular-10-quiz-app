@@ -1,0 +1,20 @@
+<ng-container>
+  <form [formGroup]="questionForm" (ngSubmit)="onSubmit()">
+  
+    <!-- Dynamic component container -->
+    <div #dynamicAnswerContainer></div>
+  
+    <!-- Loading spinner -->
+    <div *ngIf="isLoading" class="loading-spinner" aria-label="Loading">
+      <!-- Enable spinner -->
+    </div>
+  </form>
+  
+  <codelab-question-answer
+    *ngIf="shouldRenderOptions && questionToDisplay"
+    [questionData]="questionToDisplay"
+    [optionsToDisplay]="optionsToDisplay"
+    [currentQuestionIndex]="currentQuestionIndex"
+    (optionClicked)="onOptionClicked($any($event))">
+  </codelab-question-answer>
+</ng-container>

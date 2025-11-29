@@ -1,0 +1,58 @@
+@use '../../../_variables' as vars;
+
+mat-card {
+  border: none;
+  height: auto;
+  padding: 0;
+}
+
+mat-card-content {
+  padding: 0;
+}
+
+.scoreboard {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  // padding: 0 15px;
+  margin: 0;
+  box-sizing: border-box;
+
+  .scoreboard__score {
+    margin: 0;
+  }
+
+  .scoreboard__timer {
+    margin: 0;
+  }
+
+  .scoreboard__badge {
+    font-family: vars.$font-stack;
+    font-size: 26px;
+    font-weight: vars.$font-weight-max;
+    font-style: italic;
+    color: vars.$dark-green;
+    margin: 0 10px;
+    line-height: 1.2;
+  }
+}
+
+/* shrink internal spacing on small screens */
+@media (max-width: 600px) {
+  .scoreboard {
+    padding: 0 10px;
+    .scoreboard__badge {
+      font-size: 22px;
+    }
+  }
+}
+
+
+/* .jumbotron {
+  background: linear-gradient(135deg, #1e88e5, #42a5f5);
+  color: #fff;
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+} */

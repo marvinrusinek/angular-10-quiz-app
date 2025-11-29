@@ -1,0 +1,89 @@
+@use "../../../../variables" as vars;
+
+.summary-report {
+  border: 2px double vars.$black;
+  margin: 0 auto;
+  margin-top: 15px;
+  margin-bottom: 25px;
+  width: 520px;
+  padding: 5px;
+  clear: both;
+ 
+  h2 {
+    text-align: center;
+    font-weight: vars.$font-weight-max;
+  }
+
+  ul {
+    margin-left: -15px;
+
+    li {
+      list-style-type: none;
+
+      .summary-stats-leader {
+        font-size: 16px;
+        font-weight: vars.$font-weight-max;
+        color: vars.$green-angular-leaf;
+      }
+      .result {
+        font-family: vars.$font-stack;
+        font-size: 20px;
+      }
+    }
+  }
+
+  .quiz-note {
+    font-family: vars.$font-stack;
+    font-size: 16px;
+    display: flex;
+    justify-content: center;
+    word-wrap: break-word;
+    margin-left: 10px;
+  }
+
+  details {
+    summary {
+      font-family: vars.$font-stack;
+      text-align: center;
+      font-size: 16px;
+      font-weight: vars.$font-weight-max !important;
+      color: vars.$light-sea-green;
+    }
+
+    .high-scores-heading {
+      font-family: vars.$font-stack;
+      font-weight: vars.$font-weight-max;
+      text-align: center !important;
+    }
+
+    table {
+      margin-left: 5%;
+      margin-bottom: 15px;
+      font-family: vars.$font-stack;
+
+      tr {
+        &:nth-child(even) {
+          background-color: vars.$white-smoke;
+        }
+
+        &:hover {
+          background-color: vars.$green;
+        }
+
+        th {
+          text-transform: uppercase;
+          border-bottom: 1px solid vars.$black;
+          background-color: vars.$dark-green;
+          color: vars.$white;
+          text-align: center;
+          font-weight: vars.$font-weight-max;
+        }
+      }
+
+      th,
+      td {
+        padding-right: 20px;
+      }
+    }
+  }
+}

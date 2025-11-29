@@ -1,0 +1,17 @@
+@use "../../../../variables" as vars;
+
+h3 {
+  float: left;
+  font-family: vars.$font-stack;
+  font-size: 30px;
+  font-weight: 500;
+  margin: 5px 0 10px 0;
+  padding: 10px 20px 15px 20px;
+  background-color: vars.$light-gray;
+  border: 2px solid vars.$vivid-blue;
+  color: vars.$dark-brown;
+  width: 565px;
+  height: auto;
+  vertical-align: middle;
+  line-height: 1.35;
+}

@@ -1,0 +1,90 @@
+<ng-container>
+  @if (combinedQuestionData$ | async; as qa) {
+    <mat-card @changeRoute (@changeRoute.done)="animationDoneHandler()">
+      <codelab-quiz-header />
+
+      <mat-card-content>
+        <codelab-scoreboard />
+
+        <ng-content></ng-content>
+
+        <codelab-quiz-content [questionToDisplay$]="questionToDisplay$" [explanationToDisplay]="explanationToDisplay" [correctAnswersText]="correctAnswersText" />
+
+        <codelab-quiz-question [questionPayload]="qa" [question]="qa.question" [options]="qa.options"
+                               [explanation]="qa.explanation" [displayState$]="displayState$" [shouldRenderOptions]="shouldRenderOptions"
+                               [questionToDisplay$]="questionToDisplay$" [explanationToDisplay]="explanationToDisplay"
+                               (answer)="selectedAnswer($any($event))" (optionSelected)="onOptionSelected($any($event))"
+                               (selectionMessageChange)="onSelectionMessageChange($any($event))"
+                               (explanationToDisplayChange)="onExplanationChanged($event)"
+                               (showExplanationChange)="onShowExplanationChanged($event)" />
+      </mat-card-content>
+
+      <!-- Footer -->
+      <mat-card-footer [ngClass]="cardFooterClass">
+        @if (selectionMessage$ | async; as message) {
+          <h5 class="instructions-message">{{ message }}</h5>
+        }
+
+        <!-- NAVIGATION -->
+        @if (showPaging) {
+          <section class="paging">
+            <mat-card-actions [class.last-question]="shouldApplyLastQuestionClass">
+              @if (shouldShowPrevButton) {
+                <div class="prev-question-nav">
+                  <button type="button" matTooltip="« Previous Question" matTooltipPosition="above"
+                          aria-label="Previous Question" (click)="advanceToPreviousQuestion()">
+                    <i class="material-icons">navigate_before</i>
+                  </button>
+                </div>
+              }
+
+              @if (shouldShowRestartButton) {
+                <div class="restart-nav">
+                  <button type="button" (click)="restartQuiz()" matTooltip="Restart Quiz" matTooltipPosition="above"
+                          aria-label="Restart Quiz">
+                    <i class="material-icons">replay</i>
+                  </button>
+                </div>
+              }
+
+              @if (shouldShowNextButton) {
+                <div class="next-question-nav">
+                  <button type="button" #nextButton="matTooltip" [disabled]="!(nextButtonEnabled$ | async)"
+                          (click)="advanceToNextQuestion()" matTooltipPosition="above" [matTooltip]="nextButtonTooltip$ | async"
+                          aria-label="Next Question">
+                    <i class="material-icons">navigate_next</i>
+                  </button>
+                </div>
+              }
+
+              @if (shouldShowResultsButton) {
+                <div class="show-score-nav">
+                  <button type="submit" (click)="advanceToResults()" class="btn btn-outline-primary"
+                          aria-label="Show Results">
+                    <i class="material-icons">score</i>&nbsp;&nbsp;
+                    <strong>Show Results</strong>
+                  </button>
+                </div>
+              }
+            </mat-card-actions>
+          </section>
+        }
+
+        <!-- Progress Bar -->
+        <section class="quiz-progress">
+          <div class="progress" style="height: 1.5rem;">
+            <div
+              class="progress-bar bg-success progress-bar-striped progress-bar-animated"
+              role="progressbar"
+              [style.width.%]="(progress$ | async) || 0"
+            >
+              <strong>{{ ((progress$ | async) || 0) | number:'1.0-0' }}%</strong>
+            </div>
+          </div>
+        </section>
+      </mat-card-footer>
+    </mat-card>
+  } @else {
+  <p>Loading question and options.</p>
+}
+</ng-container>

@@ -1,0 +1,18 @@
+<mat-card>
+  <mat-card-content>
+    <main class="scoreboard">
+      <codelab-scoreboard-score class="scoreboard__score" />
+
+      <span
+        class="scoreboard__badge"
+        i18n
+        *ngIf="badgeText$ | async as badgeText"
+        role="status"
+      >
+        {{ badgeText }}
+      </span>
+
+      <codelab-scoreboard-timer class="scoreboard__timer" />
+    </main>
+  </mat-card-content>
+</mat-card>

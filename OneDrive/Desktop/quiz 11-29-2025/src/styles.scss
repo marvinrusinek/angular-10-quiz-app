@@ -1,0 +1,239 @@
+@use '@angular/material' as mat;
+@use '_variables' as vars;
+@use '_mixins' as mix;
+@import '@angular/material/prebuilt-themes/deeppurple-amber.css';
+
+/* ─────────────────────────────────────────────
+   FONT IMPORTS (same as before)
+───────────────────────────────────────────────*/
+@font-face {
+  font-family: 'Material Icons';
+  font-style: normal;
+  font-weight: 400;
+  src: url(https://fonts.gstatic.com/s/materialicons/v47/flUhRq6tzZclQEJ-Vdg-IuiaDsNc.woff2)
+    format('woff2');
+}
+
+.material-icons {
+  font-family: 'Material Icons';
+  font-weight: normal;
+  font-style: normal;
+  font-size: 24px;
+  line-height: 1;
+  display: inline-block;
+  -webkit-font-smoothing: antialiased;
+}
+
+@font-face {
+  font-family: 'DjbUpOnTheScoreboard';
+  src: url(vars.$scoreboard-font) format('truetype');
+  font-display: swap;
+}
+@font-face {
+  font-family: 'LucidaUnicodeCalligraphy';
+  src: url(vars.$congratulations-font) format('truetype');
+  font-display: swap;
+}
+
+/* ─────────────────────────────────────────────
+   GLOBAL MATERIAL MDC RESET → RESTORE ANGULAR 10 DENSITY
+───────────────────────────────────────────────*/
+html, body {
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+  font-size: 14px;                // tighter baseline
+  line-height: 1.4;
+}
+
+/* Compact buttons */
+.mat-mdc-button,
+.mat-mdc-raised-button,
+.mat-mdc-outlined-button {
+  min-height: 32px !important;
+  padding: 0 12px !important;
+  font-size: 13px !important;
+  letter-spacing: 0.015em;
+}
+
+/* Compact slide toggle */
+.mat-mdc-slide-toggle {
+  --mdc-switch-track-width: 36px;
+  --mdc-switch-track-height: 18px;
+  --mdc-switch-handle-width: 14px;
+  --mdc-switch-handle-height: 14px;
+  --mdc-switch-handle-shape: 14px;
+  font-size: 14px;
+  line-height: 1.2;
+}
+
+/* Compact form fields (if used later) */
+.mat-mdc-form-field {
+  --mat-mdc-form-field-label-text-size: 13px;
+  --mat-mdc-form-field-container-height: 38px;
+}
+
+/* Compact cards — aligns to Angular 10 look */
+.mat-mdc-card,
+mat-card {
+  border-radius: 4px !important;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.25) !important;
+  margin: 12px auto;
+  padding: 16px !important;
+  max-width: 680px;
+  background: #fff;
+  border: 1.5px solid vars.$black;
+
+  .mat-mdc-card-header,
+  mat-card-header {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 8px 16px !important;
+    border-bottom: 1px solid rgba(0,0,0,0.1);
+
+    .mat-mdc-card-title,
+    mat-card-title {
+      font-family: vars.$font-stack;
+      font-weight: vars.$font-weight-max;
+      font-size: 28px !important;
+      margin: -10px 0 6px 10px;
+      color: vars.$vivid-blue;
+      text-align: center;
+    }
+
+    .mat-mdc-card-subtitle,
+    mat-card-subtitle {
+      font-family: vars.$font-stack;
+      font-weight: vars.$font-weight-max;
+      font-size: 16px !important;
+      font-style: italic;
+      color: vars.$gray;
+      text-align: center;
+    }
+
+    .header-image {
+      float: left;
+      background: url(vars.$header-image) no-repeat center center;
+      background-size: contain;
+      margin: -10px 0 0 -40px;
+      height: 90px !important;
+      width: 160px !important;
+    }
+  }
+
+  .mat-mdc-card-content,
+  mat-card-content {
+    padding: 12px 16px 16px 16px !important;
+    box-sizing: border-box;
+  }
+
+  .mat-mdc-card-actions,
+  mat-card-actions {
+    display: flex;
+    justify-content: flex-end;
+    padding: 8px 16px 12px 16px;
+  }
+}
+
+/* ─────────────────────────────────────────────
+   TEXT + QUIZ BODY RESTORATION
+───────────────────────────────────────────────*/
+.question-text,
+.option-text {
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+.option-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* ─────────────────────────────────────────────
+   PREVIOUS STYLES (unchanged)
+───────────────────────────────────────────────*/
+.previous-answer-text {
+  clear: both;
+
+  div {
+    font-family: vars.$font-stack;
+    font-size: 16px;
+    display: flex;
+    justify-content: center;
+
+    span {
+      font-weight: vars.$font-weight-max;
+      font-style: italic;
+    }
+  }
+}
+
+.deactivated-option {
+  background-color: #a3a3a3;
+  pointer-events: none !important;
+  opacity: 0.4;
+  cursor: not-allowed !important;
+}
+
+.correct-count {
+  color: vars.$dark-green;
+  font-style: italic;
+  font-weight: 400;
+}
+
+/* ─────────────────────────────────────────────
+   LOADER (unchanged)
+───────────────────────────────────────────────*/
+.preload {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100px;
+  height: 100px;
+}
+
+.preload div {
+  border: 0;
+  margin: 0;
+  width: 40%;
+  height: 40%;
+  position: absolute;
+  border-radius: 50%;
+  animation: spin 2s ease infinite;
+}
+
+.preload :first-child {
+  background: #19a68c;
+  animation-delay: -1.5s;
+}
+
+.preload :nth-child(2) {
+  background: #f63d3a;
+  animation-delay: -1s;
+}
+
+.preload :nth-child(3) {
+  background: #fda543;
+  animation-delay: -0.5s;
+}
+
+.preload :last-child {
+  background: #193b48;
+}
+
+@keyframes spin {
+  0%,
+  100% {
+    transform: translate(0);
+  }
+  25% {
+    transform: translate(160%);
+  }
+  50% {
+    transform: translate(160%, 160%);
+  }
+  75% {
+    transform: translate(0, 160%);
+  }
+}

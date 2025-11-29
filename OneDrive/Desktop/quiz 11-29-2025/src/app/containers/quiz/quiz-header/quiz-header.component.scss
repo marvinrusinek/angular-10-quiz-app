@@ -1,0 +1,34 @@
+mat-card-header {
+    display: block;
+    border: none;
+  
+    .header-image {
+      float: left;
+      margin: -15px 0 0 15px;
+    }
+  
+    .header-titles {
+      float: left;
+      margin-top: -90px;
+  
+      mat-card-title {
+        display: inline-block;
+        margin-top: 40px;
+        margin-left: 25px;
+        font-size: 40px;
+        padding-top: 15px;
+        padding-bottom: 10px;
+        white-space: nowrap;
+      }
+  
+      mat-card-subtitle {
+        display: block;
+        float: right;
+        margin-top: -10px !important;
+        margin-right: 20px !important;
+        clear: both;
+        white-space: nowrap;
+      }
+    }
+  }
+  

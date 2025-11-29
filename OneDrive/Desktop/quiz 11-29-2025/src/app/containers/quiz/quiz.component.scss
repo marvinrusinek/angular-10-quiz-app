@@ -1,0 +1,134 @@
+@use "../../../variables" as vars;
+@use "sass:color";
+
+mat-card {
+  height: auto !important;
+  display: block;
+
+  mat-card-footer {
+    display: block;
+    clear: left;
+    text-align: center;
+    margin-bottom: -20px;
+    
+    .instructions-message {
+      font-family: vars.$font-stack;
+      font-size: 16px;
+      font-weight: bold;
+      font-style: italic;
+      display: flex;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+
+    .paging {
+      width: 640px;
+      margin: 0 auto 24px auto;
+      box-sizing: border-box;
+
+      mat-card-actions {
+        display: flex !important;
+        justify-content: space-between !important; // prev | restart | next
+        align-items: center;
+        width: 100%;
+        padding: 8px 20px; // ✅ 20px space on both sides
+        margin: 0;
+        box-sizing: border-box;
+        gap: 0; // no extra gaps
+
+        /* ---- Button base ---- */
+        button {
+          background-color: white;
+          border: none;
+          box-shadow: none;
+          cursor: pointer;
+          padding: 4px 10px;
+          transition: transform 0.25s ease, color 0.25s ease;
+
+          &:focus {
+            outline: none;
+          }
+
+          &:hover {
+            color: color.scale(vars.$dodger-blue, $lightness: -20%);
+            transform: scale(1.15);
+          }
+        }
+
+        /* ---- Icon sizes ---- */
+        .prev-question-nav i,
+        .next-question-nav i {
+          font-size: 72px;
+          color: vars.$dodger-blue;
+          line-height: 1;
+        }
+
+        .restart-nav i {
+          font-size: 60px;
+          color: vars.$dodger-blue;
+          line-height: 1;
+        }
+
+        /* ---- Layout per section ---- */
+        .prev-question-nav {
+          flex: 1;               // left edge
+          display: flex;
+          justify-content: flex-start;
+        }
+
+        .restart-nav {
+          flex: 1;               // middle
+          display: flex;
+          justify-content: center;
+        }
+
+        .next-question-nav {
+          flex: 1;               // right edge
+          display: flex;
+          justify-content: flex-end;
+        }
+
+        .show-score-nav {
+          flex-basis: 100%;
+          display: flex;
+          justify-content: center;
+          margin-top: 20px;
+
+          button {
+            width: 150px;
+            padding-top: 6px;
+            padding-bottom: 6px;
+          }
+        }
+      }
+    }
+
+    /* .progress-bar {
+      width: 630px;
+      border-radius: 30px;
+      margin: 70px 0 10px 15px;
+      background-color: vars.$green;
+
+      ngb-progressbar {
+        height: 20px;
+      }
+    } */
+
+    .quiz-progress {
+      width: 630px;
+      border-radius: 30px;
+      margin: 70px 0 10px 15px;
+      background-color: vars.$white;
+
+      ngb-progressbar {
+        height: 20px;
+      }
+    }
+
+    /* stripes animation */
+    @keyframes quizProgressStripes {
+      from { background-position: 0 0; }
+      to   { background-position: 40px 0; }
+    }   
+  }
+}
